@@ -1,5 +1,13 @@
-gmake targets of interest:
+This directory is still being structured!
 
-    check:  A test program
-    
-    
+Right now, the makefiles are entirely local, but eventually
+they'll be moved to a non-recursive make structure.  In the 
+meantime, cd to whatever leaf directory and do make there.
+
+  cd src/interface/common
+  make check
+  
+
+the "check" programs are placeholders that will eventually be removed
+in favor of real tests resident in the "test" directory tree.
+
