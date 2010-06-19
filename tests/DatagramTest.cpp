@@ -2,7 +2,7 @@
 // DatagramTests
 //   Tests for OpenLCB Datagrams support
 // 
-//   Bob Jacobsen 2010
+//   Bob Jacobsen 2010 
 //===========================================================
 #include <ctype.h>
 #include <stdarg.h>
