@@ -1,13 +1,19 @@
-This directory is still being structured!
 
-Right now, the makefiles are entirely local, but eventually
-they'll be moved to a non-recursive make structure.  In the 
-meantime, cd to whatever leaf directory and do make there.
+"make" of a directory does clean/compile/lib/link. 
+The Makefiles currently leave the results in the same directory.
 
-  cd src/interface/common
-  make check
-  
+To build and run a test executable:
+ make all && CanMrrlcbTest
+ 
+See Makefile and standard.mk for more build information.
 
-the "check" programs are placeholders that will eventually be removed
-in favor of real tests resident in the "test" directory tree.
+The code in src/openlcb is common with the Ardunio 
+prototype (svn linked).  For more information on that
+structure, see:
+
+http://openlcb.org/trunk/prototypes/Arduino/libraries/OpenLCB/README.html
+
+This software is part of the OpenLCB project and is copyrighted by
+the authors.  Use is governed by a license.
+
 
