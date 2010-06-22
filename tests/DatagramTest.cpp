@@ -1,5 +1,5 @@
 //===========================================================
-// DatagramTests
+// DatagramTest
 //   Tests for OpenLCB Datagrams support
 // 
 //   Bob Jacobsen 2010 
@@ -45,7 +45,7 @@ unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length
   printf("\n");
   return resultcode;  // return pre-ordained result
 }
-Datagram dg(&txBuffer, datagramCallback);
+Datagram dg(&txBuffer, datagramCallback, &link);
 
 /**
  * This setup is just for testing
@@ -53,7 +53,7 @@ Datagram dg(&txBuffer, datagramCallback);
 void setup()
 {
   // show we've started to run
-  printf("Starting CanMrrlcbTest\n");
+  printf("Starting DatagramTest\n");
     
   // Initialize OpenLCB CAN connection
   OpenLcb_can_init();
@@ -106,6 +106,11 @@ void loop() {
 
 
 }
+
+
+// =======================================
+// end of demo program, start of test code
+// =======================================
 
 void doLoop(int n) {
 	for (int i = 0; i < n; i++) {

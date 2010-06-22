@@ -3,12 +3,14 @@
 
 #include "OpenLcbCan.h"
 #include "OpenLcbCanBuffer.h"
+#include "LinkControl.h"
 #include "Datagram.h"
 
 #include "logging.h"
 
-Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length)) {
+Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length), LinkControl* ln) {
       buffer = b;
+      link = ln;
       callback = cb; 
       reserved = false;
       sendcount = -1;
@@ -60,9 +62,8 @@ void Datagram::check() {
 }
 
 void Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
-    // TODO: Proper handling checking of our address (dummy is 0x6ba now)
     // check for datagram reply, which can free buffer
-    if ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, 0x6ba) )
+    if ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )
          && (dest == rcv->getSourceAlias()) 
          && (rcv->length == 1) ) {
         // for this node, check meaning
@@ -78,17 +79,16 @@ void Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
         }
     }
     // check for datagram fragment received
-    // TODO: Proper handling checking of our address (dummy is 0x6ba now)
     // TODO: Check for correct source (prevent overlapping reception)
     if ( (true)   // saved for address check
-          && ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM, 0x6ba) )
-                || (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, 0x6ba) ) ) ) {
+          && ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM, link->getAlias()) )
+                || (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, link->getAlias()) ) ) ) {
          // this is a datagram fragment, store into the buffer
          for (int i=0; i<rcv->length; i++) {
             *(rptr++) = rcv->data[i];
          }
          // is the end of the datagram?
-         if (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, 0x6ba) ) {
+         if (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, link->getAlias()) ) {
             // 
             unsigned int length = rptr-rbuf;
             // callback

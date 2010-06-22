@@ -12,6 +12,7 @@
 
 #define DATAGRAM_LENGTH 70
 class OpenLcbCanBuffer;
+class LinkControl;
 
 class Datagram {
   public:
@@ -41,11 +42,12 @@ class Datagram {
    */
   void receivedFrame(OpenLcbCanBuffer* rcv);
   
-  Datagram(OpenLcbCanBuffer* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length));
+  Datagram(OpenLcbCanBuffer* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length), LinkControl* link);
   
   private:
   OpenLcbCanBuffer* buffer;
-
+  LinkControl* link;
+  
   uint8_t tbuf[DATAGRAM_LENGTH];
   int sendcount;
   int resendcount;

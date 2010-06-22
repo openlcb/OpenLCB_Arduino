@@ -1,6 +1,6 @@
 new key  alias 
 --------------
-Starting CanMrrlcbTest
+Starting DatagramTest
 OpenLcb_can_init
 new key  alias 
 setup done
