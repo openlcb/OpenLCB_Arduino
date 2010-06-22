@@ -2,14 +2,17 @@
 
 include ../standard.mk
 
-BINFILES := CanMrrlcbTest DatagramTest
+BINFILES := StreamTest DatagramTest CanMrrlcbTest 
 
 default: clean compile $(BINFILES) 
 	
+CanMrrlcbTest:
+	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold CanMrrlcbTest.o -o CanMrrlcbTest
+
 DatagramTest:
 	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold DatagramTest.o -o DatagramTest
 
-CanMrrlcbTest:
-	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold CanMrrlcbTest.o -o CanMrrlcbTest
+StreamTest:
+	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold StreamTest.o -o StreamTest
 
 

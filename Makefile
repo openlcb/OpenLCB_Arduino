@@ -21,5 +21,6 @@ FORCE:
 
 # run known tests; silent if no errors
 run: all
-	@./tests/CanMrrlcbTest | diff - tests/results/CanMrrlcbTest.out.txt
+	@./tests/StreamTest | diff - tests/results/StreamTest.out.txt
 	@./tests/DatagramTest | diff - tests/results/DatagramTest.out.txt
+	@./tests/CanMrrlcbTest | diff - tests/results/CanMrrlcbTest.out.txt
