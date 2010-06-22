@@ -37,11 +37,15 @@ NodeID nodeid(2,3,4,5,6,7);    // This node's ID
 
 LinkControl link(&txBuffer, &nodeid);
 
-void datagramCallback(int index){
+unsigned int resultcode;
+unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length){
   // invoked when a datagram arrives
-  printf("consume %d\n",index);
+  printf("consume datagram of length %d: ",length);
+  for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
+  printf("\n");
+  return resultcode;  // return pre-ordained result
 }
-Datagram dg(&txBuffer, &nodeid, datagramCallback);
+Datagram dg(&txBuffer, datagramCallback);
 
 /**
  * This setup is just for testing
@@ -78,16 +82,24 @@ void loop() {
      // periodic processing of any datagram frames
      dg.check();
 
-     // Demo: handle possible production of events from pin
+     // Demo: handle possible production of datagram from pin
      int val = inputRead();
      if (producer_pin_record != val) {
          producer_pin_record = val;
          if (producer_pin_record == 0) {
              printf("send datagram A\n");
-             //p.produce(0);
+             uint8_t* b = dg.getTransmitBuffer();
+             dg.sendTransmitBuffer(5, 0xBFD);
          } else {
              printf("send datagram B\n");
-             //p.produce(1);
+             uint8_t* b = dg.getTransmitBuffer();
+             
+             // check that only one possible
+             if (dg.getTransmitBuffer() != 0) {
+                printf("error: should not have been possible to get buffer again\n");
+             }
+             for (int i = 0; i<15; i++) b[i] = 16+i;
+             dg.sendTransmitBuffer(15, 0xBFD);
          }
      }
   }
@@ -111,17 +123,124 @@ int main( int argc, const char* argv[] )
 	printf("setup done\n");
 	doLoop(1000);  // long enough for timeout
 	printf("one second done\n\n");
+	printf("--------------\n");
 
 
-	printf("queue short datagram, expect 1 reply\n");
-	b.id = 0x1824F00F;
-	b.length = (uint8_t)8;
-	b.data[0]=1;b.data[1]=2;b.data[2]=3;b.data[3]=4;b.data[4]=5;b.data[5]=6;b.data[6]=7;b.data[7]=8;
-	queueTestMessage(&b);
-	doLoop(100);
+	printf("datagram reply for another, expect it doesn't clear buffer\n");
+	b.id = 0x19111BFD;
+	b.length = (uint8_t)1;
+    b.data[0]=0x4c;
+    queueTestMessage(&b);
+	doLoop(10);
+	if (dg.getTransmitBuffer() == 0) {
+	    printf("OK\n");
+	} else {
+	    printf("Error: should be still in use\n");
+    }	
+    printf("\n");
+
+	printf("datagram reply for this, expect it clears buffer\n");
+	b.id = 0x1E6baBFD;
+	b.length = (uint8_t)1;
+    b.data[0]=0x4c;
+    queueTestMessage(&b);
+	doLoop(10);
+	if ( dg.getTransmitBuffer() != 0) {
+	    printf("OK, send 0 length datagram\n");
+	    dg.sendTransmitBuffer(0, 0xBFF);
+	    loop();
+        printf("handle datagram ack reply\n");
+        b.id = 0x1E6baBFF;
+        b.length = (uint8_t)1;
+        b.data[0]=0x4c;
+        queueTestMessage(&b);
+        doLoop(10);
+        printf("\n");
+	} else {
+	    printf("Error: still in use\n");
+    }	
+
+	printf("send long datagram to test nak reply\n");
+	uint8_t* d = dg.getTransmitBuffer();
+	if ( d != 0) {
+        for (int i = 0; i<23; i++) d[i] = (uint8_t)(32+i);
+	    dg.sendTransmitBuffer(23, 0xBFF);
+	    doLoop(4);
+	} else {
+	    printf("Error: buffer still in use");
+    }	
+    printf("datagram nak reply for different node, ignore\n");
+    b.id = 0x1E111BFF;
+    b.length = (uint8_t)1;
+    b.data[0]=0x4d;
+    queueTestMessage(&b);
+    doLoop(10);
+    printf("datagram nak reply from different node, ignore\n");
+    b.id = 0x1E6ba111;
+    b.length = (uint8_t)1;
+    b.data[0]=0x4d;
+    queueTestMessage(&b);
+    doLoop(10);
+    printf("handle datagram nak reply by resending\n");
+    b.id = 0x1E6baBFF;
+    b.length = (uint8_t)1;
+    b.data[0]=0x4d;
+    queueTestMessage(&b);
+    doLoop(10);
+    printf("handle 2nd datagram nak reply by resending again\n");
+    b.id = 0x1E6baBFF;
+    b.length = (uint8_t)1;
+    b.data[0]=0x4d;
+    queueTestMessage(&b);
+    doLoop(10);
+	printf("final positive reply clears buffer\n");
+	b.id = 0x1E6baBFF;
+	b.length = (uint8_t)1;
+    b.data[0]=0x4c;
+    queueTestMessage(&b);
+	doLoop(10);
 	printf("\n");
 
+	printf("--------------\n");
+	printf("Start to test receiving datagrams\n");
+	printf("\n");
+	
+	printf("Receive single fragment datagram OK\n");
+	resultcode = 0;
+	b.id = 0x1D6baBFD;
+	b.length = (uint8_t)4;
+    b.data[0]=0x40;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("\n");
 
+	printf("Receive three fragment datagram OK\n");
+	resultcode = 0;
+	b.id = 0x1C6baBFD;
+	b.length = (uint8_t)4;
+    b.data[0]=0x50;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
+    queueTestMessage(&b);
+	doLoop(10);
+	b.id = 0x1C6baBFD;
+	b.length = (uint8_t)4;
+    b.data[0]=0x60;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
+    queueTestMessage(&b);
+	doLoop(10);
+	b.id = 0x1D6baBFD;
+	b.length = (uint8_t)4;
+    b.data[0]=0x70;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("\n");
+
+	printf("Receive single fragment datagram fail\n");
+	resultcode = 0x1234;
+	b.id = 0x1D6baBFD;
+	b.length = (uint8_t)4;
+    b.data[0]=0x40;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("\n");
 
 	printf("test ends\n");
 }
