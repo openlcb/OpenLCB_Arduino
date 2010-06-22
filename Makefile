@@ -18,3 +18,8 @@ tests: FORCE
 clean: FORCE 
 
 FORCE:
+
+# run known tests; silent if no errors
+run: all
+	@./tests/CanMrrlcbTest | diff - tests/results/CanMrrlcbTest.out.txt
+	@./tests/DatagramTest | diff - tests/results/DatagramTest.out.txt

@@ -1,0 +1,74 @@
+new key  alias 
+--------------
+Starting CanMrrlcbTest
+OpenLcb_can_init
+new key  alias 
+setup done
+queue_xmt_wait: [100026ba]
+queue_xmt_wait: [110036ba]
+queue_xmt_wait: [120046ba]
+queue_xmt_wait: [130056ba]
+queue_xmt_wait: [140066ba]
+queue_xmt_wait: [150076ba]
+alias assigned 
+queue_xmt_wait: [17fff6ba]
+queue_xmt_wait: [1808f6ba] 02 03 04 05 06 07
+queue_xmt_wait: [182af6ba] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [1826f6ba] 01 02 03 04 05 06 07 08
+produce p1
+queue_xmt_wait: [182af6ba] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [1826f6ba] 08 07 06 05 04 03 02 01
+one second done
+
+trigger RIM conflict
+can_get_frame:  [17fff6ba]
+new key  alias 
+queue_xmt_wait: [10002e8d]
+queue_xmt_wait: [11003e8d]
+queue_xmt_wait: [12004e8d]
+queue_xmt_wait: [13005e8d]
+queue_xmt_wait: [14006e8d]
+queue_xmt_wait: [15007e8d]
+alias assigned 
+queue_xmt_wait: [17fffe8d]
+queue_xmt_wait: [1808fe8d] 02 03 04 05 06 07
+
+trigger CIM conflict
+can_get_frame:  [110036ba]
+
+queue Verify Node
+can_get_frame:  [180af00f] 02 03 04 05 06 07
+queue_xmt_wait: [180bfe8d] 02 03 04 05 06 07
+
+queue Request Consumers, expect 1 reply
+can_get_frame:  [1824f00f] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [1826fe8d] 01 02 03 04 05 06 07 08
+
+queue Request Consumers, no reply
+can_get_frame:  [1824f00f] 01 0c 03 04 05 06 07 08
+
+queue Request Producers, expect 1 reply
+can_get_frame:  [1828f00f] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [182afe8d] 08 07 06 05 04 03 02 01
+
+queue Request Producers, no reply
+can_get_frame:  [1828f00f] 08 0c 06 05 04 03 02 01
+
+queue Request Events, expect 4 replies
+can_get_frame:  [182bf00f] 02 03 04 05 06 07
+queue_xmt_wait: [182afe8d] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [1826fe8d] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [182afe8d] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [1826fe8d] 08 07 06 05 04 03 02 01
+
+queue Request Events, no reply
+can_get_frame:  [182bf00f] 19 03 04 05 06 07
+
+queue P/C Event Transfer, no match
+can_get_frame:  [182df00f] 00 0c 06 05 04 03 02 01
+
+queue P/C Event Transfer, match event 1
+can_get_frame:  [182df00f] 08 07 06 05 04 03 02 01
+consume 1
+
+test ends

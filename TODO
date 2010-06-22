@@ -1,0 +1,5 @@
+
+<> vs "" in #include
+
+Makefile (esp tests/Makefile) doesn't have a general link rule;
+needs to know how to pass library search path

@@ -1,0 +1,6 @@
+
+This directory contains reference outputs from 
+running the test programs. e.g. at top level:
+
+make && ./tests/CanMrrlcbTest | diff - tests/results/CanMrrlcbTest.out.txt
+
