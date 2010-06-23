@@ -1,0 +1,28 @@
+new key  alias 
+--------------
+Starting ConfigurationTest
+OpenLcb_can_init
+new key  alias 
+setup done
+queue_xmt_wait: [100026ba]
+queue_xmt_wait: [110036ba]
+queue_xmt_wait: [120046ba]
+queue_xmt_wait: [130056ba]
+queue_xmt_wait: [140066ba]
+queue_xmt_wait: [150076ba]
+alias assigned 
+queue_xmt_wait: [17fff6ba]
+queue_xmt_wait: [1808f6ba] 02 03 04 05 06 07
+one second done
+
+--------------
+Test Read Operation
+
+   Single fragment datagram for short read
+can_get_frame:  [1d6babfd] 23 63 12 34 56 78 08
+consume datagram of length 7: 23 63 12 34 56 78 8 
+queue_xmt_wait: [1ebfd6ba] 4c
+  processRead start=0x12345678 len=8 space=ff
+queue_xmt_wait: [1d1236ba] aa bb
+
+test ends
