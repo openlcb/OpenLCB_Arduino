@@ -17,7 +17,7 @@ class Configuration {
   Configuration(Datagram* dg, Stream *str);
   
   void check(); 
-  int receivedDatagram(uint8_t* data, int length);
+  int receivedDatagram(uint8_t* data, int length, unsigned int from);
   
   private:
   void processRead(uint8_t* data, int length);
@@ -28,6 +28,7 @@ class Configuration {
   Stream* str;
   uint8_t buffer[DATAGRAM_LENGTH];
   int length;
+  unsigned int from;
   bool request;
   
   uint32_t getAddress(uint8_t* data);

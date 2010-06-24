@@ -8,7 +8,7 @@
 #include "logging.h"
 
 
-#define CONFIGURATION_DATAGRAM_CODE 0x23
+#define CONFIGURATION_DATAGRAM_CODE 0x20
 
 // define the operation codes, full byte
 #define CFG_CMD_WRITE                       0x00
@@ -64,11 +64,12 @@ void Configuration::check() {
     }
 }
 
-int Configuration::receivedDatagram(uint8_t* data, int ln) {
+int Configuration::receivedDatagram(uint8_t* data, int ln, unsigned int f) {
     // decode whether this is a configuration request
     if (data[0] != CONFIGURATION_DATAGRAM_CODE) return 0;
     // yes, copy to our buffer
     length = ln;
+    from = f;
     for (int i = 0; i<length; i++) 
         buffer[i] = *(data++);
     // mark as ready
@@ -120,15 +121,67 @@ void Configuration::processRead(uint8_t* data, int length) {
     if (d == 0) return; // skip and return again later
     // will reply, mark as done.
     request = false;
-    d[0]=0xAA; d[1]=0xBB;
-    dg->sendTransmitBuffer(2, 0x123);
+    // copy front matter
+    for (int i=0; i<6; i++)
+        d[i]=data[i];
+    d[0] = CFG_CMD_READ_REPLY | d[0]&0x0F;
+    // get length, space
+    int len = decodeLen(data);
+    int space = decodeSpace(data);
+    // TODO: copy real data
+    // TODO: from address spaces
+    for (int i=0; i<len; i++)
+        d[i+6] = i+16;
+    // send
+    dg->sendTransmitBuffer(6+len, from);
 }
 
 void Configuration::processWrite(uint8_t* data, int length) {
     printf("  processWrite start=0x%x space=%x\n", getAddress(data), decodeSpace(data) );
+    // TODO: Copy data into place
+    // TODO: with proper address space
 }
 
 void Configuration::processCmd(uint8_t* data, int length) {
-    printf("  processCmd\n");
+    printf("  processCmd cmd=%x\n", data[1]);
+    switch (data[1]&0xFC) {
+        case CFG_CMD_GET_CONFIG: {  // to partition local variable below
+            // reply with canned message
+            uint8_t* d = dg->getTransmitBuffer();
+            if (d==0) return; // skip and return again later
+            // will reply, mark as done.
+            request = false;
+            d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_CONFIG_REPLY;
+            d[2]=0x03;d[3]=0x01;d[4]=0x38;d[5]=0x00;d[6]=0x00;
+            dg->sendTransmitBuffer(7, from);
+            break;
+          }
+        case CFG_CMD_GET_ADD_SPACE_INFO: {  // to partition local variable below
+            // reply with canned message
+            uint8_t* d = dg->getTransmitBuffer();
+            if (d==0) return; // skip and return again later
+            // will reply, mark as done.
+            request = false;
+            d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_CONFIG_REPLY;
+            d[2]=0x03;d[3]=0x01;d[4]=0x38;d[5]=0x00;d[6]=0x00;
+            dg->sendTransmitBuffer(7, from);
+            break;
+          }
+        //case CFG_CMD_CFG_CMD_GET_CONFIG_REPLY :
+        //case CFG_CMD_CFG_CMD_GET_ADD_SPACE_INFO_REPLY:
+        //case CFG_CMD_LOCK:
+        //case CFG_CMD_LOCK_REPLY:
+        //case CFG_CMD_GET_UNIQUEID:
+        //case CFG_CMD_GET_UNIQUEID_REPLY:
+        //case CFG_CMD_FREEZE:
+        //case CFG_CMD_INDICATE:
+        //case CFG_CMD_RESET:
+        //case CFG_CMD_FACTORY_RESET:
+        //case CFG_CMD_INDICATE:
+        default:
+            // these do nothing in this implementation
+            request = false;
+            break;
+    }
 }
 

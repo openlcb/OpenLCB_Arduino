@@ -8,7 +8,7 @@
 
 #include "logging.h"
 
-Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length), LinkControl* ln) {
+Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length,  unsigned int from), LinkControl* ln) {
       buffer = b;
       link = ln;
       callback = cb; 
@@ -92,7 +92,7 @@ void Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
             // 
             unsigned int length = rptr-rbuf;
             // callback
-            int result = (*callback)(rbuf, length);
+            int result = (*callback)(rbuf, length, rcv->getSourceAlias());
             rptr = rbuf;
             if (result == 0) {
                 // send OK; done immediately with wait

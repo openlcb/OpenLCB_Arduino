@@ -39,20 +39,20 @@ NodeID nodeid(2,3,4,5,6,7);    // This node's ID
 
 LinkControl link(&txBuffer, &nodeid);
 
-unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length);
+unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from);
 unsigned int rcvCallback(uint8_t *rbuf, unsigned int length);
 
 Datagram dg(&txBuffer, datagramCallback, &link);
 Stream str(&txBuffer, rcvCallback, &link);
 Configuration cfg(&dg, &str);
 
-unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length){
+unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from){
   // invoked when a datagram arrives
   printf("consume datagram of length %d: ",length);
   for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
   printf("\n");
   // pass to consumers
-  cfg.receivedDatagram(rbuf, length);
+  cfg.receivedDatagram(rbuf, length, from);
   
   return 0;  // return pre-ordained result
 }
@@ -132,16 +132,51 @@ int main( int argc, const char* argv[] )
 	printf("--------------\n");
 
 
-	printf("Test Read Operation\n");
-	printf("\n");
-	
-	printf("   Single fragment datagram for short read\n");
+	printf("Single fragment datagram for get config\n");
 	resultcode = 0;
 	b.id = 0x1D6baBFD;
 	b.length = (uint8_t)7;
-    b.data[0]=0x23;b.data[1]=0x63; // header
+    b.data[0]=0x20;b.data[1]=0x80; // header
+    b.data[6]=0x02;  // count
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("   Ack to config reply datagram\n");
+	b.id = 0x1E6baBFD;
+	b.length = (uint8_t)1;
+    b.data[0]=0x4c;
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("\n");
+    	
+	printf("Second single fragment datagram for get config\n");
+	resultcode = 0;
+	b.id = 0x1D6baBFD;
+	b.length = (uint8_t)7;
+    b.data[0]=0x20;b.data[1]=0x80; // header
+    b.data[6]=0x02;  // count
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("   Ack to config reply datagram\n");
+	b.id = 0x1E6baBFD;
+	b.length = (uint8_t)1;
+    b.data[0]=0x4c;
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("\n");
+    	
+	printf("Single fragment datagram for short read\n");
+	resultcode = 0;
+	b.id = 0x1D6baBFD;
+	b.length = (uint8_t)7;
+    b.data[0]=0x20;b.data[1]=0x63; // header
     b.data[2]=0x12;b.data[3]=0x34;b.data[4]=0x56;b.data[5]=0x78; // address
     b.data[6]=0x08;  // count
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("   Ack to reply datagram\n");
+	b.id = 0x1E6baBFD;
+	b.length = (uint8_t)1;
+    b.data[0]=0x4c;
     queueTestMessage(&b);
 	doLoop(10);
 	printf("\n");

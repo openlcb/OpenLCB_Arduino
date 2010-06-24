@@ -38,7 +38,7 @@ NodeID nodeid(2,3,4,5,6,7);    // This node's ID
 LinkControl link(&txBuffer, &nodeid);
 
 unsigned int resultcode;
-unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length){
+unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from){
   // invoked when a datagram arrives
   printf("consume datagram of length %d: ",length);
   for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);

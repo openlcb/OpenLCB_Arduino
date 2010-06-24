@@ -16,13 +16,32 @@ queue_xmt_wait: [1808f6ba] 02 03 04 05 06 07
 one second done
 
 --------------
-Test Read Operation
+Single fragment datagram for get config
+can_get_frame:  [1d6babfd] 20 80 00 00 00 00 02
+consume datagram of length 7: 20 80 0 0 0 0 2 
+queue_xmt_wait: [1ebfd6ba] 4c
+  processCmd cmd=80
+queue_xmt_wait: [1dbfd6ba] 20 82 03 01 38 00 00
+   Ack to config reply datagram
+can_get_frame:  [1e6babfd] 4c
 
-   Single fragment datagram for short read
-can_get_frame:  [1d6babfd] 23 63 12 34 56 78 08
-consume datagram of length 7: 23 63 12 34 56 78 8 
+Second single fragment datagram for get config
+can_get_frame:  [1d6babfd] 20 80 00 00 00 00 02
+consume datagram of length 7: 20 80 0 0 0 0 2 
+queue_xmt_wait: [1ebfd6ba] 4c
+  processCmd cmd=80
+queue_xmt_wait: [1dbfd6ba] 20 82 03 01 38 00 00
+   Ack to config reply datagram
+can_get_frame:  [1e6babfd] 4c
+
+Single fragment datagram for short read
+can_get_frame:  [1d6babfd] 20 63 12 34 56 78 08
+consume datagram of length 7: 20 63 12 34 56 78 8 
 queue_xmt_wait: [1ebfd6ba] 4c
   processRead start=0x12345678 len=8 space=ff
-queue_xmt_wait: [1d1236ba] aa bb
+queue_xmt_wait: [1cbfd6ba] 50 63 12 34 56 78 10 11
+queue_xmt_wait: [1dbfd6ba] 12 13 14 15 16 17
+   Ack to reply datagram
+can_get_frame:  [1e6babfd] 4c
 
 test ends

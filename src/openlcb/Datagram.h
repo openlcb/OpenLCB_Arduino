@@ -42,7 +42,7 @@ class Datagram {
    */
   void receivedFrame(OpenLcbCanBuffer* rcv);
   
-  Datagram(OpenLcbCanBuffer* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length), LinkControl* link);
+  Datagram(OpenLcbCanBuffer* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from), LinkControl* link);
   
   private:
   OpenLcbCanBuffer* buffer;
@@ -58,7 +58,7 @@ class Datagram {
 
   uint8_t rbuf[DATAGRAM_LENGTH];
   uint8_t* rptr;
-  unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length);   // void callback(int index) pointer
+  unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from);   // void callback(int index) pointer
 };
 
 #endif
