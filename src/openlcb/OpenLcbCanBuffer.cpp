@@ -153,6 +153,20 @@
       return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_PC_EVENT_REPORT);
   }
 
+  void OpenLcbCanBuffer::setLearnEvent(EventID* eid) {
+    init();
+    setFrameTypeOpenLcb();
+    setOpenLcbFormat(MTI_FORMAT_SIMPLE_MTI);
+    setVariableField(MTI_LEARN_EVENT);
+    setSourceAlias(nodeAlias);
+    length=8;
+    loadFromEid(eid);
+  }
+
+  bool OpenLcbCanBuffer::isLearnEvent() {
+      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_LEARN_EVENT);
+  }
+
   void OpenLcbCanBuffer::setInitializationComplete(unsigned int alias, NodeID* nid) {
     nodeAlias = alias;
     init();

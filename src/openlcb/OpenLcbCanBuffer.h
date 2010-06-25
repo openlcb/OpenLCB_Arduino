@@ -64,6 +64,9 @@ class EventID;
   void setPCEventReport(EventID* eid);
   bool isPCEventReport();
   
+  void setLearnEvent(EventID* eid);
+  bool isLearnEvent();
+  
   void getEventID(EventID* evt);
   void getNodeID(NodeID* nid);
   
