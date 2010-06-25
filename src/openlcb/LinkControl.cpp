@@ -48,7 +48,7 @@ void LinkControl::reset() {
   state = STATE_INITIAL;
   // take the 1st from the sequence
   nextAlias();
-  log("new key ");loghex(lfsr1);loghex(lfsr2);log(" alias ");loghex(getAlias());logln();
+  logstr("new key ");loghex(lfsr1);loghex(lfsr2);logstr(" alias ");loghex(getAlias());lognl();
 }
 
 bool LinkControl::sendCIM(int i) {
@@ -90,7 +90,7 @@ void LinkControl::check() {
     // last CIM, sent, wait for delay
     timer = millis();
     state = STATE_WAIT_CONFIRM; 
-    log("alias assigned ");loghex(getAlias());logln();
+    logstr("alias assigned ");loghex(getAlias());lognl();
 
     return;
   case STATE_WAIT_CONFIRM:
