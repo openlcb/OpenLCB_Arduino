@@ -133,6 +133,7 @@ int main( int argc, const char* argv[] )
 
 
 	printf("Single fragment datagram for get config\n");
+	// [1D6baBFD] 20 80 01 02 03 04 02
 	resultcode = 0;
 	b.id = 0x1D6baBFD;
 	b.length = (uint8_t)7;
