@@ -26,7 +26,7 @@ uint8_t* Datagram::getTransmitBuffer() {
 
 void Datagram::sendTransmitBuffer(int length, unsigned int destNIDa) {
     if (!reserved) {
-        log("error: Datagram::sendTransmitBuffer when not reserved");
+        logstr("error: Datagram::sendTransmitBuffer when not reserved");
         return;
     }
     sendcount = length;
