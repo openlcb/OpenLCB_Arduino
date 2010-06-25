@@ -129,10 +129,10 @@
       return ( getOpenLcbFormat() == MTI_FORMAT_STREAM_CODE);
   }
   
-  bool OpenLcbCanBuffer::isOpenLcbMTI(unsigned int fmt, unsigned int mti) {
+  bool OpenLcbCanBuffer::isOpenLcbMTI(unsigned int fmt, unsigned int mtiHeaderByte) {
       return isFrameTypeOpenLcb() 
                 && ( getOpenLcbFormat() == fmt )
-                && ( (getVariableField()&~MASK_OPENLCB_FORMAT) == mti );
+                && ( (getVariableField()&~MASK_OPENLCB_FORMAT) == mtiHeaderByte );
   }
 
   // end of OpenLCB format and decode support
