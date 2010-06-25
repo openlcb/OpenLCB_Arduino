@@ -115,7 +115,7 @@ int Configuration::decodeSpace(uint8_t* data) {
 }
 
 void Configuration::processRead(uint8_t* data, int length) {
-    printf("  processRead start=0x%x len=%d space=%x\n", getAddress(data), decodeLen(data), decodeSpace(data) );
+    //logstr("  processReadp\n");
     // see if we can get datagram buffer to reply
     uint8_t* d = dg->getTransmitBuffer();
     if (d == 0) return; // skip and return again later
@@ -137,13 +137,13 @@ void Configuration::processRead(uint8_t* data, int length) {
 }
 
 void Configuration::processWrite(uint8_t* data, int length) {
-    printf("  processWrite start=0x%x space=%x\n", getAddress(data), decodeSpace(data) );
+    //logstr("  processWrite\n");
     // TODO: Copy data into place
     // TODO: with proper address space
 }
 
 void Configuration::processCmd(uint8_t* data, int length) {
-    printf("  processCmd cmd=%x\n", data[1]);
+    //logstr("  processCmd\n");
     switch (data[1]&0xFC) {
         case CFG_CMD_GET_CONFIG: {  // to partition local variable below
             // reply with canned message
