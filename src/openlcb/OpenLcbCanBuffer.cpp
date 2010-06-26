@@ -12,7 +12,6 @@
 #include "NodeID.h"
 #include "EventID.h"
 
-
 // for definiton, see
 // http://openlcb.sf.net/trunk/documents/can/index.html
 // 
@@ -41,12 +40,12 @@
 
   // start of basic message structure
 
-  void OpenLcbCanBuffer::setSourceAlias(unsigned int a) {
+  void OpenLcbCanBuffer::setSourceAlias(uint16_t a) {
     id &= ~MASK_SRC_ALIAS;
     id = id | (a & MASK_SRC_ALIAS);
   }
   
-  unsigned int OpenLcbCanBuffer::getSourceAlias() {
+  uint16_t OpenLcbCanBuffer::getSourceAlias() {
       return id & MASK_SRC_ALIAS;
   }
 
@@ -66,12 +65,13 @@
     return (id & MASK_FRAME_TYPE) == MASK_FRAME_TYPE;
   }
 
-  void OpenLcbCanBuffer::setVariableField(unsigned int f) {
+  void OpenLcbCanBuffer::setVariableField(uint16_t f) {
     id &= ~MASK_VARIABLE_FIELD;
-    id |= ((f << SHIFT_VARIABLE_FIELD) & MASK_VARIABLE_FIELD) ;
+    uint32_t temp = f;  // ensure 32 bit arithmetic
+    id |=  ((temp << SHIFT_VARIABLE_FIELD) & MASK_VARIABLE_FIELD);
   }
 
-  unsigned int OpenLcbCanBuffer::getVariableField() {
+  uint16_t OpenLcbCanBuffer::getVariableField() {
     return (id & MASK_VARIABLE_FIELD) >> SHIFT_VARIABLE_FIELD;
   }
   
@@ -79,21 +79,22 @@
   
   // start of CAN-level messages
  
-#define RIM_VAR_FIELD 0x7FFF
+#define RIM_VAR_FIELD 0x0700
 
-  void OpenLcbCanBuffer::setCIM(int i, unsigned int testval, unsigned int alias) {
+  void OpenLcbCanBuffer::setCIM(int i, uint16_t testval, uint16_t alias) {
     init();
     setFrameTypeCAN();
-    setVariableField( ((i & 7) << 12) | (testval & 0xFFF) );
+    uint16_t var =  (( (0x7-i) & 7) << 12) | (testval & 0xFFF); 
+    setVariableField(var);
     setSourceAlias(alias);
     length=0;
   }
 
   bool OpenLcbCanBuffer::isCIM() {
-    return isFrameTypeCAN() && (getVariableField()&0x7000) <= 0x5FFF;
+    return isFrameTypeCAN() && (getVariableField()&0x7000) >= 0x4000;
   }
 
-  void OpenLcbCanBuffer::setRIM(unsigned int alias) {
+  void OpenLcbCanBuffer::setRIM(uint16_t alias) {
     init();
     setFrameTypeCAN();
     setVariableField(RIM_VAR_FIELD);
@@ -110,12 +111,12 @@
   
   // start of OpenLCB format support
   
-  int OpenLcbCanBuffer::getOpenLcbFormat() {
+  uint16_t OpenLcbCanBuffer::getOpenLcbFormat() {
       return (getVariableField() & MASK_OPENLCB_FORMAT) >> SHIFT_OPENLCB_FORMAT;
   }
 
-  void OpenLcbCanBuffer::setOpenLcbFormat(int i) {
-      unsigned int now = getVariableField() & ~MASK_OPENLCB_FORMAT;
+  void OpenLcbCanBuffer::setOpenLcbFormat(uint16_t i) {
+      uint16_t now = getVariableField() & ~MASK_OPENLCB_FORMAT;
       setVariableField( ((i << SHIFT_OPENLCB_FORMAT) & MASK_OPENLCB_FORMAT) | now);
   }
 
@@ -129,7 +130,7 @@
       return ( getOpenLcbFormat() == MTI_FORMAT_STREAM_CODE);
   }
   
-  bool OpenLcbCanBuffer::isOpenLcbMTI(unsigned int fmt, unsigned int mtiHeaderByte) {
+  bool OpenLcbCanBuffer::isOpenLcbMTI(uint16_t fmt, uint16_t mtiHeaderByte) {
       return isFrameTypeOpenLcb() 
                 && ( getOpenLcbFormat() == fmt )
                 && ( (getVariableField()&~MASK_OPENLCB_FORMAT) == mtiHeaderByte );
@@ -167,7 +168,7 @@
       return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_LEARN_EVENT);
   }
 
-  void OpenLcbCanBuffer::setInitializationComplete(unsigned int alias, NodeID* nid) {
+  void OpenLcbCanBuffer::setInitializationComplete(uint16_t alias, NodeID* nid) {
     nodeAlias = alias;
     init();
     setFrameTypeOpenLcb();

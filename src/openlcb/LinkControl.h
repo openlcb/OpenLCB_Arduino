@@ -72,14 +72,14 @@ class LinkControl {
   /**
    * Get the alias value
    */
-  unsigned int getAlias();
+  uint16_t getAlias();
   
   protected: 
   /**
    * Send the next CIM message.  Return true it you can/did,
    * false if you didn't.
    */
-  bool sendCIM(int i);
+  bool sendCIM(uint8_t i);
   
   /**
    * Send an RIM message.  Return true it you can/did,
@@ -101,7 +101,7 @@ class LinkControl {
   
   OpenLcbCanBuffer* txBuffer;
   NodeID* nid;
-  unsigned long timer; // used to wait for specific times
+  unsigned long timer; // used to wait for specific times (Arduino type definition)
   uint32_t lfsr1, lfsr2;  // PRNG sequence value: lfsr1 is upper 24 bits, lfsr2 lower
   uint8_t state; // internal state counter, starts at zero
 };

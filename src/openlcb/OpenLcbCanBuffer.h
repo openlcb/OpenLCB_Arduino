@@ -25,40 +25,40 @@ class EventID;
   void setFrameTypeOpenLcb();
   bool isFrameTypeOpenLcb();
   
-  void setVariableField(unsigned int f);
-  unsigned int getVariableField();
+  void setVariableField(uint16_t f);
+  uint16_t getVariableField();
   
-  void setSourceAlias(unsigned int a);
-  unsigned int getSourceAlias();
+  void setSourceAlias(uint16_t a);
+  uint16_t getSourceAlias();
   
   // end of basic message structure
   
   // start of CAN-level messages
   
-  void setCIM(int i, unsigned int testval, unsigned int alias);
+  void setCIM(int i, uint16_t testval, uint16_t alias);
   bool isCIM();
   
-  void setRIM(unsigned int alias);
+  void setRIM(uint16_t alias);
   bool isRIM();
 
   // end of CAN-level messages
   
   // start of OpenLCB format support
 
-  int getOpenLcbFormat();
-  void setOpenLcbFormat(int i);
+  uint16_t getOpenLcbFormat();
+  void setOpenLcbFormat(uint16_t i);
   
   bool isOpenLcbMtiFormat();
   bool isOpenLcDestIdFormat();
   bool isOpenLcbStreamIdFormat();
 
-  bool isOpenLcbMTI(unsigned int fmt, unsigned int mti);
+  bool isOpenLcbMTI(uint16_t fmt, uint16_t mti);
   
   // end of OpenLCB format support
   
   // start of OpenLCB messages
   
-  void setInitializationComplete(unsigned int alias, NodeID* nid);
+  void setInitializationComplete(uint16_t alias, NodeID* nid);
   bool isInitializationComplete();
 
   void setPCEventReport(EventID* eid);

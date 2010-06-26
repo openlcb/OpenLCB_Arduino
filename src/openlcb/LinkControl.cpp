@@ -22,8 +22,8 @@ LinkControl::LinkControl(OpenLcbCanBuffer* b, NodeID* n) {
   txBuffer = b;
   nid = n;
   // initialize sequence from node ID
-  lfsr1 = (nid->val[0] << 16) | (nid->val[1] << 8) | (nid->val[2]);
-  lfsr2 = (nid->val[3] << 16) | (nid->val[4] << 8) | (nid->val[5]);
+  lfsr1 = (((uint32_t)nid->val[0]) << 16) | (((uint32_t)nid->val[1]) << 8) | ((uint32_t)nid->val[2]);
+  lfsr2 = (((uint32_t)nid->val[3]) << 16) | (((uint32_t)nid->val[4]) << 8) | ((uint32_t)nid->val[5]);
   // set up for next (first) alias
   reset();
 }
@@ -51,9 +51,23 @@ void LinkControl::reset() {
   logstr("new key ");loghex(lfsr1);loghex(lfsr2);logstr(" alias ");loghex(getAlias());lognl();
 }
 
-bool LinkControl::sendCIM(int i) {
+// send the next CIM message.  "i" is the 0-3 ordinal number of the message, which
+// becomes F-C in the CIM itself. Returns true if successfully sent.
+bool LinkControl::sendCIM(uint8_t i) {
   if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now  if (!isTxBufferFree()) return false;  // couldn't send just now
-  txBuffer->setCIM(i,nid->val[i],getAlias());
+  uint16_t fragment;
+  switch (i) {
+    case 0:  fragment = ( (nid->val[0]<<4)&0xFF0) | ( (nid->val[1] >> 4) &0xF);
+             break;
+    case 1:  fragment = ( (nid->val[1]<<8)&0xF00) | ( nid->val[2] &0xF);
+             break;
+    case 2:  fragment = ( (nid->val[3]<<4)&0xFF0) | ( (nid->val[4] >> 4) &0xF);
+             break;
+    default:
+    case 3:  fragment = ( (nid->val[4]<<8)&0xF00) | ( nid->val[5] &0xF);
+             break;
+  }
+  txBuffer->setCIM(i,fragment,getAlias());
   OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
   return true;
 }
@@ -80,13 +94,11 @@ void LinkControl::check() {
   case STATE_INITIAL+1:
   case STATE_INITIAL+2:
   case STATE_INITIAL+3:
-  case STATE_INITIAL+4:
-  case STATE_INITIAL+5:
     // send next CIM message if possible
     if (sendCIM(state-STATE_INITIAL)) 
       state++;
     return;
-  case STATE_INITIAL+6:
+  case STATE_INITIAL+4:
     // last CIM, sent, wait for delay
     timer = millis();
     state = STATE_WAIT_CONFIRM; 
@@ -112,7 +124,7 @@ bool LinkControl::linkInitialized() {
   return state == STATE_INITIALIZED;
 }
 
-unsigned int LinkControl::getAlias() {
+uint16_t LinkControl::getAlias() {
   return (lfsr1 ^ lfsr2 ^ (lfsr1>>12) ^ (lfsr2>>12) )&0xFFF;
 }
 
