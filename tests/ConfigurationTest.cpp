@@ -42,9 +42,17 @@ LinkControl link(&txBuffer, &nodeid);
 unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from);
 unsigned int rcvCallback(uint8_t *rbuf, unsigned int length);
 
+const uint8_t* getRead(int address, int space) {
+    return (uint8_t*)address;
+}
+uint8_t* getWrite(int address, int space) {
+    return (uint8_t*)address;
+}
+void restart() {logstr("restart called\n");}
+
 Datagram dg(&txBuffer, datagramCallback, &link);
 Stream str(&txBuffer, rcvCallback, &link);
-Configuration cfg(&dg, &str);
+Configuration cfg(&dg, &str, &getRead, &getWrite, &restart);
 
 unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from){
   // invoked when a datagram arrives
