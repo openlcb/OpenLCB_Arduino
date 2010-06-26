@@ -14,8 +14,20 @@ class Stream;
 class Configuration {
   public:
   
-  Configuration(Datagram* dg, Stream *str);
+  //*****
+  // The "getRead", "getWrite" and "reset" methods
+  // are a very simple interface to the actual
+  // device.  Redo them for the specific memory
+  // map being used.
+  // (We're trying for now to avoid virtual methods)
+  // ****
   
+  Configuration(Datagram* datagramHandler, Stream *streamHandler,
+                        const uint8_t* (*getRead)(int address, int space),
+                        uint8_t* (*getWrite)(int address, int space),
+                        void (*restart)()
+            );
+            
   void check(); 
   int receivedDatagram(uint8_t* data, int length, unsigned int from);
   
@@ -34,6 +46,11 @@ class Configuration {
   uint32_t getAddress(uint8_t* data);
   int decodeLen(uint8_t* data);
   int decodeSpace(uint8_t* data);
+  
+  const uint8_t* (*getRead)(int address, int space);
+  uint8_t* (*getWrite)(int address, int space);
+  void (*restart)();
+ 
 };
 
 #endif

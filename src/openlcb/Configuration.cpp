@@ -42,10 +42,17 @@
  *       Datagram use & structure
  */
  
-Configuration::Configuration(Datagram* d, Stream *s) {
+  Configuration::Configuration( Datagram *d, Stream *s,
+                        const uint8_t* (*gr)(int address, int space),
+                        uint8_t* (*gw)(int address, int space),
+                        void (*res)()
+                 ){
     dg = d;
     str = s;
     request = false;
+    getWrite = gw;
+    getRead = gr;
+    restart = res;
 }
 
 void Configuration::check() {
