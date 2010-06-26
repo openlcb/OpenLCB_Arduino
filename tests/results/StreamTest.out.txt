@@ -4,14 +4,12 @@ Starting StreamTest
 OpenLcb_can_init
 new key  alias 
 setup done
-queue_xmt_wait: [100026ba]
-queue_xmt_wait: [110036ba]
-queue_xmt_wait: [120046ba]
-queue_xmt_wait: [130056ba]
-queue_xmt_wait: [140066ba]
-queue_xmt_wait: [150076ba]
+queue_xmt_wait: [170206ba]
+queue_xmt_wait: [163046ba]
+queue_xmt_wait: [150506ba]
+queue_xmt_wait: [146076ba]
 alias assigned 
-queue_xmt_wait: [17fff6ba]
+queue_xmt_wait: [107006ba]
 queue_xmt_wait: [1808f6ba] 02 03 04 05 06 07
 one second done
 
