@@ -25,3 +25,10 @@ run: all
 	@./tests/StreamTest | diff - tests/results/StreamTest.out.txt
 	@./tests/DatagramTest | diff - tests/results/DatagramTest.out.txt
 	@./tests/CanMrrlcbTest | diff - tests/results/CanMrrlcbTest.out.txt
+
+# reset the comparison files; only if sure!
+reset: 
+	@./tests/ConfigurationTest > tests/results/ConfigurationTest.out.txt
+	@./tests/StreamTest > tests/results/StreamTest.out.txt
+	@./tests/DatagramTest > tests/results/DatagramTest.out.txt
+	@./tests/CanMrrlcbTest > tests/results/CanMrrlcbTest.out.txt
