@@ -16,6 +16,11 @@ NodeMemory::NodeMemory(int start) {
     count = 0;
 }
 
+void NodeMemory::forceInit() {
+    EEPROM.write(0,0xFF);
+    EEPROM.write(1,0xFF);
+}
+
 void NodeMemory::setup(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
     if (!checkOK()) {
         // have to reload
@@ -25,6 +30,11 @@ void NodeMemory::setup(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
         // handle the rest
         reset(nid, cE, nC, pE, nP);
     }
+    // load count
+    int part1 = EEPROM.read(startAddress+4);
+    int part2 = EEPROM.read(startAddress+5);
+    count = (part1<<8)+part2;
+    
     // read NodeID from non-volative memory
     uint8_t* p;
     int addr = startAddress+6; // skip check word and count
@@ -32,6 +42,7 @@ void NodeMemory::setup(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
     for (int i=0; i<sizeof(NodeID); i++) 
         *p++ = EEPROM.read(addr++);
 
+    
     // read consumer events
     p = (uint8_t*)cE;
     for (int k=0; k<nC; k++)
