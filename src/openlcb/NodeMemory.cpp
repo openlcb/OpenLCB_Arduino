@@ -7,7 +7,7 @@
 #include "EventID.h"
 #include "Event.h"
 #include "NodeID.h"
-#include "EEPROM.h"
+#include <EEPROM.h>
 
 // ToDo: NodeID* not kept in object member to save RAM space, may be false economy
 
