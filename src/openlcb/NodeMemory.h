@@ -43,11 +43,18 @@ class NodeMemory {
   void setup(NodeID* nid, Event* c, int nC, Event* p, int nP);
   
   /*
-   * Move to a completely new set of values, e.g. a factory reset
+   * Move to a completely new set of values, e.g. a "default" reset
    * for OpenLCB. NodeID is not changed.
    */
   void reset(NodeID* nid, Event* c, int nC, Event* p, int nP); 
 
+  /** 
+   * For debug and test, this forces the next
+   * setup() to do a complete reload from initial
+   * event values
+   */
+  void forceInit();
+    
   /*
    * Put modified contents back into memory.
    */
