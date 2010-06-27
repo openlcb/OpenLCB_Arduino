@@ -4,25 +4,30 @@
 #include "NodeMemory.h"
 
 #include "logging.h"
+#include "EventID.h"
 #include "Event.h"
 #include "NodeID.h"
 #include "EEPROM.h"
 
-// doesn't do anything
-NodeMemory::NodeMemory() {}
+// ToDo: NodeID* not kept in object member to save RAM space, may be false economy
 
-void NodeMemory::setup(int addr, NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
-    if (!checkOK(addr)) {
+NodeMemory::NodeMemory(int start) {
+    startAddress = start;
+    count = 0;
+}
+
+void NodeMemory::setup(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
+    if (!checkOK()) {
         // have to reload
         // clear the count
-        writeByte(addr+4, 0);
-        writeByte(addr+5, 0);
+        writeByte(startAddress+4, 0);
+        writeByte(startAddress+5, 0);
         // handle the rest
-        reset(addr, nid, cE, nC, pE, nP);
+        reset(nid, cE, nC, pE, nP);
     }
     // read NodeID from non-volative memory
     uint8_t* p;
-    addr = addr+6; // skip check word and count
+    int addr = startAddress+6; // skip check word and count
     p = (uint8_t*)nid;
     for (int i=0; i<sizeof(NodeID); i++) 
         *p++ = EEPROM.read(addr++);
@@ -41,53 +46,33 @@ void NodeMemory::setup(int addr, NodeID* nid, Event* cE, int nC, Event* pE, int 
     
 }
 
-void NodeMemory::reset(int addr, NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
-    // do the in-memory update
-    // TODO: Not updating the count for used events properly, using
-    // TODO: the over-all store count, which includes writing back event changes
-    int part1 = EEPROM.read(addr+4);
-    int part2 = EEPROM.read(addr+5);
-    uint16_t count = ((part1<<8)+part2)*(nP+nC)+1;
+void NodeMemory::reset(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
+    // Do the in-memory update. Does not change
+    // the total count, this is not an "initial config" for factory use.
+
     Event* c;
-    
     c = cE;
     for (int i = 0; i<nC; i++) {
-        uint8_t* p = (uint8_t*)c++;
-        uint8_t* n = (uint8_t*)nid;
-        for (int k=0; k<sizeof(*nid); k++)
-            *p++ = *n++;
-        *p++ = (count>>8)&0xFF;
-        *p++ = count&0xFF;
-        count++;
+        setToNewEventID(nid, c++);
     }
     
     c = pE;
     for (int i = 0; i<nP; i++) {
-        uint8_t* p = (uint8_t*)c++;
-        uint8_t* n = (uint8_t*)nid;
-        for (int k=0; k<sizeof(*nid); k++)
-            *p++ = *n++;
-        *p++ = (count>>8)&0xFF;
-        *p++ = count&0xFF;
-        count++;
+        setToNewEventID(nid, c++);
     }
     // and store
-    store(addr, nid, cE, nC, pE, nP);
+    store(nid, cE, nC, pE, nP);
 }
 
-void NodeMemory::store(int addr, NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
+void NodeMemory::store(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
+    
+    int addr = startAddress;
     // write tag
     writeByte(addr++, 0xEE);
     writeByte(addr++, 0x55);
     writeByte(addr++, 0x5E);
     writeByte(addr++, 0xE5);
 
-    // TODO: is this right way to handle count?
-    // incremement count of writes
-    int part1 = EEPROM.read(addr);
-    int part2 = EEPROM.read(addr+1);
-    uint16_t count = (part1<<8)+part2;
-    count++;
     writeByte(addr++, (count>>8)&0xFF);
     writeByte(addr++, (count)&0xFF);
     
@@ -110,11 +95,20 @@ void NodeMemory::store(int addr, NodeID* nid, Event* cE, int nC, Event* pE, int 
             writeByte(addr++, *p++);
 }
 
-bool NodeMemory::checkOK(int addr) {
-    if (EEPROM.read(addr  ) != 0xEE ) return false;
-    if (EEPROM.read(addr+1) != 0x55 ) return false;
-    if (EEPROM.read(addr+2) != 0x5E ) return false;
-    if (EEPROM.read(addr+3) != 0xE5 ) return false;
+void NodeMemory::setToNewEventID(NodeID* nid, EventID* eventID) {
+    uint8_t* p = (uint8_t*)eventID;
+    uint8_t* n = (uint8_t*)nid;
+    for (int k=0; k<sizeof(*nid); k++)
+        *p++ = *n++;
+    *p++ = (count++>>8)&0xFF;
+    *p++ = count&0xFF;
+}
+
+bool NodeMemory::checkOK() {
+    if (EEPROM.read(startAddress  ) != 0xEE ) return false;
+    if (EEPROM.read(startAddress+1) != 0x55 ) return false;
+    if (EEPROM.read(startAddress+2) != 0x5E ) return false;
+    if (EEPROM.read(startAddress+3) != 0xE5 ) return false;
     return true;
 }
 

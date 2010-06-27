@@ -29,39 +29,39 @@ Event pEvents[] = {
 };
 int pEventNum = 2;
 
-NodeMemory m;
+NodeMemory m(0);
 
 int main( int argc, const char* argv[] )
 {
     printf("do setup\n");
-    m.setup(0, &node, cEvents, cEventNum, pEvents, cEventNum);
+    m.setup(&node, cEvents, cEventNum, pEvents, cEventNum);
     EEPROM.dump();
 
     printf("do setup\n");
-    m.setup(0, &node, cEvents, cEventNum, pEvents, cEventNum);
+    m.setup(&node, cEvents, cEventNum, pEvents, cEventNum);
     EEPROM.dump();
 
     printf("do reset\n");
-    m.reset(0, &node, cEvents, cEventNum, pEvents, cEventNum);
+    m.reset(&node, cEvents, cEventNum, pEvents, cEventNum);
     EEPROM.dump();
 
     printf("do reset\n");
-    m.reset(0, &node, cEvents, cEventNum, pEvents, cEventNum);
+    m.reset(&node, cEvents, cEventNum, pEvents, cEventNum);
     EEPROM.dump();
 
     printf("do setup\n");
-    m.setup(0, &node, cEvents, cEventNum, pEvents, cEventNum);
+    m.setup(&node, cEvents, cEventNum, pEvents, cEventNum);
     EEPROM.dump();
 
     printf("change values\n");
     cEvents[0] = pEvents[1];
-    m.store(0, &node, cEvents, cEventNum, pEvents, cEventNum);
+    m.store(&node, cEvents, cEventNum, pEvents, cEventNum);
     EEPROM.dump();
 
     printf("change values\n");
     Event a(10,11,12,13,14,15,16,17);
     cEvents[1] = a;
-    m.store(0, &node, cEvents, cEventNum, pEvents, cEventNum);
+    m.store(&node, cEvents, cEventNum, pEvents, cEventNum);
     EEPROM.dump();
     
 }
