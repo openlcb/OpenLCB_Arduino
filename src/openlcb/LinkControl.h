@@ -95,10 +95,15 @@ class LinkControl {
   bool sendInitializationComplete();
   
   /**
-   * Move to the next possible alias value during CIM/RIM resolution.
+   * Get next possible alias value during CIM/RIM resolution.
    */
   void nextAlias();
   
+  /** 
+   * Restart allocation process at next alias
+   */
+  void restart();
+
   OpenLcbCanBuffer* txBuffer;
   NodeID* nid;
   unsigned long timer; // used to wait for specific times (Arduino type definition)
