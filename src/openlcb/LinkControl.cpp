@@ -21,11 +21,6 @@
 LinkControl::LinkControl(OpenLcbCanBuffer* b, NodeID* n) {
   txBuffer = b;
   nid = n;
-  // initialize sequence from node ID
-  lfsr1 = (((uint32_t)nid->val[0]) << 16) | (((uint32_t)nid->val[1]) << 8) | ((uint32_t)nid->val[2]);
-  lfsr2 = (((uint32_t)nid->val[3]) << 16) | (((uint32_t)nid->val[4]) << 8) | ((uint32_t)nid->val[5]);
-  // set up for next (first) alias
-  reset();
 }
 
 void LinkControl::nextAlias() {
@@ -45,10 +40,16 @@ void LinkControl::nextAlias() {
 }
 
 void LinkControl::reset() {
+  // initialize sequence from node ID
+  lfsr1 = (((uint32_t)nid->val[0]) << 16) | (((uint32_t)nid->val[1]) << 8) | ((uint32_t)nid->val[2]);
+  lfsr2 = (((uint32_t)nid->val[3]) << 16) | (((uint32_t)nid->val[4]) << 8) | ((uint32_t)nid->val[5]);
+  restart();
+}
+
+void LinkControl::restart() {
   state = STATE_INITIAL;
   // take the 1st from the sequence
   nextAlias();
-  logstr("new key ");loghex(lfsr1);loghex(lfsr2);logstr(" alias ");loghex(getAlias());lognl();
 }
 
 // send the next CIM message.  "i" is the 0-3 ordinal number of the message, which
@@ -102,7 +103,6 @@ void LinkControl::check() {
     // last CIM, sent, wait for delay
     timer = millis();
     state = STATE_WAIT_CONFIRM; 
-    logstr("alias assigned ");loghex(getAlias());lognl();
 
     return;
   case STATE_WAIT_CONFIRM:
@@ -112,8 +112,9 @@ void LinkControl::check() {
     return;
   case STATE_ALIAS_ASSIGNED:
     // send init
-    if (sendInitializationComplete()) 
+    if (sendInitializationComplete()) {
       state = STATE_INITIALIZED;
+    }
     return;
   default:
     return;
@@ -138,10 +139,10 @@ void LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
        while (!sendRIM()) {}  // insist on sending it now.
      } else if (rcv->isRIM()) {
        // RIM frame is an error, restart
-       reset();
+       restart();
      } else {
        // some other frame; this is an error! Restart
-       reset();
+       restart();
      }
    }
    // see if this is a Verify request to us; first check type
