@@ -1,19 +1,16 @@
-new key  alias 
 --------------
 Starting DatagramTest
 OpenLcb_can_init
-new key  alias 
 setup done
-queue_xmt_wait: [170206ba]
-queue_xmt_wait: [163046ba]
-queue_xmt_wait: [150506ba]
-queue_xmt_wait: [146076ba]
-alias assigned 
-queue_xmt_wait: [107006ba]
-queue_xmt_wait: [1808f6ba] 02 03 04 05 06 07
+queue_xmt_wait: [17020285]
+queue_xmt_wait: [16304285]
+queue_xmt_wait: [15050285]
+queue_xmt_wait: [14607285]
+queue_xmt_wait: [10700285]
+queue_xmt_wait: [1808f285] 02 03 04 05 06 07
 send datagram B
-queue_xmt_wait: [1cbfd6ba] 10 11 12 13 14 15 16 17
-queue_xmt_wait: [1dbfd6ba] 18 19 1a 1b 1c 1d 1e
+queue_xmt_wait: [1cbfd285] 10 11 12 13 14 15 16 17
+queue_xmt_wait: [1dbfd285] 18 19 1a 1b 1c 1d 1e
 one second done
 
 --------------
@@ -23,29 +20,16 @@ OK
 
 datagram reply for this, expect it clears buffer
 can_get_frame:  [1e6babfd] 4c
-OK, send 0 length datagram
-queue_xmt_wait: [1dbff6ba]
-handle datagram ack reply
-can_get_frame:  [1e6babff] 4c
-
+Error: still in use
 send long datagram to test nak reply
-queue_xmt_wait: [1cbff6ba] 20 21 22 23 24 25 26 27
-queue_xmt_wait: [1cbff6ba] 28 29 2a 2b 2c 2d 2e 2f
-queue_xmt_wait: [1dbff6ba] 30 31 32 33 34 35 36
-datagram nak reply for different node, ignore
+Error: buffer still in usedatagram nak reply for different node, ignore
 can_get_frame:  [1e111bff] 4d
 datagram nak reply from different node, ignore
 can_get_frame:  [1e6ba111] 4d
 handle datagram nak reply by resending
 can_get_frame:  [1e6babff] 4d
-queue_xmt_wait: [1cbff6ba] 20 21 22 23 24 25 26 27
-queue_xmt_wait: [1cbff6ba] 28 29 2a 2b 2c 2d 2e 2f
-queue_xmt_wait: [1dbff6ba] 30 31 32 33 34 35 36
 handle 2nd datagram nak reply by resending again
 can_get_frame:  [1e6babff] 4d
-queue_xmt_wait: [1cbff6ba] 20 21 22 23 24 25 26 27
-queue_xmt_wait: [1cbff6ba] 28 29 2a 2b 2c 2d 2e 2f
-queue_xmt_wait: [1dbff6ba] 30 31 32 33 34 35 36
 final positive reply clears buffer
 can_get_frame:  [1e6babff] 4c
 
@@ -54,19 +38,13 @@ Start to test receiving datagrams
 
 Receive single fragment datagram OK
 can_get_frame:  [1d6babfd] 40 41 42 43
-consume datagram of length 4: 40 41 42 43 
-queue_xmt_wait: [1ebfd6ba] 4c
 
 Receive three fragment datagram OK
 can_get_frame:  [1c6babfd] 50 41 42 43
 can_get_frame:  [1c6babfd] 60 41 42 43
 can_get_frame:  [1d6babfd] 70 41 42 43
-consume datagram of length 12: 50 41 42 43 60 41 42 43 70 41 42 43 
-queue_xmt_wait: [1ebfd6ba] 4c
 
 Receive single fragment datagram fail
 can_get_frame:  [1d6babfd] 40 41 42 43
-consume datagram of length 4: 40 41 42 43 
-queue_xmt_wait: [1ebfd6ba] 4d 12 34
 
 test ends
