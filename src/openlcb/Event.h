@@ -10,7 +10,7 @@ class Event : public EventID {
   }
   
   Event(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3, uint8_t b4, uint8_t b5, uint8_t b6, uint8_t b7) 
-      : EventID(b0, b1, b2, b3, b4, b5, b6, b7){
+      : EventID(b0, b1, b2, b3, b4, b5, b6, b7), flags(0){
   }
   
   bool equals(Event* n) {

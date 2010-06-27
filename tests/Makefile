@@ -2,7 +2,7 @@
 
 include ../standard.mk
 
-BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest 
+BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest NodeMemoryTest
 
 default: clean compile $(BINFILES) 
 	
@@ -17,4 +17,7 @@ StreamTest:
 
 ConfigurationTest:
 	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold ConfigurationTest.o -o ConfigurationTest
+
+NodeMemoryTest:
+	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold NodeMemoryTest.o -o NodeMemoryTest
 

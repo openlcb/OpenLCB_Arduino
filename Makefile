@@ -25,6 +25,7 @@ run: all
 	@./tests/StreamTest | diff - tests/results/StreamTest.out.txt
 	@./tests/DatagramTest | diff - tests/results/DatagramTest.out.txt
 	@./tests/CanMrrlcbTest | diff - tests/results/CanMrrlcbTest.out.txt
+	@./tests/NodeMemoryTest | diff - tests/results/NodeMemoryTest.out.txt
 
 # reset the comparison files; only if sure!
 reset: 
@@ -32,3 +33,4 @@ reset:
 	@./tests/StreamTest > tests/results/StreamTest.out.txt
 	@./tests/DatagramTest > tests/results/DatagramTest.out.txt
 	@./tests/CanMrrlcbTest > tests/results/CanMrrlcbTest.out.txt
+	@./tests/NodeMemoryTest > tests/results/NodeMemoryTest.out.txt
