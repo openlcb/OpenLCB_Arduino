@@ -30,6 +30,7 @@ int producer_pin_record;
 #include "Datagram.h"
 #include "Stream.h"
 #include "Configuration.h"
+#include "NodeMemory.h"
 
 OpenLcbCanBuffer     rxBuffer;	// CAN receive buffer
 OpenLcbCanBuffer     txBuffer;	// CAN send buffer
@@ -73,6 +74,8 @@ unsigned int rcvCallback(uint8_t *rbuf, unsigned int length){
   printf("\n");
   return resultcode;  // return pre-ordained result
 }
+
+NodeMemory nm(0);
 
 /**
  * This setup is just for testing
