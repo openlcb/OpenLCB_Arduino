@@ -23,8 +23,8 @@ class Configuration {
   // ****
   
   Configuration(Datagram* datagramHandler, Stream *streamHandler,
-                        const uint8_t* (*getRead)(int address, int space),
-                        uint8_t* (*getWrite)(int address, int space),
+                        const uint8_t (*getRead)(int address, int space),
+                        void (*getWrite)(int address, int space, uint8_t val),
                         void (*restart)()
             );
             
@@ -47,8 +47,8 @@ class Configuration {
   int decodeLen(uint8_t* data);
   int decodeSpace(uint8_t* data);
   
-  const uint8_t* (*getRead)(int address, int space);
-  uint8_t* (*getWrite)(int address, int space);
+  const uint8_t (*getRead)(int address, int space);
+  void (*getWrite)(int address, int space, uint8_t val);
   void (*restart)();
  
 };

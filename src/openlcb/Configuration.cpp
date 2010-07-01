@@ -43,8 +43,8 @@
  */
  
   Configuration::Configuration( Datagram *d, Stream *s,
-                        const uint8_t* (*gr)(int address, int space),
-                        uint8_t* (*gw)(int address, int space),
+                        const uint8_t (*gr)(int address, int space),
+                        void (*gw)(int address, int space, uint8_t value),
                         void (*res)()
                  ){
     dg = d;
@@ -122,7 +122,6 @@ int Configuration::decodeSpace(uint8_t* data) {
 }
 
 void Configuration::processRead(uint8_t* data, int length) {
-    //logstr("  processReadp\n");
     // see if we can get datagram buffer to reply
     uint8_t* d = dg->getTransmitBuffer();
     if (d == 0) return; // skip and return again later
@@ -134,29 +133,33 @@ void Configuration::processRead(uint8_t* data, int length) {
     d[0] = CFG_CMD_READ_REPLY | d[0]&0x0F;
     // get length, space
     int len = decodeLen(data);
+    uint32_t address = getAddress(data);
     int space = decodeSpace(data);
-    // TODO: copy real data
-    // TODO: from address spaces
     for (int i=0; i<len; i++)
-        d[i+6] = i+16;
+        d[i+6] = getRead(address+i, space);
     // send
     dg->sendTransmitBuffer(6+len, from);
 }
 
 void Configuration::processWrite(uint8_t* data, int length) {
-    //logstr("  processWrite\n");
-    // TODO: Copy data into place
-    // TODO: with proper address space
+    // will reply, mark as done.
+    request = false;
+    uint32_t address = getAddress(data);
+    int space = decodeSpace(data);
+    for (int i=0; i<length; i++) {
+        getWrite(address+i, space, data[i+6]);
+    }
 }
 
 void Configuration::processCmd(uint8_t* data, int length) {
     //logstr("  processCmd\n");
+        
     switch (data[1]&0xFC) {
         case CFG_CMD_GET_CONFIG: {  // to partition local variable below
             // reply with canned message
             uint8_t* d = dg->getTransmitBuffer();
             if (d==0) return; // skip and return again later
-            // will reply, mark as done.
+            // will handle, mark as done.
             request = false;
             d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_CONFIG_REPLY;
             d[2]=0x03;d[3]=0x01;d[4]=0x38;d[5]=0x00;d[6]=0x00;
@@ -167,11 +170,19 @@ void Configuration::processCmd(uint8_t* data, int length) {
             // reply with canned message
             uint8_t* d = dg->getTransmitBuffer();
             if (d==0) return; // skip and return again later
-            // will reply, mark as done.
+            // will handle, mark as done.
             request = false;
+            // will reply, mark as done.
             d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_CONFIG_REPLY;
             d[2]=0x03;d[3]=0x01;d[4]=0x38;d[5]=0x00;d[6]=0x00;
             dg->sendTransmitBuffer(7, from);
+            break;
+          }
+        case CFG_CMD_RESET: {
+            // will handle, mark as done.
+            request = false;
+            // force restart (may not reply?)
+            (*restart)();
             break;
           }
         //case CFG_CMD_CFG_CMD_GET_CONFIG_REPLY :
@@ -182,12 +193,10 @@ void Configuration::processCmd(uint8_t* data, int length) {
         //case CFG_CMD_GET_UNIQUEID_REPLY:
         //case CFG_CMD_FREEZE:
         //case CFG_CMD_INDICATE:
-        //case CFG_CMD_RESET:
         //case CFG_CMD_FACTORY_RESET:
         //case CFG_CMD_INDICATE:
         default:
             // these do nothing in this implementation
-            request = false;
             break;
     }
 }
