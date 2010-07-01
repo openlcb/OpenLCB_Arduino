@@ -60,6 +60,27 @@ class PCE {
    */
   void newProducedEvent(int index);
   
+  /**
+   * Mark a particular slot to acquire the event 
+   * from the next learn message.
+   * C is consumers, P is producers.
+   *
+   * index is the 0-based index of the desired
+   * event in the array provided to the ctor earlier.
+   */
+  void markToLearnC(int index);
+  void markToLearnP(int index);
+  
+  /**
+   * Send a learn frame for a particular slot's event.
+   * C is consumers, P is producers.
+   *
+   * index is the 0-based index of the desired
+   * event in the array provided to the ctor earlier.
+   */
+  void sendTeachC(int index);
+  void sendTeachP(int index);
+  
   private:
   Event* consumed;  // array
   Event* produced;  // array

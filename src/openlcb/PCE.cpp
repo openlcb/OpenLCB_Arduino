@@ -1,5 +1,6 @@
 // makes this an Arduino file
 #include "WConstants.h"
+#include <string.h>
 
 #include "PCE.h"
 
@@ -15,6 +16,10 @@
 #define PRODUCE_FLAG 0x02
 // Mark entry as really empty, ignore
 #define EMPTY_FLAG 0x04
+// Mark entry to written from next learn message
+#define LEARN_FLAG 0x08
+// Mark entry to send a learn message
+#define TEACH_FLAG 0x10
 
 PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, void (*cb)(int i)) {
       consumed = c;
@@ -25,13 +30,13 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
       nid = n;
       callback = cb;
       
-      // mark as needing transmit of IDs 
+      // mark as needing transmit of IDs, otherwise not interesting
         for (int i = 0; i < nProduced; i++) {
-          produced[i].flags |= IDENT_FLAG;
+          produced[i].flags = IDENT_FLAG;
         }
         sendProducer = 0;
         for (int i = 0; i < nConsumed; i++) {
-          consumed[i].flags |= IDENT_FLAG;
+          consumed[i].flags = IDENT_FLAG;
         }
         sendConsumer = 0;        
       
@@ -45,17 +50,21 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
   
   void PCE::check() {
      // see in any replies are waiting to send
-     
      while (sendProducer < nProduced) {
          // OK to send, see if marked for some cause
          if (produced[sendProducer].flags & IDENT_FLAG) {
            produced[sendProducer].flags &= ~IDENT_FLAG;    // reset flag
-           buffer->setProducerIdentified(&produced[sendProducer++]);
+           buffer->setProducerIdentified(&produced[sendProducer]);
            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else if (produced[sendProducer].flags & PRODUCE_FLAG) {
            produced[sendProducer].flags &= ~PRODUCE_FLAG;    // reset flag
-           buffer->setPCEventReport(&produced[sendProducer++]);
+           buffer->setPCEventReport(&produced[sendProducer]);
+           OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           break; // only send one from this loop
+         } else if (produced[sendProducer].flags & TEACH_FLAG) {
+           produced[sendProducer].flags &= ~TEACH_FLAG;    // reset flag
+           buffer->setLearnEvent(&produced[sendProducer]);
            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else {
@@ -72,6 +81,11 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
            buffer->setConsumerIdentified(&consumed[sendConsumer++]);
            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
+         } else if (consumed[sendConsumer].flags & TEACH_FLAG) {
+           consumed[sendConsumer].flags &= ~TEACH_FLAG;    // reset flag
+           buffer->setLearnEvent(&consumed[sendConsumer++]);
+           OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           break; // only send one from this loop
          } else {
            // just skip
            sendConsumer++;
@@ -86,6 +100,26 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
 
   void PCE::newConsumedEvent(int index) {
     consumed[index].flags |= IDENT_FLAG;
+  }
+  
+  void PCE::markToLearnP(int index) {
+    produced[index].flags |= LEARN_FLAG;
+    sendProducer = min(sendProducer, index);
+  }
+  
+  void PCE::sendTeachP(int index) {
+    produced[index].flags |= TEACH_FLAG;
+    sendProducer = min(sendProducer, index);
+  }
+  
+  void PCE::markToLearnC(int index) {
+    consumed[index].flags |= LEARN_FLAG;
+    sendConsumer = min(sendConsumer, index);
+  }
+  
+  void PCE::sendTeachC(int index) {
+    consumed[index].flags |= TEACH_FLAG;
+    sendConsumer = min(sendConsumer, index);
   }
   
   void PCE::receivedFrame(OpenLcbCanBuffer* rcv) {
@@ -135,6 +169,18 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
            // yes, notify our own code
            (*callback)(index);
         }        
+    } else if (rcv->isLearnEvent()) {
+        // found a teaching frame, apply to selected
+        for (int i=0; i<nConsumed; i++) {
+            if ( (consumed[i].flags & LEARN_FLAG ) != 0 ) {
+                rcv->getEventID(consumed+i);
+            }
+        }
+        for (int i=0; i<nProduced; i++) {
+            if ( (produced[i].flags & LEARN_FLAG ) != 0 ) {
+                rcv->getEventID(produced+i);
+            }
+        }
     }
   }
   
