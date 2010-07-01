@@ -217,7 +217,36 @@ int main( int argc, const char* argv[] )
 	doLoop(100);
 	printf("\n");
 
+    printf("----- start learn/teach tests ----------\n");
+    Event original0(1,2,3,4,5,6,7,8);
+    if (!original0.equals(&pEvents[0])) printf(" *** not match at beginning\n");
+
+	printf("Send stand-alone learn messages\n");
+	p.sendTeachC(1);
+	doLoop(10);
+	p.sendTeachP(0);
+	doLoop(10);
+	printf("\n");
+
+	printf("Learn p0, c1\n");
+	p.markToLearnP(0);
+	p.markToLearnC(1);
+    printf("Teach new event 0x2x\n");
+	b.id = 0x182cf00F;
+	b.length = (uint8_t)8;
+	b.data[0]=0x28;b.data[1]=0x27;b.data[2]=0x26;b.data[3]=0x25;b.data[4]=0x24;b.data[5]=0x23;b.data[6]=0x22;b.data[7]=0x21;
+	queueTestMessage(&b);
+	doLoop(10);
+	printf("queue Request Events, expect 1st and last changed\n");
+	b.id = 0x182BF00F;
+	b.length = (uint8_t)6;
+	b.data[0]=2; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
+	queueTestMessage(&b);
+	doLoop(10);
+	printf("\n");
+
 	printf("test ends\n");
+	
 }
 
 // to test (messages in JMRI format)

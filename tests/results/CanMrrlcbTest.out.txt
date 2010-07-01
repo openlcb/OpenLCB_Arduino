@@ -13,6 +13,7 @@ queue_xmt_wait: [1826f285] 01 02 03 04 05 06 07 08
 produce p1
 queue_xmt_wait: [182af285] 08 07 06 05 04 03 02 01
 queue_xmt_wait: [1826f285] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [182df285] 08 07 06 05 04 03 02 01
 one second done
 
 trigger RIM conflict
@@ -56,4 +57,10 @@ queue P/C Event Transfer, match event 1
 can_get_frame:  [182df00f] 08 07 06 05 04 03 02 01
 consume 1
 
+----- start learn/teach tests ----------
+Send stand-alone learn messages
+queue_xmt_wait: [182cf285] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [182cf285] 01 02 03 04 05 06 07 08
+
+Teach p0, c1
 test ends
