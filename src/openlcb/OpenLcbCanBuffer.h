@@ -15,7 +15,7 @@ class EventID;
   public: 
   
   // Initialize a buffer for transmission
-  void init();
+  void init(uint16_t a);
   
   // start of basic message structure
 

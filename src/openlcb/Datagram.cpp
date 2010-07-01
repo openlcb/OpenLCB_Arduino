@@ -1,5 +1,6 @@
 // makes this an Arduino file
 #include "WConstants.h"
+#include <string.h>
 
 #include "OpenLcbCan.h"
 #include "OpenLcbCanBuffer.h"
@@ -26,7 +27,7 @@ uint8_t* Datagram::getTransmitBuffer() {
 
 void Datagram::sendTransmitBuffer(int length, unsigned int destNIDa) {
     if (!reserved) {
-        logstr("error: Datagram::sendTransmitBuffer when not reserved");
+        //logstr("error: Datagram::sendTransmitBuffer when not reserved");
         return;
     }
     sendcount = length;
@@ -94,28 +95,24 @@ void Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
             // callback
             int result = (*callback)(rbuf, length, rcv->getSourceAlias());
             rptr = rbuf;
+            buffer->setVariableField(rcv->getSourceAlias());
+            buffer->setFrameTypeOpenLcb();
+            buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_NON_DATAGRAM);
             if (result == 0) {
                 // send OK; done immediately with wait
                 // TODO: Need a more robust method here
                 // load buffer
-                buffer->setVariableField(rcv->getSourceAlias());
-                buffer->setFrameTypeOpenLcb();
-                buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_NON_DATAGRAM);
                 buffer->data[0] = MTI_DATAGRAM_RCV_OK>>4;
                 buffer->length = 1;
-                OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
             } else {
                 // not OK, send reject; done immediately with wait
                 // TODO: Need a more robust method here
-                buffer->setVariableField(rcv->getSourceAlias());
-                buffer->setFrameTypeOpenLcb();
-                buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_NON_DATAGRAM);
                 buffer->data[0] = MTI_DATAGRAM_REJECTED>>4;
                 buffer->data[1] = (result>>8)&0xFF;
                 buffer->data[2] = result&0xFF;
                 buffer->length = 3;
-                OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
             }
+            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
          }
     }
 }

@@ -1,6 +1,8 @@
 // makes this an Arduino file
 #include "WConstants.h"
 
+#include <string.h>
+
 // The following line is needed because the Arduino environment 
 // won't search a library directory unless the library is included 
 // from the top level file (this file)
@@ -32,10 +34,11 @@
 #define MASK_OPENLCB_FORMAT 0x07000L
 #define SHIFT_OPENLCB_FORMAT 12
 
-  void OpenLcbCanBuffer::init() {
+  void OpenLcbCanBuffer::init(uint16_t a) {
     // set default header: extended frame w low priority
     flags.extended = 1;
-    id = 0x1FFFFFFF;  // all bits in header default to 1
+    // all bits in header default to 1 except MASK_SRC_ALIAS
+    id = 0x1FFFF000 | (a & MASK_SRC_ALIAS);
   }
 
   // start of basic message structure
@@ -82,11 +85,10 @@
 #define RIM_VAR_FIELD 0x0700
 
   void OpenLcbCanBuffer::setCIM(int i, uint16_t testval, uint16_t alias) {
-    init();
+    init(alias);
     setFrameTypeCAN();
     uint16_t var =  (( (0x7-i) & 7) << 12) | (testval & 0xFFF); 
     setVariableField(var);
-    setSourceAlias(alias);
     length=0;
   }
 
@@ -95,10 +97,9 @@
   }
 
   void OpenLcbCanBuffer::setRIM(uint16_t alias) {
-    init();
+    init(alias);
     setFrameTypeCAN();
     setVariableField(RIM_VAR_FIELD);
-    setSourceAlias(alias);
     length=0;
   }
 
@@ -141,11 +142,10 @@
   // start of OpenLCB messages
   
   void OpenLcbCanBuffer::setPCEventReport(EventID* eid) {
-    init();
+    init(nodeAlias);
     setFrameTypeOpenLcb();
     setOpenLcbFormat(MTI_FORMAT_SIMPLE_MTI);
     setVariableField(MTI_PC_EVENT_REPORT);
-    setSourceAlias(nodeAlias);
     length=8;
     loadFromEid(eid);
   }
@@ -155,11 +155,10 @@
   }
 
   void OpenLcbCanBuffer::setLearnEvent(EventID* eid) {
-    init();
+    init(nodeAlias);
     setFrameTypeOpenLcb();
     setOpenLcbFormat(MTI_FORMAT_SIMPLE_MTI);
     setVariableField(MTI_LEARN_EVENT);
-    setSourceAlias(nodeAlias);
     length=8;
     loadFromEid(eid);
   }
@@ -170,18 +169,18 @@
 
   void OpenLcbCanBuffer::setInitializationComplete(uint16_t alias, NodeID* nid) {
     nodeAlias = alias;
-    init();
+    init(nodeAlias);
     setFrameTypeOpenLcb();
     setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
     setVariableField(MTI_INITIALIZATION_COMPLETE);
-    setSourceAlias(nodeAlias);
     length=6;
-    data[0] = nid->val[0];
-    data[1] = nid->val[1];
-    data[2] = nid->val[2];
-    data[3] = nid->val[3];
-    data[4] = nid->val[4];
-    data[5] = nid->val[5];
+    memcpy(data, nid->val, 6);
+    //data[0] = nid->val[0];
+    //data[1] = nid->val[1];
+    //data[2] = nid->val[2];
+    //data[3] = nid->val[3];
+    //data[4] = nid->val[4];
+    //data[5] = nid->val[5];
   }
   
   bool OpenLcbCanBuffer::isInitializationComplete() {
@@ -189,23 +188,25 @@
   }
   
   void OpenLcbCanBuffer::getEventID(EventID* evt) {
-    evt->val[0] = data[0];
-    evt->val[1] = data[1];
-    evt->val[2] = data[2];
-    evt->val[3] = data[3];
-    evt->val[4] = data[4];
-    evt->val[5] = data[5];
-    evt->val[6] = data[6];
-    evt->val[7] = data[7];
+    memcpy(evt->val, data, 8);
+    //evt->val[0] = data[0];
+    //evt->val[1] = data[1];
+    //evt->val[2] = data[2];
+    //evt->val[3] = data[3];
+    //evt->val[4] = data[4];
+    //evt->val[5] = data[5];
+    //evt->val[6] = data[6];
+    //evt->val[7] = data[7];
   }
   
   void OpenLcbCanBuffer::getNodeID(NodeID* nid) {
-    nid->val[0] = data[0];
-    nid->val[1] = data[1];
-    nid->val[2] = data[2];
-    nid->val[3] = data[3];
-    nid->val[4] = data[4];
-    nid->val[5] = data[5];
+    memcpy(nid->val, data, 6);
+    //nid->val[0] = data[0];
+    //nid->val[1] = data[1];
+    //nid->val[2] = data[2];
+    //nid->val[3] = data[3];
+    //nid->val[4] = data[4];
+    //nid->val[5] = data[5];
   }
   
   bool OpenLcbCanBuffer::isVerifyNID() {
@@ -213,18 +214,18 @@
   }
 
   void OpenLcbCanBuffer::setVerifiedNID(NodeID* nid) {
-    init();
+    init(nodeAlias);
     setFrameTypeOpenLcb();
     setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
     setVariableField(MTI_VERIFIED_NID);
-    setSourceAlias(nodeAlias);
     length=6;
-    data[0] = nid->val[0];
-    data[1] = nid->val[1];
-    data[2] = nid->val[2];
-    data[3] = nid->val[3];
-    data[4] = nid->val[4];
-    data[5] = nid->val[5];
+    memcpy(data, nid->val, 6);
+    //data[0] = nid->val[0];
+    //data[1] = nid->val[1];
+    //data[2] = nid->val[2];
+    //data[3] = nid->val[3];
+    //data[4] = nid->val[4];
+    //data[5] = nid->val[5];
   }
 
   bool OpenLcbCanBuffer::isIdentifyConsumers() {
@@ -232,22 +233,20 @@
   }
 
   void OpenLcbCanBuffer::setConsumerIdentified(EventID* eid) {
-    init();
+    init(nodeAlias);
     setFrameTypeOpenLcb();
     setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
     setVariableField(MTI_CONSUMER_IDENTIFIED);
-    setSourceAlias(nodeAlias);
     length=8;
     loadFromEid(eid);
   }
 
   void OpenLcbCanBuffer::setConsumerIdentifyRange(EventID* eid, EventID* mask) {
     // does send a message, but not complete yet - RGJ 2009-06-14
-    init();
+    init(nodeAlias);
     setFrameTypeOpenLcb();
     setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
     setVariableField(MTI_IDENTIFY_CONSUMERS_RANGE);
-    setSourceAlias(nodeAlias);
     length=8;
     loadFromEid(eid);
   }
@@ -257,22 +256,20 @@
   }
 
   void OpenLcbCanBuffer::setProducerIdentified(EventID* eid) {
-    init();
+    init(nodeAlias);
     setFrameTypeOpenLcb();
     setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
     setVariableField(MTI_PRODUCER_IDENTIFIED);
-    setSourceAlias(nodeAlias);
     length=8;
     loadFromEid(eid);
   }
 
   void OpenLcbCanBuffer::setProducerIdentifyRange(EventID* eid, EventID* mask) {
     // does send a message, but not complete yet - RGJ 2009-06-14
-    init();
+    init(nodeAlias);
     setFrameTypeOpenLcb();
     setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
     setVariableField(MTI_IDENTIFY_PRODUCERS_RANGE);
-    setSourceAlias(nodeAlias);
     length=8;
     loadFromEid(eid);
   }
@@ -282,14 +279,15 @@
   }
 
   void OpenLcbCanBuffer::loadFromEid(EventID* eid) {
-    data[0] = eid->val[0];
-    data[1] = eid->val[1];
-    data[2] = eid->val[2];
-    data[3] = eid->val[3];
-    data[4] = eid->val[4];
-    data[5] = eid->val[5];
-    data[6] = eid->val[6];
-    data[7] = eid->val[7];
+    memcpy(data, eid->val, 8);
+    //data[0] = eid->val[0];
+    //data[1] = eid->val[1];
+    //data[2] = eid->val[2];
+    //data[3] = eid->val[3];
+    //data[4] = eid->val[4];
+    //data[5] = eid->val[5];
+    //data[6] = eid->val[6];
+    //data[7] = eid->val[7];
   }
   
   // general, but not efficient
