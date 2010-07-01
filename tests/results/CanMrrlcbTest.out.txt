@@ -62,5 +62,16 @@ Send stand-alone learn messages
 queue_xmt_wait: [182cf285] 08 07 06 05 04 03 02 01
 queue_xmt_wait: [182cf285] 01 02 03 04 05 06 07 08
 
-Teach p0, c1
+Learn p0, c1
+Teach new event 0x2x
+can_get_frame:  [182cf00f] 28 27 26 25 24 23 22 21
+queue_xmt_wait: [182af285] 28 27 26 25 24 23 22 21
+queue_xmt_wait: [1826f285] 28 27 26 25 24 23 22 21
+queue Request Events, expect 1st and last changed
+can_get_frame:  [182bf00f] 02 03 04 05 06 07
+queue_xmt_wait: [182af285] 28 27 26 25 24 23 22 21
+queue_xmt_wait: [1826f285] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [182af285] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [1826f285] 28 27 26 25 24 23 22 21
+
 test ends
