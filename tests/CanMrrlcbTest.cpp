@@ -229,8 +229,10 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("Learn p0, c1\n");
-	p.markToLearnP(0);
-	p.markToLearnC(1);
+	p.markToLearnP(0, true);
+	p.markToLearnC(0, true);
+	p.markToLearnC(1, true);
+	p.markToLearnC(0, false);
     printf("Teach new event 0x2x\n");
 	b.id = 0x182cf00F;
 	b.length = (uint8_t)8;

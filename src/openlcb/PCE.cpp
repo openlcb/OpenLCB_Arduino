@@ -102,8 +102,11 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
     consumed[index].flags |= IDENT_FLAG;
   }
   
-  void PCE::markToLearnP(int index) {
-    produced[index].flags |= LEARN_FLAG;
+  void PCE::markToLearnP(int index, bool mark) {
+    if (mark)
+        produced[index].flags |= LEARN_FLAG;
+    else
+        produced[index].flags &= ~LEARN_FLAG;
     sendProducer = min(sendProducer, index);
   }
   
@@ -112,8 +115,11 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
     sendProducer = min(sendProducer, index);
   }
   
-  void PCE::markToLearnC(int index) {
-    consumed[index].flags |= LEARN_FLAG;
+  void PCE::markToLearnC(int index, bool mark) {
+    if (mark)
+        consumed[index].flags |= LEARN_FLAG;
+    else
+        consumed[index].flags &= ~LEARN_FLAG;
     sendConsumer = min(sendConsumer, index);
   }
   

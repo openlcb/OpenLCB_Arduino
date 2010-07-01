@@ -64,12 +64,13 @@ class PCE {
    * Mark a particular slot to acquire the event 
    * from the next learn message.
    * C is consumers, P is producers.
+   * true marks, false unmarks.
    *
    * index is the 0-based index of the desired
    * event in the array provided to the ctor earlier.
    */
-  void markToLearnC(int index);
-  void markToLearnP(int index);
+  void markToLearnC(int index, bool mark);
+  void markToLearnP(int index, bool mark);
   
   /**
    * Send a learn frame for a particular slot's event.
