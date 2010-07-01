@@ -43,11 +43,17 @@ LinkControl link(&txBuffer, &nodeid);
 unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from);
 unsigned int rcvCallback(uint8_t *rbuf, unsigned int length);
 
-const uint8_t* getRead(int address, int space) {
-    return (uint8_t*)address;
+/**
+ * Get and put routines that 
+ * use a test memory space.
+ */
+uint8_t test_mem[200];
+
+const uint8_t getRead(int address, int space) {
+    return *(test_mem+address);
 }
-uint8_t* getWrite(int address, int space) {
-    return (uint8_t*)address;
+void getWrite(int address, int space, uint8_t val) {
+    *(test_mem+address) = val;
 }
 void restart() {logstr("restart called\n");}
 
@@ -76,6 +82,7 @@ unsigned int rcvCallback(uint8_t *rbuf, unsigned int length){
 }
 
 NodeMemory nm(0);
+
 
 /**
  * This setup is just for testing
@@ -146,14 +153,14 @@ int main( int argc, const char* argv[] )
 	printf("Single fragment datagram for get config\n");
 	// [1D6baBFD] 20 80 01 02 03 04 02
 	resultcode = 0;
-	b.id = 0x1D6baBFD;
+	b.id = 0x1D285BFD;
 	b.length = (uint8_t)7;
     b.data[0]=0x20;b.data[1]=0x80; // header
     b.data[6]=0x02;  // count
     queueTestMessage(&b);
 	doLoop(10);
 	printf("   Ack to config reply datagram\n");
-	b.id = 0x1E6baBFD;
+	b.id = 0x1E285BFD;
 	b.length = (uint8_t)1;
     b.data[0]=0x4c;
     queueTestMessage(&b);
@@ -162,31 +169,51 @@ int main( int argc, const char* argv[] )
     	
 	printf("Second single fragment datagram for get config\n");
 	resultcode = 0;
-	b.id = 0x1D6baBFD;
+	b.id = 0x1D285BFD;
 	b.length = (uint8_t)7;
     b.data[0]=0x20;b.data[1]=0x80; // header
     b.data[6]=0x02;  // count
     queueTestMessage(&b);
 	doLoop(10);
 	printf("   Ack to config reply datagram\n");
-	b.id = 0x1E6baBFD;
+	b.id = 0x1E285BFD;
 	b.length = (uint8_t)1;
     b.data[0]=0x4c;
     queueTestMessage(&b);
 	doLoop(10);
 	printf("\n");
     	
+	printf("Single fragment datagram for reset\n");
+	resultcode = 0;
+	b.id = 0x1D285BFD;
+ 	b.length = (uint8_t)2;
+    b.data[0]=0x20;b.data[1]=(0x2<<6)|(0xA<<2); // header
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("\n");
+
+	printf("Single fragment datagram for short write\n");
+	resultcode = 0;
+	b.id = 0x1D285BFD;
+	b.length = (uint8_t)8;
+    b.data[0]=0x20;b.data[1]=0x23; // header
+    b.data[2]=0x00;b.data[3]=0x00;b.data[4]=0x00;b.data[5]=0x03; // address
+    b.data[6]=0x44;b.data[7]=0x55;  // count
+    queueTestMessage(&b);
+	doLoop(10);
+	printf("\n");
+
 	printf("Single fragment datagram for short read\n");
 	resultcode = 0;
-	b.id = 0x1D6baBFD;
+	b.id = 0x1D285BFD;
 	b.length = (uint8_t)7;
     b.data[0]=0x20;b.data[1]=0x63; // header
-    b.data[2]=0x12;b.data[3]=0x34;b.data[4]=0x56;b.data[5]=0x78; // address
+    b.data[2]=0x00;b.data[3]=0x00;b.data[4]=0x00;b.data[5]=0x00; // address
     b.data[6]=0x08;  // count
     queueTestMessage(&b);
 	doLoop(10);
 	printf("   Ack to reply datagram\n");
-	b.id = 0x1E6baBFD;
+	b.id = 0x1E285BFD;
 	b.length = (uint8_t)1;
     b.data[0]=0x4c;
     queueTestMessage(&b);
