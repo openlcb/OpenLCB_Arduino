@@ -174,11 +174,13 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
         for (int i=0; i<nConsumed; i++) {
             if ( (consumed[i].flags & LEARN_FLAG ) != 0 ) {
                 rcv->getEventID(consumed+i);
+                consumed[i].flags |= IDENT_FLAG; // notify new eventID
             }
         }
         for (int i=0; i<nProduced; i++) {
             if ( (produced[i].flags & LEARN_FLAG ) != 0 ) {
                 rcv->getEventID(produced+i);
+                produced[i].flags |= IDENT_FLAG; // notify new eventID
             }
         }
     }
