@@ -107,7 +107,6 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
         produced[index].flags |= LEARN_FLAG;
     else
         produced[index].flags &= ~LEARN_FLAG;
-    sendProducer = min(sendProducer, index);
   }
   
   void PCE::sendTeachP(int index) {
@@ -120,7 +119,6 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
         consumed[index].flags |= LEARN_FLAG;
     else
         consumed[index].flags &= ~LEARN_FLAG;
-    sendConsumer = min(sendConsumer, index);
   }
   
   void PCE::sendTeachC(int index) {
@@ -181,12 +179,14 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
             if ( (consumed[i].flags & LEARN_FLAG ) != 0 ) {
                 rcv->getEventID(consumed+i);
                 consumed[i].flags |= IDENT_FLAG; // notify new eventID
+                sendConsumer = min(sendConsumer, i);
             }
         }
         for (int i=0; i<nProduced; i++) {
             if ( (produced[i].flags & LEARN_FLAG ) != 0 ) {
                 rcv->getEventID(produced+i);
                 produced[i].flags |= IDENT_FLAG; // notify new eventID
+                sendProducer = min(sendProducer, i);
             }
         }
     }
