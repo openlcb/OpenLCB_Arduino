@@ -92,7 +92,7 @@ void Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
          if (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, link->getAlias()) ) {
             // 
             unsigned int length = rptr-rbuf;
-            // callback
+            // callback; result is error code or zero
             int result = (*callback)(rbuf, length, rcv->getSourceAlias());
             rptr = rbuf;
             buffer->setVariableField(rcv->getSourceAlias());
