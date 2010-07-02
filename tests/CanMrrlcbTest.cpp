@@ -238,13 +238,13 @@ int main( int argc, const char* argv[] )
 	b.length = (uint8_t)8;
 	b.data[0]=0x28;b.data[1]=0x27;b.data[2]=0x26;b.data[3]=0x25;b.data[4]=0x24;b.data[5]=0x23;b.data[6]=0x22;b.data[7]=0x21;
 	queueTestMessage(&b);
-	doLoop(10);
+	doLoop(20);
 	printf("queue Request Events, expect 1st and last changed\n");
 	b.id = 0x182BF00F;
 	b.length = (uint8_t)6;
 	b.data[0]=2; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
 	queueTestMessage(&b);
-	doLoop(10);
+	doLoop(20);
 	printf("\n");
 
 	printf("test ends\n");
