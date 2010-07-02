@@ -68,6 +68,9 @@ class PCE {
    *
    * index is the 0-based index of the desired
    * event in the array provided to the ctor earlier.
+   *
+   * ToDo: This doesn't force the non-volatile memory
+   * to be stored after the learn message is received.
    */
   void markToLearnC(int index, bool mark);
   void markToLearnP(int index, bool mark);
