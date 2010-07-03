@@ -3,7 +3,7 @@ objects  :=
 CPPFLAGS := -I$(PWD)/src/openlcb -I$(PWD)/scaffold $(CPPFLAGS)
 
 # default target: clean & rebuild
-all: clean scaffold src tests
+all: clean scaffold src test
 
 # compile directories
 src: FORCE
@@ -12,7 +12,7 @@ src: FORCE
 scaffold: FORCE
 	@make -C scaffold CPPFLAGS="$(CPPFLAGS)"
 
-tests: FORCE
+test: FORCE
 	@make -C test CPPFLAGS="$(CPPFLAGS)"
 
 clean: FORCE 
