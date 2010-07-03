@@ -34,11 +34,11 @@
 #define MASK_OPENLCB_FORMAT 0x07000L
 #define SHIFT_OPENLCB_FORMAT 12
 
-  void OpenLcbCanBuffer::init(uint16_t a) {
+  void OpenLcbCanBuffer::init(uint16_t alias) {
     // set default header: extended frame w low priority
     flags.extended = 1;
     // all bits in header default to 1 except MASK_SRC_ALIAS
-    id = 0x1FFFF000 | (a & MASK_SRC_ALIAS);
+    id = 0x1FFFF000 | (alias & MASK_SRC_ALIAS);
   }
 
   // start of basic message structure
@@ -131,6 +131,12 @@
       return ( getOpenLcbFormat() == MTI_FORMAT_STREAM_CODE);
   }
   
+  void OpenLcbCanBuffer::setOpenLcbMTI(uint16_t fmt, uint16_t mtiHeaderByte) {
+        setFrameTypeOpenLcb();
+        setVariableField(mtiHeaderByte);
+        setOpenLcbFormat(fmt);  // order matters here
+  }
+  
   bool OpenLcbCanBuffer::isOpenLcbMTI(uint16_t fmt, uint16_t mtiHeaderByte) {
       return isFrameTypeOpenLcb() 
                 && ( getOpenLcbFormat() == fmt )
@@ -143,9 +149,7 @@
   
   void OpenLcbCanBuffer::setPCEventReport(EventID* eid) {
     init(nodeAlias);
-    setFrameTypeOpenLcb();
-    setOpenLcbFormat(MTI_FORMAT_SIMPLE_MTI);
-    setVariableField(MTI_PC_EVENT_REPORT);
+    setOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI,MTI_PC_EVENT_REPORT);
     length=8;
     loadFromEid(eid);
   }
@@ -156,9 +160,7 @@
 
   void OpenLcbCanBuffer::setLearnEvent(EventID* eid) {
     init(nodeAlias);
-    setFrameTypeOpenLcb();
-    setOpenLcbFormat(MTI_FORMAT_SIMPLE_MTI);
-    setVariableField(MTI_LEARN_EVENT);
+    setOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI,MTI_LEARN_EVENT);
     length=8;
     loadFromEid(eid);
   }
@@ -170,9 +172,7 @@
   void OpenLcbCanBuffer::setInitializationComplete(uint16_t alias, NodeID* nid) {
     nodeAlias = alias;
     init(nodeAlias);
-    setFrameTypeOpenLcb();
-    setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
-    setVariableField(MTI_INITIALIZATION_COMPLETE);
+    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_INITIALIZATION_COMPLETE);
     length=6;
     memcpy(data, nid->val, 6);
     //data[0] = nid->val[0];
@@ -215,9 +215,7 @@
 
   void OpenLcbCanBuffer::setVerifiedNID(NodeID* nid) {
     init(nodeAlias);
-    setFrameTypeOpenLcb();
-    setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
-    setVariableField(MTI_VERIFIED_NID);
+    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_VERIFIED_NID);
     length=6;
     memcpy(data, nid->val, 6);
     //data[0] = nid->val[0];
@@ -234,9 +232,7 @@
 
   void OpenLcbCanBuffer::setConsumerIdentified(EventID* eid) {
     init(nodeAlias);
-    setFrameTypeOpenLcb();
-    setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
-    setVariableField(MTI_CONSUMER_IDENTIFIED);
+    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_CONSUMER_IDENTIFIED);
     length=8;
     loadFromEid(eid);
   }
@@ -244,9 +240,7 @@
   void OpenLcbCanBuffer::setConsumerIdentifyRange(EventID* eid, EventID* mask) {
     // does send a message, but not complete yet - RGJ 2009-06-14
     init(nodeAlias);
-    setFrameTypeOpenLcb();
-    setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
-    setVariableField(MTI_IDENTIFY_CONSUMERS_RANGE);
+    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_IDENTIFY_CONSUMERS_RANGE);
     length=8;
     loadFromEid(eid);
   }
@@ -257,9 +251,7 @@
 
   void OpenLcbCanBuffer::setProducerIdentified(EventID* eid) {
     init(nodeAlias);
-    setFrameTypeOpenLcb();
-    setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
-    setVariableField(MTI_PRODUCER_IDENTIFIED);
+    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_PRODUCER_IDENTIFIED);
     length=8;
     loadFromEid(eid);
   }
@@ -267,9 +259,7 @@
   void OpenLcbCanBuffer::setProducerIdentifyRange(EventID* eid, EventID* mask) {
     // does send a message, but not complete yet - RGJ 2009-06-14
     init(nodeAlias);
-    setFrameTypeOpenLcb();
-    setOpenLcbFormat(MTI_FORMAT_COMPLEX_MTI);
-    setVariableField(MTI_IDENTIFY_PRODUCERS_RANGE);
+    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_IDENTIFY_PRODUCERS_RANGE);
     length=8;
     loadFromEid(eid);
   }

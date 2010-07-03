@@ -52,6 +52,7 @@ class EventID;
   bool isOpenLcDestIdFormat();
   bool isOpenLcbStreamIdFormat();
 
+  void setOpenLcbMTI(uint16_t fmt, uint16_t mti);
   bool isOpenLcbMTI(uint16_t fmt, uint16_t mti);
   
   // end of OpenLCB format support

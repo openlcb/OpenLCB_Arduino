@@ -7,12 +7,12 @@ queue_xmt_wait: [16304285]
 queue_xmt_wait: [15050285]
 queue_xmt_wait: [14607285]
 queue_xmt_wait: [10700285]
-queue_xmt_wait: [1808f285] 02 03 04 05 06 07
-queue_xmt_wait: [182af285] 01 02 03 04 05 06 07 08
-queue_xmt_wait: [1826f285] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [1908f285] 02 03 04 05 06 07
+queue_xmt_wait: [192af285] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [1926f285] 01 02 03 04 05 06 07 08
 produce p1
-queue_xmt_wait: [182af285] 08 07 06 05 04 03 02 01
-queue_xmt_wait: [1826f285] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [192af285] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [1926f285] 08 07 06 05 04 03 02 01
 queue_xmt_wait: [182df285] 08 07 06 05 04 03 02 01
 one second done
 
@@ -23,7 +23,7 @@ queue_xmt_wait: [163046ba]
 queue_xmt_wait: [150506ba]
 queue_xmt_wait: [146076ba]
 queue_xmt_wait: [107006ba]
-queue_xmt_wait: [1808f6ba] 02 03 04 05 06 07
+queue_xmt_wait: [1908f6ba] 02 03 04 05 06 07
 
 trigger CIM conflict
 can_get_frame:  [163046ba]
@@ -31,28 +31,28 @@ queue_xmt_wait: [107006ba]
 
 queue Verify Node
 can_get_frame:  [180af00f] 02 03 04 05 06 07
-queue_xmt_wait: [180bf6ba] 02 03 04 05 06 07
+queue_xmt_wait: [190bf6ba] 02 03 04 05 06 07
 
 queue Request Consumers, expect 1 reply
 can_get_frame:  [1824f00f] 01 02 03 04 05 06 07 08
-queue_xmt_wait: [1826f6ba] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [1926f6ba] 01 02 03 04 05 06 07 08
 
 queue Request Consumers, no reply
 can_get_frame:  [1824f00f] 01 0c 03 04 05 06 07 08
 
 queue Request Producers, expect 1 reply
 can_get_frame:  [1828f00f] 08 07 06 05 04 03 02 01
-queue_xmt_wait: [182af6ba] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [192af6ba] 08 07 06 05 04 03 02 01
 
 queue Request Producers, no reply
 can_get_frame:  [1828f00f] 08 0c 06 05 04 03 02 01
 
 queue Request Events, expect 4 replies
 can_get_frame:  [182bf00f] 02 03 04 05 06 07
-queue_xmt_wait: [182af6ba] 01 02 03 04 05 06 07 08
-queue_xmt_wait: [1826f6ba] 01 02 03 04 05 06 07 08
-queue_xmt_wait: [182af6ba] 08 07 06 05 04 03 02 01
-queue_xmt_wait: [1826f6ba] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [192af6ba] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [1926f6ba] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [192af6ba] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [1926f6ba] 08 07 06 05 04 03 02 01
 
 queue Request Events, no reply
 can_get_frame:  [182bf00f] 19 03 04 05 06 07
@@ -72,13 +72,13 @@ queue_xmt_wait: [182cf6ba] 01 02 03 04 05 06 07 08
 Learn p0, c1
 Teach new event 0x2x
 can_get_frame:  [182cf00f] 28 27 26 25 24 23 22 21
-queue_xmt_wait: [182af6ba] 28 27 26 25 24 23 22 21
-queue_xmt_wait: [1826f6ba] 28 27 26 25 24 23 22 21
+queue_xmt_wait: [192af6ba] 28 27 26 25 24 23 22 21
+queue_xmt_wait: [1926f6ba] 28 27 26 25 24 23 22 21
 queue Request Events, expect 1st and last changed
 can_get_frame:  [182bf00f] 02 03 04 05 06 07
-queue_xmt_wait: [182af6ba] 28 27 26 25 24 23 22 21
-queue_xmt_wait: [1826f6ba] 01 02 03 04 05 06 07 08
-queue_xmt_wait: [182af6ba] 08 07 06 05 04 03 02 01
-queue_xmt_wait: [1826f6ba] 28 27 26 25 24 23 22 21
+queue_xmt_wait: [192af6ba] 28 27 26 25 24 23 22 21
+queue_xmt_wait: [1926f6ba] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [192af6ba] 08 07 06 05 04 03 02 01
+queue_xmt_wait: [1926f6ba] 28 27 26 25 24 23 22 21
 
 test ends
