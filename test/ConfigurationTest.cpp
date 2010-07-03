@@ -55,7 +55,7 @@ const uint8_t getRead(int address, int space) {
 void getWrite(int address, int space, uint8_t val) {
     *(test_mem+address) = val;
 }
-void restart() {logstr("restart called\n");}
+void restart() {printf("restart called\n");}
 
 Datagram dg(&txBuffer, datagramCallback, &link);
 Stream str(&txBuffer, rcvCallback, &link);
@@ -187,7 +187,7 @@ int main( int argc, const char* argv[] )
 	resultcode = 0;
 	b.id = 0x1D285BFD;
  	b.length = (uint8_t)2;
-    b.data[0]=0x20;b.data[1]=(0x2<<6)|(0xA<<2); // header
+    b.data[0]=0x20;b.data[1]=(0x2<<6)|(0xA<<2)|(1); // header
     queueTestMessage(&b);
 	doLoop(10);
 	printf("\n");
@@ -220,46 +220,6 @@ int main( int argc, const char* argv[] )
 	doLoop(10);
 	printf("\n");
 
- 
-// 	printf("Receive three fragment datagram OK\n");
-// 	resultcode = 0;
-// 	b.id = 0x1C6baBFD;
-// 	b.length = (uint8_t)4;
-//     b.data[0]=0x50;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
-//     queueTestMessage(&b);
-// 	doLoop(10);
-// 	b.id = 0x1C6baBFD;
-// 	b.length = (uint8_t)4;
-//     b.data[0]=0x60;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
-//     queueTestMessage(&b);
-// 	doLoop(10);
-// 	b.id = 0x1D6baBFD;
-// 	b.length = (uint8_t)4;
-//     b.data[0]=0x70;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
-//     queueTestMessage(&b);
-// 	doLoop(10);
-// 	printf("\n");
-// 
-// 	printf("Receive single fragment datagram fail\n");
-// 	resultcode = 0x1234;
-// 	b.id = 0x1D6baBFD;
-// 	b.length = (uint8_t)4;
-//     b.data[0]=0x40;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
-//     queueTestMessage(&b);
-// 	doLoop(10);
-// 	printf("\n");
-
 	printf("test ends\n");
 }
 
-// to test (messages in JMRI format)
-//    send a CIM frame which should get a RIM:  [110036ba]
-//    then a RIM which should restart sequence: [17fff6ba]
-
-// (these need to be redone)
-//    send a Verify Node frame of [180Af00f] 2 3 4 5 6 7
-//    send a Request Consumers frame of [1824F00F] 1 2 3 4 5 6 7 8
-//    send a Request Producers frame of [1828F00F] 8 7 6 5 4 3 2 1
-//    send a Request Events frame of [182BF00F] 2 3 4 5 6 7
-
-//    produce an event with [182DF00F] 8 7 6 5 4 3 2 1

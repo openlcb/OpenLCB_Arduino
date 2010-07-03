@@ -28,8 +28,8 @@ queue_xmt_wait: [1dbfd285] 20 82 03 01 38 00 00
 can_get_frame:  [1e285bfd] 4c
 
 Single fragment datagram for reset
-can_get_frame:  [1d285bfd] 20 a8
-consume datagram of length 2: 20 a8 
+can_get_frame:  [1d285bfd] 20 a9
+consume datagram of length 2: 20 a9 
 queue_xmt_wait: [1ebfd285] 4c
 restart called
 
