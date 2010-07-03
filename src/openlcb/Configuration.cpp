@@ -28,8 +28,7 @@
 
 #define CFG_CMD_FREEZE                      0xA0
 #define CFG_CMD_INDICATE                    0xA4
-#define CFG_CMD_RESET                       0xA8
-#define CFG_CMD_FACTORY_RESET               0xAC
+#define CFG_CMD_RESETS                      0xA8
 
 /** 
  * Structure: Requests come in via 
@@ -178,11 +177,13 @@ void Configuration::processCmd(uint8_t* data, int length) {
             dg->sendTransmitBuffer(7, from);
             break;
           }
-        case CFG_CMD_RESET: {
+        case CFG_CMD_RESETS: {
             // will handle, mark as done.
             request = false;
             // force restart (may not reply?)
-            (*restart)();
+            if (data[1]&0x03 == 0x1) // restart/reboot?
+                (*restart)();
+            // TODO: Handle other cases
             break;
           }
         //case CFG_CMD_CFG_CMD_GET_CONFIG_REPLY :
@@ -192,8 +193,6 @@ void Configuration::processCmd(uint8_t* data, int length) {
         //case CFG_CMD_GET_UNIQUEID:
         //case CFG_CMD_GET_UNIQUEID_REPLY:
         //case CFG_CMD_FREEZE:
-        //case CFG_CMD_INDICATE:
-        //case CFG_CMD_FACTORY_RESET:
         //case CFG_CMD_INDICATE:
         default:
             // these do nothing in this implementation
