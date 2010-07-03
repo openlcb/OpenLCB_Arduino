@@ -132,14 +132,14 @@ int main( int argc, const char* argv[] )
 	printf("one second done\n\n");
 
 	printf("trigger RIM conflict\n");
-	b.id = 0x107006ba;
+	b.id = 0x10700285;
 	b.length = 0;
 	queueTestMessage(&b);
 	doLoop(1000);  // long enough for timeout
 	printf("\n");
 
 	printf("trigger CIM conflict\n");
-	b.id = 0x16304e8d;
+	b.id = 0x163046ba;
 	b.length = 0;
 	queueTestMessage(&b);
 	doLoop(1000);  // long enough for timeout
