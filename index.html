@@ -7,7 +7,8 @@
 	<META NAME="AUTHOR" CONTENT="Bob Jacobsen">
 	<META NAME="CREATED" CONTENT="20090816;10132800">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGED" CONTENT="20100702;15283500">
+	<META NAME="CHANGED" CONTENT="20100702;20104500">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 </HEAD>
 <BODY LANG="en-US" DIR="LTR">
@@ -15,18 +16,25 @@
 <P STYLE="margin-bottom: 0cm">This is the index page of the OpenLCB
 development prototypes area. 
 </P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P>To build and run the tests, do 
+</P>
+<P STYLE="margin-left: 2cm"><code>make run</code></P>
+<P>This builds and runs several executables, and compares their
+output to reference files.</P>
 <H2>File Tree Organization</H2>
 <P STYLE="margin-bottom: 0cm">This area contains a number of
 subdirectories organized by language and/or platform.</P>
 <UL>
-	<LI><P STYLE="margin-bottom: 0cm"><a href="src">src</a>: primary source code, in the
-	form of a library</P>
-	<LI><P STYLE="margin-bottom: 0cm"><a href="scaffold">scaffold</a>: Stand-in code for the
-	CAN interface, et al, used for testing.  Implement for your
-	hardware.</P>
-	<LI><P STYLE="margin-bottom: 0cm"><a href="test">test</a>: Test routines invoked via
-	“make run”. The “results” subdirectory contains copies of
-	outputs to be compared.</P>
+	<LI><P STYLE="margin-bottom: 0cm"><A HREF="src">src</A>: primary
+	source code, in the form of a library</P>
+	<LI><P STYLE="margin-bottom: 0cm"><A HREF="scaffold">scaffold</A>:
+	Stand-in code for the CAN interface, et al, used for testing.
+	Implement for your hardware.</P>
+	<LI><P STYLE="margin-bottom: 0cm"><A HREF="test">test</A>: Test
+	routines invoked via “make run”. The “results” subdirectory
+	contains copies of outputs to be compared.</P>
 </UL>
 <P STYLE="margin-bottom: 0cm">Each in turn can have multiple projects
 and libraries in subdirectories.</P>
