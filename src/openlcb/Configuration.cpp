@@ -181,8 +181,9 @@ void Configuration::processCmd(uint8_t* data, int length) {
             // will handle, mark as done.
             request = false;
             // force restart (may not reply?)
-            if (data[1]&0x03 == 0x1) // restart/reboot?
+            if ((data[1]&0x03) == 0x01) { // restart/reboot?
                 (*restart)();
+            }
             // TODO: Handle other cases
             break;
           }
