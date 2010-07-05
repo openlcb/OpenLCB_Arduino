@@ -42,25 +42,20 @@ NodeID nodeid(2,3,4,5,6,7);    // This node's ID
 
 LinkControl link(&txBuffer, &nodeid);
 
-// Events this node can produce, used by PCE
-Event pEvents[] = {
+// Events this node can consume and produce, used by PCE
+Event events[] = {
     Event(1,2,3,4,5,6,7,8), 
-    Event(8,7,6,5,4,3,2,1)
+    Event(17,18,19,20,21,22,23,24),
+    Event(33,34,35,36,37,38,39,40), 
+    Event(65,66,67,68,69,70,71,72)
 };
-int pEventNum = 2;
-
-// Events this node can consume, used by PCE
-Event cEvents[] = {
-    Event(1,2,3,4,5,6,7,8), 
-    Event(8,7,6,5,4,3,2,1)
-};
-int cEventNum = 2;
+int evtNum = 4;
 
 void pceCallback(int index){
   // invoked when an event is consumed
   printf("consume %d\n",index);
 }
-PCE p(cEvents, cEventNum, pEvents, pEventNum, &txBuffer, &nodeid, pceCallback);
+PCE pce(events, evtNum, &txBuffer, &nodeid, pceCallback);
 
 /**
  * This setup is just for testing
@@ -75,6 +70,13 @@ void setup()
   
   // Initialize OpenLCB CAN link controller
   link.reset();
+  
+  // set event types
+  pce.newEvent(0,true, false);
+  pce.newEvent(1,true, false);
+  pce.newEvent(2,false, true);
+  pce.newEvent(3,false, true);
+  
 }
 
 void loop() {
@@ -92,10 +94,10 @@ void loop() {
   if (link.linkInitialized()) {
      // if frame present, pass to PC handler
      if (rcvFramePresent) {
-        p.receivedFrame(&rxBuffer);
+        pce.receivedFrame(&rxBuffer);
      }
      // periodic processing of any PCE state changes
-     p.check();
+     pce.check();
 
      // Demo: handle possible production of events from pin
      int val = inputRead();
@@ -103,10 +105,10 @@ void loop() {
          producer_pin_record = val;
          if (producer_pin_record == 0) {
              printf("produce p0\n");
-             p.produce(0);
+             pce.produce(0);
          } else {
              printf("produce p1\n");
-             p.produce(1);
+             pce.produce(1);
          }
      }
   }
@@ -156,12 +158,20 @@ int main( int argc, const char* argv[] )
 	printf("queue Request Consumers, expect 1 reply\n");
 	b.id = 0x1824F00F;
 	b.length = (uint8_t)8;
-	b.data[0]=1;b.data[1]=2;b.data[2]=3;b.data[3]=4;b.data[4]=5;b.data[5]=6;b.data[6]=7;b.data[7]=8;
+	b.data[0]=65;b.data[1]=66;b.data[2]=67;b.data[3]=68;b.data[4]=69;b.data[5]=70;b.data[6]=71;b.data[7]=72;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
 
-	printf("queue Request Consumers, no reply\n");
+	printf("queue Request Consumers, expect no reply when matching producer event\n");
+	b.id = 0x1824F00F;
+	b.length = (uint8_t)8;
+	b.data[0]=17;b.data[1]=18;b.data[2]=19;b.data[3]=20;b.data[4]=21;b.data[5]=22;b.data[6]=23;b.data[7]=24;
+	queueTestMessage(&b);
+	doLoop(100);
+	printf("\n");
+
+	printf("queue Request Consumers, no reply due to not match\n");
 	b.id = 0x1824F00F;
 	b.length = (uint8_t)8;
 	b.data[0]=1;b.data[1]=12;b.data[2]=3;b.data[3]=4;b.data[4]=5;b.data[5]=6;b.data[6]=7;b.data[7]=8;
@@ -172,7 +182,7 @@ int main( int argc, const char* argv[] )
 	printf("queue Request Producers, expect 1 reply\n");
 	b.id = 0x1828F00F;
 	b.length = (uint8_t)8;
-	b.data[0]=8;b.data[1]=7;b.data[2]=6;b.data[3]=5;b.data[4]=4;b.data[5]=3;b.data[6]=2;b.data[7]=1;
+	b.data[0]=17;b.data[1]=18;b.data[2]=19;b.data[3]=20;b.data[4]=21;b.data[5]=22;b.data[6]=23;b.data[7]=24;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
@@ -219,27 +229,26 @@ int main( int argc, const char* argv[] )
 
     printf("----- start learn/teach tests ----------\n");
     Event original0(1,2,3,4,5,6,7,8);
-    if (!original0.equals(&pEvents[0])) printf(" *** not match at beginning\n");
+    if (!original0.equals(&events[0])) printf(" *** not match at beginning\n");
 
-	printf("Send stand-alone learn messages\n");
-	p.sendTeachC(1);
+	printf("Send stand-alone learn messages (2nd, then 1st sent)\n");
+	pce.sendTeach(1);
 	doLoop(10);
-	p.sendTeachP(0);
+	pce.sendTeach(0);
 	doLoop(10);
 	printf("\n");
 
-	printf("Learn p0, c1\n");
-	p.markToLearnP(0, true);
-	p.markToLearnC(0, true);
-	p.markToLearnC(1, true);
-	p.markToLearnC(0, false);
-    printf("Teach new event 0x2x\n");
+	printf("Mark to learn 1st, 2nd, then unmark 1st\n");
+	pce.markToLearn(0, true);
+	pce.markToLearn(1, true);
+	pce.markToLearn(0, false);
+    printf("Teach new event, expect to announce used\n");
 	b.id = 0x182cf00F;
 	b.length = (uint8_t)8;
 	b.data[0]=0x28;b.data[1]=0x27;b.data[2]=0x26;b.data[3]=0x25;b.data[4]=0x24;b.data[5]=0x23;b.data[6]=0x22;b.data[7]=0x21;
 	queueTestMessage(&b);
 	doLoop(20);
-	printf("queue Request Events, expect 1st and last changed\n");
+	printf("queue Request Events, expect 2nd changed\n");
 	b.id = 0x182BF00F;
 	b.length = (uint8_t)6;
 	b.data[0]=2; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
@@ -251,14 +260,3 @@ int main( int argc, const char* argv[] )
 	
 }
 
-// to test (messages in JMRI format)
-//    send a CIM frame which should get a RIM:  [110036ba]
-//    then a RIM which should restart sequence: [17fff6ba]
-
-// (these need to be redone)
-//    send a Verify Node frame of [180Af00f] 2 3 4 5 6 7
-//    send a Request Consumers frame of [1824F00F] 1 2 3 4 5 6 7 8
-//    send a Request Producers frame of [1828F00F] 8 7 6 5 4 3 2 1
-//    send a Request Events frame of [182BF00F] 2 3 4 5 6 7
-
-//    produce an event with [182DF00F] 8 7 6 5 4 3 2 1
