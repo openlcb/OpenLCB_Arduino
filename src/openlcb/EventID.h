@@ -1,6 +1,8 @@
 #ifndef EventID_h
 #define EventID_h
 
+#include "stdint.h"
+
 class EventID {
   public: 
   
