@@ -1,5 +1,5 @@
 
-
+#include "logging.h"
 #include "Event.h"
 #include "EventID.h"
 
@@ -16,7 +16,7 @@ Event::Event(uint8_t b0, uint8_t b1, uint8_t b2, uint8_t b3, uint8_t b4, uint8_t
 }
 
 bool Event::equals(Event* n) {
-return  EventID::equals(n);  // just check ID for now
+    return  EventID::equals(n);  // just check ID for now
 }
 
 /**

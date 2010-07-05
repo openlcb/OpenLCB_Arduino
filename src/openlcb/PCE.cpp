@@ -29,15 +29,16 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
       buffer = b;
       nid = node;
       callback = cb;
-      
+       
       // mark as needing transmit of IDs, otherwise not interesting
-        for (int i = 0; i < nEvents; i++) {
-          if (events[i].flags & Event::CAN_PRODUCE_FLAG)
+      // ToDo: Is this needed if requiring newEvent?
+      for (int i = 0; i < nEvents; i++) {
+         if (events[i].flags & Event::CAN_PRODUCE_FLAG)
             events[i].flags = IDENT_FLAG;
-          if (events[i].flags & Event::CAN_CONSUME_FLAG)
+         if (events[i].flags & Event::CAN_CONSUME_FLAG)
             events[i].flags = IDENT_FLAG;
-        }
-        sendEvent = 0;
+      }
+      sendEvent = 0;
       
   }
   
@@ -51,6 +52,7 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
      // see in any replies are waiting to send
      while (sendEvent < nEvents) {
          // OK to send, see if marked for some cause
+         // ToDo: This only sends _either_ producer ID'd or consumer ID'd, not both
          if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) == (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) {
            events[sendEvent].flags &= ~IDENT_FLAG;    // reset flag
            buffer->setProducerIdentified(&events[sendEvent]);

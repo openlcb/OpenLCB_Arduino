@@ -1,4 +1,3 @@
-// makes this an Arduino file
 #include "WConstants.h"
 
 #include "Configuration.h"

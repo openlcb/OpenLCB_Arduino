@@ -9,6 +9,7 @@
 #include <stdint.h>
 
 #include "Datagram.h"
+
 class Stream;
 
 class Configuration {
