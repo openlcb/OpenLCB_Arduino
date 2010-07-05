@@ -55,7 +55,8 @@ void pceCallback(int index){
   // invoked when an event is consumed
   printf("consume %d\n",index);
 }
-PCE pce(events, evtNum, &txBuffer, &nodeid, pceCallback);
+void store(){}
+PCE pce(events, evtNum, &txBuffer, &nodeid, pceCallback, store);
 
 /**
  * This setup is just for testing

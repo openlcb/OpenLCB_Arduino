@@ -20,7 +20,7 @@ class OpenLcbCanBuffer;
 class PCE {
   public:
 
-  PCE(Event* events, int nEvents, OpenLcbCanBuffer* b, NodeID* nid, void (*callback)(int i));
+  PCE(Event* events, int nEvents, OpenLcbCanBuffer* b, NodeID* nid, void (*callback)(int i), void (*store)());
   
   /**
    * Produce the ith event
@@ -80,6 +80,7 @@ class PCE {
   OpenLcbCanBuffer* buffer;
   NodeID* nid;
   void (*callback)(int i);   // void callback(int index) pointer
+  void (*store)();           // void store() pointer for storing config changes
 
   int sendEvent; // index of next identified event to send, or -1
 };

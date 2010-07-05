@@ -23,12 +23,13 @@
 #define TEACH_FLAG 0x10
 
 
-PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(int i)) {
+PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(int i), void (*st)()) {
       events = evts;
       nEvents = nEvt;
       buffer = b;
       nid = node;
       callback = cb;
+      store = st;
        
       // mark as needing transmit of IDs, otherwise not interesting
       // ToDo: Is this needed if requiring newEvent?
@@ -161,13 +162,16 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
         }
     } else if (rcv->isLearnEvent()) {
         // found a teaching frame, apply to selected
+        bool save = false;
         for (int i=0; i<nEvents; i++) {
             if ( (events[i].flags & LEARN_FLAG ) != 0 ) {
                 rcv->getEventID(events+i);
                 events[i].flags |= IDENT_FLAG; // notify new eventID
                 sendEvent = min(sendEvent, i);
+                save = true;
             }
         }
+        if (save) (*store)();
     }
   }
   
