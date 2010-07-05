@@ -4,8 +4,8 @@
 /**
  * Class for handling P/C Events.
  *
- * This combines Producer and Consumer for now;
- * perhaps they need to be refactored separately later.
+ * Maintains a single list of events, which could be
+ * either produced or consumed (indicated by flags).
  *<p>
  * Basic state machine handles e.g. Request Producer/Consumer/event
  * messages for you, including at initialization.
@@ -20,12 +20,14 @@ class OpenLcbCanBuffer;
 class PCE {
   public:
 
-  PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* nid, void (*callback)(int i));
+  PCE(Event* events, int nEvents, OpenLcbCanBuffer* b, NodeID* nid, void (*callback)(int i));
   
   /**
    * Produce the ith event
    * 
-   * return true if done; return false to require retry later
+   * Return true if done; return false to require retry later.
+   * Note: It's an error to do this to an event that's not
+   * marked as for production.
    */
   void produce(int i);
   
@@ -49,21 +51,11 @@ class PCE {
    * index is the 0-based index of the newly defined
    * event in the array provided to the ctor earlier.
    */
-  void newConsumedEvent(int index);
-  
-  /**
-   * A new event has been defined, and we should
-   * do the necessary notifications, etc on the OpenLCB link
-   *
-   * index is the 0-based index of the newly defined
-   * event in the array provided to the ctor earlier.
-   */
-  void newProducedEvent(int index);
-  
+  void newEvent(int index, bool produce, bool consume);
+    
   /**
    * Mark a particular slot to acquire the event 
    * from the next learn message.
-   * C is consumers, P is producers.
    * true marks, false unmarks.
    *
    * index is the 0-based index of the desired
@@ -72,30 +64,24 @@ class PCE {
    * ToDo: This doesn't force the non-volatile memory
    * to be stored after the learn message is received.
    */
-  void markToLearnC(int index, bool mark);
-  void markToLearnP(int index, bool mark);
+  void markToLearn(int index, bool mark);
   
   /**
    * Send a learn frame for a particular slot's event.
-   * C is consumers, P is producers.
    *
    * index is the 0-based index of the desired
    * event in the array provided to the ctor earlier.
    */
-  void sendTeachC(int index);
-  void sendTeachP(int index);
+  void sendTeach(int index);
   
   private:
-  Event* consumed;  // array
-  Event* produced;  // array
-  int nConsumed;
-  int nProduced;
+  Event* events;  // array
+  int nEvents;
   OpenLcbCanBuffer* buffer;
   NodeID* nid;
   void (*callback)(int i);   // void callback(int index) pointer
 
-  int sendProducer; // index of next producer identified event to send, or -1
-  int sendConsumer; // index of next consumer identified event to send, or -1
+  int sendEvent; // index of next identified event to send, or -1
 };
 
 #endif

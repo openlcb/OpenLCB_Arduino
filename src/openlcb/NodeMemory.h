@@ -40,13 +40,13 @@ class NodeMemory {
    * Make sure ready to go.  NodeID should have a default
    * value already in case this is the first time.
    */
-  void setup(NodeID* nid, Event* c, int nC, Event* p, int nP);
+  void setup(NodeID* nid, Event* events, int nunEvents);
   
   /*
    * Move to a completely new set of values, e.g. a "default" reset
    * for OpenLCB. NodeID is not changed.
    */
-  void reset(NodeID* nid, Event* c, int nC, Event* p, int nP); 
+  void reset(NodeID* nid, Event* events, int nunEvents); 
 
   /** 
    * For debug and test, this forces the next
@@ -58,7 +58,7 @@ class NodeMemory {
   /*
    * Put modified contents back into memory.
    */
-  void store(NodeID* nid, Event* c, int nC, Event* p, int nP); 
+  void store(NodeID* nid, Event* events, int nunEvents); 
   
   /*
    * Get a new, forever unique EventID and put in 

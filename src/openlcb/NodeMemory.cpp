@@ -21,14 +21,14 @@ void NodeMemory::forceInit() {
     EEPROM.write(1,0xFF);
 }
 
-void NodeMemory::setup(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
+void NodeMemory::setup(NodeID* nid, Event* cE, int nC) {
     if (!checkOK()) {
         // have to reload
         // clear the count
         writeByte(startAddress+4, 0);
         writeByte(startAddress+5, 0);
         // handle the rest
-        reset(nid, cE, nC, pE, nP);
+        reset(nid, cE, nC);
     }
     // load count
     int part1 = EEPROM.read(startAddress+4);
@@ -43,21 +43,15 @@ void NodeMemory::setup(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
         *p++ = EEPROM.read(addr++);
 
     
-    // read consumer events
+    // read events
     p = (uint8_t*)cE;
     for (int k=0; k<nC; k++)
-        for (int i=0; i<sizeof(Event); i++) 
-            *p++ = EEPROM.read(addr++);
-
-    // read consumer events
-    p = (uint8_t*)pE;
-    for (int k=0; k<nP; k++)
         for (int i=0; i<sizeof(Event); i++) 
             *p++ = EEPROM.read(addr++);
     
 }
 
-void NodeMemory::reset(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
+void NodeMemory::reset(NodeID* nid, Event* cE, int nC) {
     // Do the in-memory update. Does not change
     // the total count, this is not an "initial config" for factory use.
 
@@ -67,15 +61,11 @@ void NodeMemory::reset(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
         setToNewEventID(nid, c++);
     }
     
-    c = pE;
-    for (int i = 0; i<nP; i++) {
-        setToNewEventID(nid, c++);
-    }
     // and store
-    store(nid, cE, nC, pE, nP);
+    store(nid, cE, nC);
 }
 
-void NodeMemory::store(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
+void NodeMemory::store(NodeID* nid, Event* cE, int nC) {
     
     int addr = startAddress;
     // write tag
@@ -93,17 +83,12 @@ void NodeMemory::store(NodeID* nid, Event* cE, int nC, Event* pE, int nP) {
     for (int i=0; i<sizeof(NodeID); i++) 
         writeByte(addr++, *p++);
 
-    // write consumer events
+    // write events
     p = (uint8_t*)cE;
     for (int k=0; k<nC; k++)
         for (int i=0; i<sizeof(Event); i++) 
             writeByte(addr++, *p++);
 
-    // write consumer events
-    p = (uint8_t*)pE;
-    for (int k=0; k<nP; k++)
-        for (int i=0; i<sizeof(Event); i++) 
-            writeByte(addr++, *p++);
 }
 
 void NodeMemory::setToNewEventID(NodeID* nid, EventID* eventID) {

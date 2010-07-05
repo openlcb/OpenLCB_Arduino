@@ -4,8 +4,9 @@
 
 #include "PCE.h"
 
-#include "EventID.h"
 #include "NodeID.h"
+#include "EventID.h"
+#include "Event.h"
 #include "OpenLcbCanBuffer.h"
 
 #include "logging.h"
@@ -21,109 +22,79 @@
 // Mark entry to send a learn message
 #define TEACH_FLAG 0x10
 
-PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, void (*cb)(int i)) {
-      consumed = c;
-      nConsumed = nC;
-      produced = p;
-      nProduced = nP;
+
+PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(int i)) {
+      events = evts;
+      nEvents = nEvt;
       buffer = b;
-      nid = n;
+      nid = node;
       callback = cb;
       
       // mark as needing transmit of IDs, otherwise not interesting
-        for (int i = 0; i < nProduced; i++) {
-          produced[i].flags = IDENT_FLAG;
+        for (int i = 0; i < nEvents; i++) {
+          if (events[i].flags & Event::CAN_PRODUCE_FLAG)
+            events[i].flags = IDENT_FLAG;
+          if (events[i].flags & Event::CAN_CONSUME_FLAG)
+            events[i].flags = IDENT_FLAG;
         }
-        sendProducer = 0;
-        for (int i = 0; i < nConsumed; i++) {
-          consumed[i].flags = IDENT_FLAG;
-        }
-        sendConsumer = 0;        
+        sendEvent = 0;
       
   }
   
   void PCE::produce(int i) {
     // mark for production
-    produced[i].flags |= PRODUCE_FLAG;
-    sendProducer = min(sendProducer, i);
+    events[i].flags |= PRODUCE_FLAG;
+    sendEvent = min(sendEvent, i);
   }
   
   void PCE::check() {
      // see in any replies are waiting to send
-     while (sendProducer < nProduced) {
+     while (sendEvent < nEvents) {
          // OK to send, see if marked for some cause
-         if (produced[sendProducer].flags & IDENT_FLAG) {
-           produced[sendProducer].flags &= ~IDENT_FLAG;    // reset flag
-           buffer->setProducerIdentified(&produced[sendProducer]);
+         if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) == (IDENT_FLAG | Event::CAN_PRODUCE_FLAG)) {
+           events[sendEvent].flags &= ~IDENT_FLAG;    // reset flag
+           buffer->setProducerIdentified(&events[sendEvent]);
            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
-         } else if (produced[sendProducer].flags & PRODUCE_FLAG) {
-           produced[sendProducer].flags &= ~PRODUCE_FLAG;    // reset flag
-           buffer->setPCEventReport(&produced[sendProducer]);
+         } else if ( (events[sendEvent].flags & (IDENT_FLAG | Event::CAN_CONSUME_FLAG)) == (IDENT_FLAG | Event::CAN_CONSUME_FLAG)) {
+           events[sendEvent].flags &= ~IDENT_FLAG;    // reset flag
+           buffer->setConsumerIdentified(&events[sendEvent]);
            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
-         } else if (produced[sendProducer].flags & TEACH_FLAG) {
-           produced[sendProducer].flags &= ~TEACH_FLAG;    // reset flag
-           buffer->setLearnEvent(&produced[sendProducer]);
+         } else if (events[sendEvent].flags & PRODUCE_FLAG) {
+           events[sendEvent].flags &= ~PRODUCE_FLAG;    // reset flag
+           buffer->setPCEventReport(&events[sendEvent]);
+           OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+           break; // only send one from this loop
+         } else if (events[sendEvent].flags & TEACH_FLAG) {
+           events[sendEvent].flags &= ~TEACH_FLAG;    // reset flag
+           buffer->setLearnEvent(&events[sendEvent]);
            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else {
            // just skip
-           sendProducer++;
+           sendEvent++;
          }
      }
-     
-     while (sendConsumer < nConsumed) {
-       if (OpenLcb_can_xmt_ready(buffer)) {
-         // OK to send, see if marked for some cause
-         if (consumed[sendConsumer].flags & IDENT_FLAG) {
-           consumed[sendConsumer].flags &= ~IDENT_FLAG;    // reset flag
-           buffer->setConsumerIdentified(&consumed[sendConsumer++]);
-           OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
-           break; // only send one from this loop
-         } else if (consumed[sendConsumer].flags & TEACH_FLAG) {
-           consumed[sendConsumer].flags &= ~TEACH_FLAG;    // reset flag
-           buffer->setLearnEvent(&consumed[sendConsumer++]);
-           OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
-           break; // only send one from this loop
-         } else {
-           // just skip
-           sendConsumer++;
-         }
-       }
-     }
   }
   
-  void PCE::newProducedEvent(int index) {
-    produced[index].flags |= IDENT_FLAG;
-  }
-
-  void PCE::newConsumedEvent(int index) {
-    consumed[index].flags |= IDENT_FLAG;
+  void PCE::newEvent(int index, bool p, bool c) {
+    events[index].flags |= IDENT_FLAG;
+    sendEvent = min(sendEvent, index);
+    if (p) events[index].flags |= Event::CAN_PRODUCE_FLAG;
+    if (c) events[index].flags |= Event::CAN_CONSUME_FLAG;
   }
   
-  void PCE::markToLearnP(int index, bool mark) {
+  void PCE::markToLearn(int index, bool mark) {
     if (mark)
-        produced[index].flags |= LEARN_FLAG;
+        events[index].flags |= LEARN_FLAG;
     else
-        produced[index].flags &= ~LEARN_FLAG;
+        events[index].flags &= ~LEARN_FLAG;
   }
   
-  void PCE::sendTeachP(int index) {
-    produced[index].flags |= TEACH_FLAG;
-    sendProducer = min(sendProducer, index);
-  }
-  
-  void PCE::markToLearnC(int index, bool mark) {
-    if (mark)
-        consumed[index].flags |= LEARN_FLAG;
-    else
-        consumed[index].flags &= ~LEARN_FLAG;
-  }
-  
-  void PCE::sendTeachC(int index) {
-    consumed[index].flags |= TEACH_FLAG;
-    sendConsumer = min(sendConsumer, index);
+  void PCE::sendTeach(int index) {
+    events[index].flags |= TEACH_FLAG;
+    sendEvent = min(sendEvent, index);
   }
   
   void PCE::receivedFrame(OpenLcbCanBuffer* rcv) {
@@ -131,22 +102,34 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
         // see if we consume the listed event
         Event event;
         rcv->getEventID(&event);
-        int index = event.findIndexInArray(consumed, nConsumed);
-        if ( -1 != index) {
+        int index = 0;
+        // find consumers of event
+        while (-1 != (index = event.findIndexInArray(events, nEvents, index))) {
            // yes, we have to reply with ConsumerIdentified
-           consumed[index].flags |= IDENT_FLAG;
-           sendConsumer = min(sendConsumer, index);
+           if (events[index].flags & Event::CAN_CONSUME_FLAG) {
+               events[index].flags |= IDENT_FLAG;
+               sendEvent = min(sendEvent, index);
+           }
+           index++;
+           if (index>=nEvents) break;
         }
     } else if (rcv->isIdentifyProducers()) {
         // see if we produce the listed event
         Event event;
         rcv->getEventID(&event);
-        int index = event.findIndexInArray(produced, nProduced);
-        if ( -1 != index) {
+        int index = 0;
+        // find producers of event
+        while (-1 != (index = event.findIndexInArray(events, nEvents, index))) {
            // yes, we have to reply with ProducerIdentified
-           produced[index].flags |= IDENT_FLAG;
-           sendProducer = min(sendProducer, index);
+           if (events[index].flags & Event::CAN_PRODUCE_FLAG) {
+               events[index].flags |= IDENT_FLAG;
+               sendEvent = min(sendEvent, index);
+           }
+           index++;
+           if (index>=nEvents) break;
         }
+        // ToDo: add identify flags so that events that are both produced and consumed
+        // have only one form sent in response to a specific request.
     } else if (rcv->isIdentifyEvents()) {
         // See if addressed to us
        NodeID n;
@@ -154,39 +137,31 @@ PCE::PCE(Event* c, int nC, Event* p, int nP, OpenLcbCanBuffer* b, NodeID* n, voi
        if (n.equals(nid)) {
           // if so, send _all_ ProducerIndentfied, ConsumerIdentified
           // via the "check" periodic call
-          for (int i = 0; i < nProduced; i++) {
-            produced[i].flags |= IDENT_FLAG;
+          for (int i = 0; i < nEvents; i++) {
+            events[i].flags |= IDENT_FLAG;
           }
-          sendProducer = 0;
-          for (int i = 0; i < nConsumed; i++) {
-            consumed[i].flags |= IDENT_FLAG;
-          }
-          sendConsumer = 0;  
+          sendEvent = 0;  
        }     
     } else if (rcv->isPCEventReport()) {
         // found a PC Event Report, see if we consume it
         Event event;
         rcv->getEventID(&event);
-        int index;
-        index = event.findIndexInArray(consumed, nConsumed);
-        if ( -1 != index ) {
-           // yes, notify our own code
-           (*callback)(index);
-        }        
+        int index = 0;
+        while (-1 != (index = event.findIndexInArray(events, nEvents, index))) {
+            if (events[index].flags & Event::CAN_CONSUME_FLAG) {
+                // yes, notify our own code
+                (*callback)(index);
+            }
+            index++;
+            if (index>=nEvents) break;
+        }
     } else if (rcv->isLearnEvent()) {
         // found a teaching frame, apply to selected
-        for (int i=0; i<nConsumed; i++) {
-            if ( (consumed[i].flags & LEARN_FLAG ) != 0 ) {
-                rcv->getEventID(consumed+i);
-                consumed[i].flags |= IDENT_FLAG; // notify new eventID
-                sendConsumer = min(sendConsumer, i);
-            }
-        }
-        for (int i=0; i<nProduced; i++) {
-            if ( (produced[i].flags & LEARN_FLAG ) != 0 ) {
-                rcv->getEventID(produced+i);
-                produced[i].flags |= IDENT_FLAG; // notify new eventID
-                sendProducer = min(sendProducer, i);
+        for (int i=0; i<nEvents; i++) {
+            if ( (events[i].flags & LEARN_FLAG ) != 0 ) {
+                rcv->getEventID(events+i);
+                events[i].flags |= IDENT_FLAG; // notify new eventID
+                sendEvent = min(sendEvent, i);
             }
         }
     }
