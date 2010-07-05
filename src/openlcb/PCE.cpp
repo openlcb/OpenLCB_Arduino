@@ -43,6 +43,8 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
   }
   
   void PCE::produce(int i) {
+    // ignore if not producer
+    if ((events[i].flags & Event::CAN_PRODUCE_FLAG) == 0) return;
     // mark for production
     events[i].flags |= PRODUCE_FLAG;
     sendEvent = min(sendEvent, i);
