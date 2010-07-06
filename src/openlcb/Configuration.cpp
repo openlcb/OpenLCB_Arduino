@@ -41,8 +41,8 @@
  */
  
   Configuration::Configuration( Datagram *d, Stream *s,
-                        const uint8_t (*gr)(int address, int space),
-                        void (*gw)(int address, int space, uint8_t value),
+                        const uint8_t (*gr)(uint32_t address, int space),
+                        void (*gw)(uint32_t address, int space, uint8_t value),
                         void (*res)()
                  ){
     dg = d;
@@ -93,26 +93,22 @@ uint32_t Configuration::getAddress(uint8_t* data) {
 
 // -1 means stream
 int Configuration::decodeLen(uint8_t* data) {
-    int count = data[1]&0x7;
-    int val;
-    if ( count <= 6) val = 1 << count;
-    else val = -1;
-    
-    return val;
+    // ToDo:  Add stream
+    return data[6];
 }
 int Configuration::decodeSpace(uint8_t* data) {
     int val;
-    switch (data[1]&0x18) {
+    switch (data[1]&0x03) {
         case 0x00:
             val = 0xFF;
             break;
-        case 0x08:
+        case 0x01:
             val = 0xFE;
             break;
-        case 0x10:
+        case 0x02:
             val = 0xFD;
             break;
-        case 0x18:
+        case 0x03:
             val = data[6];
             break;
     }
