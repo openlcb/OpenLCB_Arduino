@@ -39,10 +39,10 @@ consume datagram of length 8: 20 23 0 0 0 3 44 55
 queue_xmt_wait: [1ebfd285] 4c
 
 Single fragment datagram for short read
-can_get_frame:  [1d285bfd] 20 63 00 00 00 00 08
-consume datagram of length 7: 20 63 0 0 0 0 8 
+can_get_frame:  [1d285bfd] 20 61 00 00 00 00 08
+consume datagram of length 7: 20 61 0 0 0 0 8 
 queue_xmt_wait: [1ebfd285] 4c
-queue_xmt_wait: [1cbfd285] 50 63 00 00 00 00 00 00
+queue_xmt_wait: [1cbfd285] 50 61 00 00 00 00 00 00
 queue_xmt_wait: [1dbfd285] 00 44 55 00 00 00
    Ack to reply datagram
 can_get_frame:  [1e285bfd] 4c

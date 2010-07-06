@@ -49,10 +49,10 @@ unsigned int rcvCallback(uint8_t *rbuf, unsigned int length);
  */
 uint8_t test_mem[200];
 
-const uint8_t getRead(int address, int space) {
+const uint8_t getRead(uint32_t address, int space) {
     return *(test_mem+address);
 }
-void getWrite(int address, int space, uint8_t val) {
+void getWrite(uint32_t address, int space, uint8_t val) {
     *(test_mem+address) = val;
 }
 void restart() {printf("restart called\n");}
@@ -207,7 +207,7 @@ int main( int argc, const char* argv[] )
 	resultcode = 0;
 	b.id = 0x1D285BFD;
 	b.length = (uint8_t)7;
-    b.data[0]=0x20;b.data[1]=0x63; // header
+    b.data[0]=0x20;b.data[1]=0x61; // header
     b.data[2]=0x00;b.data[3]=0x00;b.data[4]=0x00;b.data[5]=0x00; // address
     b.data[6]=0x08;  // count
     queueTestMessage(&b);
