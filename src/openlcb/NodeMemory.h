@@ -19,6 +19,11 @@
  * When you "reset" the memory, you're 
  * putting _new_ unique EventIDs in place.
  *
+ * The first four bytes of memory contain flag values:
+ * 0xEE 0x55 0x5E 0xE5 - all memory valid, use as is
+ * 0xEE 0x55 0x33 0xCC - Node ID valid, rest must be initialized
+ * Any other flag means no memory valid.
+ *
  * TODO: Add a "dirty" bit to make store logic easier for external code?
  *
  */
@@ -69,7 +74,8 @@ class NodeMemory {
   void setToNewEventID(NodeID* nodeID, EventID* eventID);
   
   private:
-  bool checkOK(); // check if memory tag in place
+  bool checkNidOK(); // check if memory tag says NID OK
+  bool checkAllOK(); // check if memory tag says all OK
   void writeByte(int address, uint8_t value); // write only if needed
   
   int startAddress; // address of 1st byte in EEPROM
