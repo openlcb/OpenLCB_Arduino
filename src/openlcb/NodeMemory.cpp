@@ -22,11 +22,20 @@ void NodeMemory::forceInit() {
 }
 
 void NodeMemory::setup(NodeID* nid, Event* cE, int nC) {
-    if (!checkOK()) {
+    if (!checkAllOK()) {
         // have to reload
         // clear the count
         writeByte(startAddress+4, 0);
         writeByte(startAddress+5, 0);
+        // NID ok?
+        if (checkNidOK()) {
+            // read NodeID from non-volative memory
+            uint8_t* p;
+            int addr = startAddress+6; // skip check word and count
+            p = (uint8_t*)nid;
+            for (int i=0; i<sizeof(NodeID); i++) 
+            *p++ = EEPROM.read(addr++);
+        }
         // handle the rest
         reset(nid, cE, nC);
     }
@@ -100,11 +109,18 @@ void NodeMemory::setToNewEventID(NodeID* nid, EventID* eventID) {
     *p++ = count&0xFF;
 }
 
-bool NodeMemory::checkOK() {
+bool NodeMemory::checkAllOK() {
     if (EEPROM.read(startAddress  ) != 0xEE ) return false;
     if (EEPROM.read(startAddress+1) != 0x55 ) return false;
     if (EEPROM.read(startAddress+2) != 0x5E ) return false;
     if (EEPROM.read(startAddress+3) != 0xE5 ) return false;
+    return true;
+}
+bool NodeMemory::checkNidOK() {
+    if (EEPROM.read(startAddress  ) != 0xEE ) return false;
+    if (EEPROM.read(startAddress+1) != 0x55 ) return false;
+    if (EEPROM.read(startAddress+2) != 0x33 ) return false;
+    if (EEPROM.read(startAddress+3) != 0xCC ) return false;
     return true;
 }
 
