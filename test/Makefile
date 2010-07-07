@@ -3,21 +3,10 @@
 BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest NodeMemoryTest
 
 include ../standard.mk
-	
-OBJDIR := ${OBJDIRPREFIX}/test
 
-CanMrrlcbTest:
-	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold CanMrrlcbTest.o -o CanMrrlcbTest
+#ToDo:  Better way of finding -L, -l so can move this to standard.mk
 
-DatagramTest:
-	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold DatagramTest.o -o DatagramTest
+$(foreach v,$(BINFILES),$(OBJDIR)/$(v)):
+	$(CXX) -L$(OBJDIR)/../src/openlcb -lopenlcb -L$(OBJDIR)/../scaffold -lscaffold $@.o -o $@
 
-StreamTest:
-	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold StreamTest.o -o StreamTest
-
-ConfigurationTest:
-	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold ConfigurationTest.o -o ConfigurationTest
-
-NodeMemoryTest:
-	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold NodeMemoryTest.o -o NodeMemoryTest
 

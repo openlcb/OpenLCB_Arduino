@@ -4,8 +4,3 @@ SUBDIRS := openlcb
 
 include ../standard.mk
 
-OBJDIR := $(OBJDIRPREFIX)/src
-
-default: clean subdirs compile
-	
-

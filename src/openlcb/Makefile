@@ -1,8 +1,6 @@
 # Simple Makefile for src/openlcb directory
 
-OBJDIR := ${OBJDIRPREFIX}/openlcb
-
-LIBS := libopenlcb.a
+LIB := libopenlcb.a
 
 include ../../standard.mk
 

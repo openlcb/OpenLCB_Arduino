@@ -1,43 +1,28 @@
 
 TOPDIR := $(PWD)
-binaries := 
-objects  := 
-OBJDIR := $(TOPDIR)/lib
+OBJDIR := $(TOPDIR)/obj
 CPPFLAGS := -I$(PWD)/src/openlcb -I$(PWD)/scaffold $(CPPFLAGS)
 
 SUBDIRS = scaffold src test
 
 include standard.mk
 
-.PHONY: all
+.PHONY: all bin lib compile clean
 
 # default target: clean & rebuild
-all: clean compile lib bin test
+all: clean compile lib bin
 
-# compile directories
-.PHONY: clean compile lib bin test
-
-#src: 
-#	@make -C src CPPFLAGS="$(CPPFLAGS)" OBJDIRPREFIX="$(OBJDIR)"
-
-#scaffold: 
-#	@make -C scaffold CPPFLAGS="$(CPPFLAGS)" OBJDIRPREFIX="$(OBJDIR)"
-
-#test: 
-#	@make -C test CPPFLAGS="$(CPPFLAGS)" OBJDIRPREFIX="$(OBJDIR)"
-
-
-# ToDo:  change to separate targets
 # ToDo:  Automatically create "run" and "reset" command lists
-# ToDo:  Only print name if test files (silent success!)
+# ToDo:  Move trailing / into OBJDIR, so null name works
+# ToDo:  Handle dependency on header files, so "clean" not needed every time
 
 # run all tests
 run: all
-	@echo CanMrrlcbTest; ./test/CanMrrlcbTest | diff - test/results/CanMrrlcbTest.out.txt
-	@echo StreamTest; ./test/StreamTest | diff - test/results/StreamTest.out.txt
-	@echo DatagramTest; ./test/DatagramTest | diff - test/results/DatagramTest.out.txt
-	@echo NodeMemoryTest; ./test/NodeMemoryTest | diff - test/results/NodeMemoryTest.out.txt
-	@echo ConfigurationTest; ./test/ConfigurationTest | diff - test/results/ConfigurationTest.out.txt
+	$(OBJDIR)/test/CanMrrlcbTest | diff - test/results/CanMrrlcbTest.out.txt || echo CanMrrlcbTest failed
+	$(OBJDIR)/test/StreamTest | diff - test/results/StreamTest.out.txt || echo StreamTest failed 
+	$(OBJDIR)/test/DatagramTest | diff - test/results/DatagramTest.out.txt || echo DatagramTest failed
+	$(OBJDIR)/test/NodeMemoryTest | diff - test/results/NodeMemoryTest.out.txt || echo NodeMemoryTest failed
+	$(OBJDIR)/test/ConfigurationTest | diff - test/results/ConfigurationTest.out.txt || echo ConfigurationTest failed
 
 # reset the comparison files; only if sure!
 #reset: 
