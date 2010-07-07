@@ -69,11 +69,13 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
          } else if (events[sendEvent].flags & PRODUCE_FLAG) {
            events[sendEvent].flags &= ~PRODUCE_FLAG;    // reset flag
            buffer->setPCEventReport(&events[sendEvent]);
+           handlePCEventReport(buffer);
            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else if (events[sendEvent].flags & TEACH_FLAG) {
            events[sendEvent].flags &= ~TEACH_FLAG;    // reset flag
            buffer->setLearnEvent(&events[sendEvent]);
+           handleLearnEvent(buffer);
            OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
            break; // only send one from this loop
          } else {
@@ -149,6 +151,14 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
        }     
     } else if (rcv->isPCEventReport()) {
         // found a PC Event Report, see if we consume it
+        handlePCEventReport(rcv);
+    } else if (rcv->isLearnEvent()) {
+        // found a teaching frame, apply to selected
+        handleLearnEvent(rcv);
+    }
+  }
+
+  void PCE::handlePCEventReport(OpenLcbCanBuffer* rcv) {
         Event event;
         rcv->getEventID(&event);
         int index = 0;
@@ -160,18 +170,19 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
             index++;
             if (index>=nEvents) break;
         }
-    } else if (rcv->isLearnEvent()) {
-        // found a teaching frame, apply to selected
+  }
+  
+  void PCE::handleLearnEvent(OpenLcbCanBuffer* rcv) {
         bool save = false;
         for (int i=0; i<nEvents; i++) {
             if ( (events[i].flags & LEARN_FLAG ) != 0 ) {
                 rcv->getEventID(events+i);
                 events[i].flags |= IDENT_FLAG; // notify new eventID
+                events[i].flags &= ~LEARN_FLAG; // enough learning
                 sendEvent = min(sendEvent, i);
                 save = true;
             }
         }
         if (save) (*store)();
-    }
-  }
-  
+  }  
+

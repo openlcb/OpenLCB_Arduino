@@ -81,7 +81,8 @@ class PCE {
   NodeID* nid;
   void (*callback)(int i);   // void callback(int index) pointer
   void (*store)();           // void store() pointer for storing config changes
-
+  void handlePCEventReport(OpenLcbCanBuffer* rcv);
+  void handleLearnEvent(OpenLcbCanBuffer* rcv);
   int sendEvent; // index of next identified event to send, or -1
 };
 
