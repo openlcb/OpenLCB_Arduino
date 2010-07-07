@@ -16,33 +16,39 @@ NodeMemory::NodeMemory(int start) {
     count = 0;
 }
 
-void NodeMemory::forceInit() {
+void NodeMemory::forceInitAll() {
     EEPROM.write(0,0xFF);
     EEPROM.write(1,0xFF);
 }
 
+void NodeMemory::forceInitEvents() {
+    EEPROM.write(2,0x33);
+    EEPROM.write(3,0xCC);
+}
+
 void NodeMemory::setup(NodeID* nid, Event* cE, int nC) {
-    if (!checkAllOK()) {
-        // have to reload
-        // clear the count
-        writeByte(startAddress+4, 0);
-        writeByte(startAddress+5, 0);
-        // NID ok?
-        if (checkNidOK()) {
-            // read NodeID from non-volative memory
-            uint8_t* p;
-            int addr = startAddress+6; // skip check word and count
-            p = (uint8_t*)nid;
-            for (int i=0; i<sizeof(NodeID); i++) 
-            *p++ = EEPROM.read(addr++);
-        }
+    if (checkNidOK()) {
+        // read NodeID from non-volative memory
+        uint8_t* p;
+        int addr = startAddress+6; // skip check word and count
+        p = (uint8_t*)nid;
+        for (int i=0; i<sizeof(NodeID); i++) 
+        *p++ = EEPROM.read(addr++);
+
+        // load count
+        int part1 = EEPROM.read(startAddress+4);
+        int part2 = EEPROM.read(startAddress+5);
+        count = (part1<<8)+part2;
+
+        // handle the rest
+        reset(nid, cE, nC);
+
+    } else if (!checkAllOK()) {
+        count = 0;
+
         // handle the rest
         reset(nid, cE, nC);
     }
-    // load count
-    int part1 = EEPROM.read(startAddress+4);
-    int part2 = EEPROM.read(startAddress+5);
-    count = (part1<<8)+part2;
     
     // read NodeID from non-volative memory
     uint8_t* p;
@@ -94,10 +100,15 @@ void NodeMemory::store(NodeID* nid, Event* cE, int nC) {
 
     // write events
     p = (uint8_t*)cE;
-    for (int k=0; k<nC; k++)
-        for (int i=0; i<sizeof(Event); i++) 
+    for (int k=0; k<nC; k++) {
+        for (int i=0; i<sizeof(EventID); i++) 
             writeByte(addr++, *p++);
-
+        for (int i=sizeof(EventID); i<sizeof(Event); i++) {
+            // skip over the flags
+            writeByte(addr++, 0);
+            p++;
+         }
+    }
 }
 
 void NodeMemory::setToNewEventID(NodeID* nid, EventID* eventID) {

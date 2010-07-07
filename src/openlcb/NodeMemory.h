@@ -58,7 +58,12 @@ class NodeMemory {
    * setup() to do a complete reload from initial
    * event values
    */
-  void forceInit();
+  static void forceInitAll();
+    
+  /** 
+   * Reload a complete set of events on next restart.
+   */
+  static void forceInitEvents();
     
   /*
    * Put modified contents back into memory.
