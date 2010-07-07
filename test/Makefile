@@ -1,11 +1,11 @@
 # Simple Makefile for tests directory
 
-include ../standard.mk
-
 BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest NodeMemoryTest
 
-default: clean compile $(BINFILES) 
+include ../standard.mk
 	
+OBJDIR := ${OBJDIRPREFIX}/test
+
 CanMrrlcbTest:
 	@$(CXX) -L../src/openlcb -lopenlcb -L../scaffold -lscaffold CanMrrlcbTest.o -o CanMrrlcbTest
 

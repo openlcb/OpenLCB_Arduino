@@ -1,6 +1,8 @@
 # Simple Makefile for scaffold directory
 
+LIBS := libscaffold.a
+
 include ../standard.mk
 
-default: clean compile libscaffold.a
+OBJDIR := ${OBJDIRPREFIX}/scaffold
 

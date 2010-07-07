@@ -1,23 +1,31 @@
+
+TOPDIR := $(PWD)
 binaries := 
 objects  := 
+OBJDIR := $(TOPDIR)/lib
 CPPFLAGS := -I$(PWD)/src/openlcb -I$(PWD)/scaffold $(CPPFLAGS)
 
+SUBDIRS = scaffold src test
+
+include standard.mk
+
+.PHONY: all
+
 # default target: clean & rebuild
-all: clean scaffold src test
+all: clean compile lib bin test
 
 # compile directories
-src: FORCE
-	@make -C src CPPFLAGS="$(CPPFLAGS)"
+.PHONY: clean compile lib bin test
 
-scaffold: FORCE
-	@make -C scaffold CPPFLAGS="$(CPPFLAGS)"
+#src: 
+#	@make -C src CPPFLAGS="$(CPPFLAGS)" OBJDIRPREFIX="$(OBJDIR)"
 
-test: FORCE
-	@make -C test CPPFLAGS="$(CPPFLAGS)"
+#scaffold: 
+#	@make -C scaffold CPPFLAGS="$(CPPFLAGS)" OBJDIRPREFIX="$(OBJDIR)"
 
-clean: FORCE 
+#test: 
+#	@make -C test CPPFLAGS="$(CPPFLAGS)" OBJDIRPREFIX="$(OBJDIR)"
 
-FORCE:
 
 # ToDo:  change to separate targets
 # ToDo:  Automatically create "run" and "reset" command lists
