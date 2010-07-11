@@ -47,6 +47,13 @@ class NodeMemory {
    */
   void setup(NodeID* nid, Event* events, int nunEvents);
   
+  /**
+   * Make sure ready to go.  NodeID should have a default
+   * value already in case this is the first time.
+   * Add extra bytes of memory at end.
+   */
+  void setup(NodeID* nid, Event* events, int nunEvents, uint8_t* data, int extraBytes);
+  
   /*
    * Move to a completely new set of values, e.g. a "default" reset
    * for OpenLCB. NodeID is not changed.

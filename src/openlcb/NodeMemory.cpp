@@ -66,6 +66,15 @@ void NodeMemory::setup(NodeID* nid, Event* cE, int nC) {
     
 }
 
+void NodeMemory::setup(NodeID* nid, Event* cE, int nC, uint8_t* data, int extraBytes) {
+    setup(nid, cE, nC);
+    // read extra data
+    uint8_t* p = data;
+    int addr = 6+sizeof(NodeID)+nC*(sizeof(Event));
+    for (int k=0; k<extraBytes; k++)
+        *p++ = EEPROM.read(addr++);
+}
+
 void NodeMemory::reset(NodeID* nid, Event* cE, int nC) {
     // Do the in-memory update. Does not change
     // the total count, this is not an "initial config" for factory use.
