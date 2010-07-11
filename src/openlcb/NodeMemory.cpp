@@ -9,6 +9,9 @@
 #include "NodeID.h"
 #include <EEPROM.h>
 
+#define KEYSIZE 4
+#define COUNTSIZE 2
+
 // ToDo: NodeID* not kept in object member to save RAM space, may be false economy
 
 NodeMemory::NodeMemory(int start) {
@@ -30,14 +33,14 @@ void NodeMemory::setup(NodeID* nid, Event* cE, int nC) {
     if (checkNidOK()) {
         // read NodeID from non-volative memory
         uint8_t* p;
-        int addr = startAddress+6; // skip check word and count
+        int addr = startAddress+KEYSIZE+COUNTSIZE; // skip check word and count
         p = (uint8_t*)nid;
         for (int i=0; i<sizeof(NodeID); i++) 
         *p++ = EEPROM.read(addr++);
 
         // load count
-        int part1 = EEPROM.read(startAddress+4);
-        int part2 = EEPROM.read(startAddress+5);
+        int part1 = EEPROM.read(startAddress+KEYSIZE);
+        int part2 = EEPROM.read(startAddress+KEYSIZE+1);
         count = (part1<<8)+part2;
 
         // handle the rest
@@ -52,7 +55,7 @@ void NodeMemory::setup(NodeID* nid, Event* cE, int nC) {
     
     // read NodeID from non-volative memory
     uint8_t* p;
-    int addr = startAddress+6; // skip check word and count
+    int addr = startAddress+KEYSIZE+COUNTSIZE; // skip check word and count
     p = (uint8_t*)nid;
     for (int i=0; i<sizeof(NodeID); i++) 
         *p++ = EEPROM.read(addr++);
@@ -70,7 +73,7 @@ void NodeMemory::setup(NodeID* nid, Event* cE, int nC, uint8_t* data, int extraB
     setup(nid, cE, nC);
     // read extra data
     uint8_t* p = data;
-    int addr = 6+sizeof(NodeID)+nC*(sizeof(Event));
+    int addr = KEYSIZE+COUNTSIZE+sizeof(NodeID)+nC*(sizeof(Event));
     for (int k=0; k<extraBytes; k++)
         *p++ = EEPROM.read(addr++);
 }
@@ -118,6 +121,15 @@ void NodeMemory::store(NodeID* nid, Event* cE, int nC) {
             p++;
          }
     }
+}
+
+void NodeMemory::store(NodeID* nid, Event* cE, int nC, uint8_t* data, int extraBytes) {
+    store(nid, cE, nC);
+    // write extra data
+    uint8_t* p = data;
+    int addr = KEYSIZE+COUNTSIZE+sizeof(NodeID)+nC*(sizeof(Event));
+    for (int k=0; k<extraBytes; k++)
+        writeByte(addr++, *p++);
 }
 
 void NodeMemory::setToNewEventID(NodeID* nid, EventID* eventID) {

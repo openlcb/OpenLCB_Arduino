@@ -76,6 +76,7 @@ class NodeMemory {
    * Put modified contents back into memory.
    */
   void store(NodeID* nid, Event* events, int nunEvents); 
+  void store(NodeID* nid, Event* events, int nunEvents, uint8_t* data, int extraBytes); 
   
   /*
    * Get a new, forever unique EventID and put in 
