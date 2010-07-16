@@ -155,5 +155,10 @@ void LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
        txBuffer->setVerifiedNID(nid);
        OpenLcb_can_queue_xmt_wait(txBuffer);
      }
+   } else if (rcv->isVerifyNIDglobal()) {
+     // reply to global request
+     // ToDo: This should be threaded
+     txBuffer->setVerifiedNID(nid);
+     OpenLcb_can_queue_xmt_wait(txBuffer);
    }
 }
