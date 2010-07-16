@@ -213,6 +213,10 @@
       return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFY_NID);
   }
 
+  bool OpenLcbCanBuffer::isVerifyNIDglobal() {
+      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFY_NID_GLOBAL);
+  }
+
   void OpenLcbCanBuffer::setVerifiedNID(NodeID* nid) {
     init(nodeAlias);
     setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_VERIFIED_NID);
