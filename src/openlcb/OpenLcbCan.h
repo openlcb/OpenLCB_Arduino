@@ -22,6 +22,7 @@
 #define MTI_INITIALIZATION_COMPLETE     0x08F
 
 #define MTI_VERIFY_NID                  0x0AF
+#define MTI_VERIFY_NID_GLOBAL           0x0A0
 #define MTI_VERIFIED_NID                0x0BF
 
 #define MTI_IDENTIFY_CONSUMERS          0x24F
