@@ -99,7 +99,7 @@ int Configuration::decodeLen(uint8_t* data) {
 int Configuration::decodeSpace(uint8_t* data) {
     int val;
     switch (data[1]&0x03) {
-        case 0x00:
+        case 0x03:
             val = 0xFF;
             break;
         case 0x01:
@@ -108,7 +108,7 @@ int Configuration::decodeSpace(uint8_t* data) {
         case 0x02:
             val = 0xFD;
             break;
-        case 0x03:
+        case 0x00:
             val = data[6];
             break;
     }
