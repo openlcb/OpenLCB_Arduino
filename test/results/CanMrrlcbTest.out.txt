@@ -29,8 +29,12 @@ trigger CIM conflict
 can_get_frame:  [163046ba]
 queue_xmt_wait: [107006ba]
 
-queue Verify Node
+queue Verify Node addressed
 can_get_frame:  [180af00f] 02 03 04 05 06 07
+queue_xmt_wait: [190bf6ba] 02 03 04 05 06 07
+
+queue Verify Node global
+can_get_frame:  [180a000f]
 queue_xmt_wait: [190bf6ba] 02 03 04 05 06 07
 
 queue Request Consumers, expect 1 reply
