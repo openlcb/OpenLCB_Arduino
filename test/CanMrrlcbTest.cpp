@@ -148,10 +148,17 @@ int main( int argc, const char* argv[] )
 	doLoop(1000);  // long enough for timeout
 	printf("\n");
 
-	printf("queue Verify Node\n");
+	printf("queue Verify Node addressed\n");
 	b.id = 0x180AF00F;
 	b.length = (uint8_t)6;
 	b.data[0]=2; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
+	queueTestMessage(&b);
+	doLoop(100);
+	printf("\n");
+
+	printf("queue Verify Node global\n");
+	b.id = 0x180A000F;
+	b.length = (uint8_t)0;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
