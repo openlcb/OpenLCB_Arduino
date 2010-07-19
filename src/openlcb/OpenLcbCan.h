@@ -2,7 +2,7 @@
 #define OpenLcbCan_h
 
 /**
- * OpenLCB CAN MTI format bits
+ * OpenLCB CAN MTI format (3 bits)
  */
 #define MTI_FORMAT_SIMPLE_MTI               0    
 #define MTI_FORMAT_COMPLEX_MTI              1
@@ -16,7 +16,7 @@
 
 /**
  * Basic header MTI definitions for OpenLCB on CAN.
- * Low bits 0x00F on all of these automatically
+ * See the MtiAllocations.ods document for allocations.
  */
  
 #define MTI_INITIALIZATION_COMPLETE     0x08F
