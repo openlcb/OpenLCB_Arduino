@@ -6,13 +6,14 @@
 	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.2  (Unix)">
 	<META NAME="AUTHOR" CONTENT="Bob Jacobsen">
 	<META NAME="CREATED" CONTENT="20090816;10132800">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGED" CONTENT="20100913;20565300">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="David Harris">
-	<META NAME="CHANGED" CONTENT="20100913;19255000">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<STYLE TYPE="text/css">
 	<!--
 		H2.ctl { font-family: "Arial Unicode MS" }
-		H3.ctl { font-family: "Arial Unicode MS" }
 	-->
 	</STYLE>
 </HEAD>
@@ -37,143 +38,14 @@ files.</P>
 <P>The platform-independent library code lives in the
 <A HREF="libraries/OlcbCommonCAN/index.html">libraries/OlcbCommonCAN
 directory</A>.</P>
-<H2 CLASS="western">Use with Arduino</H2>
-<P>Version 18 or later of the <A HREF="http://Arduino.cc/">Arduino
-IDE</A> allows you to set the location of the “sketch book” in
-the preferences. Perhaps the easiest way to compile and run the
-example OpenLCB sketches: Open Arduino, go to the preferences, and
-set the sketchbook directory to this one. Save the preferences, quit
-Arduino, and start it again. You can then go to the File menu, select
-Sketchbook → libraries → OlcbArduinoCAN → some sketch you'd
-like to build and run.</P>
-<P>For more use information on use with Arduino, please see the
-OpenLCB Arduino index page.</P>
-<DL>
-	<DD>
-	<TABLE WIDTH=860 BORDER=1 CELLPADDING=4 CELLSPACING=4>
-		<COL WIDTH=267>
-		<COL WIDTH=563>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbBasicNode</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>Two consumer, two producer sample node with configuration and
-				blue/fold programming support. 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbEightConsumer</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>Eight consumer sample node with configuration and blue/fold
-				programming support. 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbBasicNode</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>Two consumer, two producer sample node with configuration and
-				blue/fold programming support. 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbEightConsumer</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>Eight consumer sample node with configuration and blue/fold
-				programming support. 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbServoNode</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>Three consumer sample node to drive a servo to one of three
-				positions. 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbDisplay</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>Display OpenLCB messages on a LCD display. 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">CAN2EtherNetClient,
-				CAN2EtherNetServer</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>Provide an ASCII format Ethernet-CAN interface as either a
-				Telnet client or server. 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">CAN2USBuino</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>Provide an ASCII-format CAN-USB interface. Useful as an
-				adapter for e.g. a PC program. 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">CAN2USBuinoFilters</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>An ASCII-format CAN-USB interface with filtering; work in
-				progress. 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbClockGenerator,
-				OlcbFastClockDisplayNode</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>A fast clock time generator and display module for OpenLCB
-				(Work in progress) 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbLocoNet</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>(Work in progress) 
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=267 BGCOLOR="#9999cc">
-				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbNmraDcc</H3>
-			</TD>
-			<TD WIDTH=563 BGCOLOR="#9999cc">
-				<P>(Work in progress) 
-				</P>
-			</TD>
-		</TR>
-	</TABLE>
-</DL>
+<H2 CLASS="western">Arduino Support</H2>
+<P>The Arduino is a convenient hardware platform for OpenLCB
+<a href="../Hobbyists.html">hobbyists</a>.  
+We provide a number of Arduino “sketches”, complete
+software loads for the Arduino hardware for various kinds of OpenLCB
+nodes.</P>
+<P>For more use information on OpenLCB for Arduino, please see the
+OpenLCB <A HREF="Arduino.html">Arduino</A> page.</P>
 <H2 CLASS="western">Standalone Compilation</H2>
 <P>The <A HREF="libraries/OlcbTestCAN/index.html">libraries/OlcbTestCAN</A>
 directory contains Makefiles and test scaffolding to compile the
@@ -196,6 +68,6 @@ the <A HREF="http://svnbook.red-bean.com/">online SVN book</A>.</P>
 <P STYLE="margin-bottom: 0cm">This web sites contains trademarks and
 copyrighted information. Please see the <A HREF="/Licensing.html">Licensing</A>
 page.</P>
-<P STYLE="margin-bottom: 0cm">This is SVN $Revision$ of <SDFIELD TYPE=DATETIME SDVAL="40041.4309143519" SDNUM="4105;1033;MM/DD/YY">08/16/09</SDFIELD>.</P>
+<P STYLE="margin-bottom: 0cm">This is SVN $Revision$ of <SDFIELD TYPE=DATETIME SDVAL="40041.4309143519" SDNUM="1033;1033;MM/DD/YY">08/16/09</SDFIELD>.</P>
 </BODY>
 </HTML>
