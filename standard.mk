@@ -1,67 +1,33 @@
-# Simple Makefile fragment included by convention
+# Simple makefile fragment for Arduino sketch, somewhat brute force.
 
-# build subdirectory even when already present
-#.PHONY: $(SUBDIRS)
+# Arduino install definitions, for Arduino 18
+# The ARDUINO_ROOT definition varies with install location
+ARDUINO_ROOT := /Applications/Arduino.app/Contents/Resources/Java/
+CC_OPTIONS_ARDUINO := -Os -w -fno-exceptions -ffunction-sections -fdata-sections -std=gnu99 -mmcu=atmega168 -DF_CPU=16000000L
 
-# CC_SUFFIX can be set to .cc or .cxx or .cpp
-ifeq ($(CC_SUFFIX),)
-	CC_SUFFIX := .cpp
-endif	 
-ifeq ($(HH_SUFFIX),)
-	HH_SUFFIX := .hh
-endif	 
+INCLUDE_ARDUINO := -I${ARDUINO_ROOT}hardware/arduino/cores/arduino 
 
-# List of C++ source files
-SRCLIST := $(wildcard *$(CC_SUFFIX))
-# list of object (*.o) files to create
-OBJLIST := $(foreach V,$(SRCLIST),$(OBJDIR)/$(V:$(CC_SUFFIX)=.o))
+INCLUDE_ARDUINO := ${INCLUDE_ARDUINO} -I${ARDUINO_ROOT}libraries/EEPROM
+INCLUDE_ARDUINO := ${INCLUDE_ARDUINO} -I${ARDUINO_ROOT}libraries/LiquidCrystal
+INCLUDE_ARDUINO := ${INCLUDE_ARDUINO} -I${ARDUINO_ROOT}libraries/Servo
 
-#.PHONY: clean $(foreach v,$(SUBDIRS),$(v).clean)
-clean:   $(foreach v,$(SUBDIRS),$(v).clean)
-	@$(RM) *.o lib*.a $(BINFILES) 
-	@$(RM) -rf $(OBJDIR)
+# note that this in meant to be included one level down, where PWD refers to a specific examples/sketch
 
-%.clean:
-	make -C $(@:.clean=) clean CPPFLAGS="$(CPPFLAGS)" OBJDIR="$(OBJDIR)/$(@:.clean=)"
+# local libraries
+INCLUDE_OPTIONS := -I${PWD}/libraries/OlcbArduinoCAN 
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/OlcbCommonCAN 
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/CAN 
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/EtherNet2 
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/LCmini
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/LocoNet
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/NmraDcc
 
-$(OBJDIR):
-	@mkdir -p $(OBJDIR)
-	
-# Compile general C++ file
-$(OBJDIR)/%.o: %.cpp
-	@$(CXX) $(CCFLAGS) $(CPPFLAGS) -c -o $(OBJDIR)/$(*F).o $(<F)
+TMPDIR := $(shell mktemp -d /tmp/Arduino.XXXXXXXX)
 
-# compile everything
-compile: $(OBJDIR) $(OBJLIST) $(foreach v,$(SUBDIRS),$(v).compile)
-    
-%.compile:
-	make -C $(@:.compile=) compile CPPFLAGS="$(CPPFLAGS)" OBJDIR="$(OBJDIR)/$(@:.compile=)"
+PDE := $(foreach V,$(wildcard *.pde),$(V:.pde=))
 
-# link a library from all object files
-# use libtool in preference to ar
-AR := libtool
-ARFLAGS := -static -o
-$(OBJDIR)/%.a: $(OBJLIST)
-	@$(AR) $(ARFLAGS) $@ $(OBJLIST)
-
-# create libs
-.PHONY: lib
-lib: $(OBJDIR) $(OBJDIR)/$(LIB) $(foreach v,$(SUBDIRS),$(v).lib) FORCE
-    
-%.lib:
-	make -C $(@:.lib=) lib CPPFLAGS="$(CPPFLAGS)" OBJDIR="$(OBJDIR)/$(@:.lib=)"
-
-# create bins
-.PHONY: bin
-bin: $(OBJDIR) $(foreach v,$(SUBDIRS),$(v).bin) $(foreach v,$(BINFILES),$(OBJDIR)/$(v)) FORCE
-    
-%.bin: 
-	make -C $(@:.bin=) bin CPPFLAGS="$(CPPFLAGS)" OBJDIR="$(OBJDIR)/$(@:.bin=)"
-
-.PHONY: FORCE
-FORCE:
-	@# nothing
-
-# Reset the default goal.
-.DEFAULT_GOAL :=
-
+all:
+	cp ${PDE}.pde ${TMPDIR}/${PDE}.cpp
+	-cp *.h ${TMPDIR}/ >& /dev/null
+	cd ${TMPDIR}; ${ARDUINO_ROOT}hardware/tools/avr/bin/avr-g++ -c -g  ${CC_OPTIONS_ARDUINO} ${INCLUDE_ARDUINO} ${INCLUDE_OPTIONS} *.cpp -o /dev/null
+	rm -r ${TMPDIR}
