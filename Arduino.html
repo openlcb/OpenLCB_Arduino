@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>OpenLCB Arduino Support</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.2  (Unix)">
+	<META NAME="AUTHOR" CONTENT="Bob Jacobsen">
+	<META NAME="CREATED" CONTENT="20090816;10132800">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGED" CONTENT="20100913;20444600">
+	<META NAME="CHANGEDBY" CONTENT="David Harris">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<STYLE TYPE="text/css">
+	<!--
+		H2.ctl { font-family: "Arial Unicode MS" }
+		H3.ctl { font-family: "Arial Unicode MS" }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" BGCOLOR="#e6e6ff" DIR="LTR">
+<H1><FONT COLOR="#000000"><IMG SRC="../../web/logo-ajs-dph.png" NAME="OpenLCB" ALIGN=RIGHT WIDTH=337 HEIGHT=135 BORDER=2></FONT>OpenLCB
+Arduino Support</H1>
+<P>This page describes the OpenLCB Arduino software.  See also the
+<a href="../Hobbyists.html">Hobbyists</a> page.</P>
+<H2 CLASS="western">Use with Arduino</H2>
+<P>Version 18 or later of the <A HREF="http://Arduino.cc/">Arduino
+IDE</A> allows you to set the location of the “sketch book” in
+the preferences. Perhaps the easiest way to compile and run the
+example OpenLCB sketches: Open Arduino, go to the preferences, and
+set the sketchbook directory to this one. Save the preferences, quit
+Arduino, and start it again. You can then go to the File menu, select
+Sketchbook → libraries → OlcbArduinoCAN → some sketch you'd
+like to build and run.</P>
+<DL>
+	<DD>
+	<TABLE WIDTH=860 BORDER=1 CELLPADDING=4 CELLSPACING=4>
+		<COL WIDTH=267>
+		<COL WIDTH=563>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbBasicNode</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>Two consumer, two producer sample node with configuration and
+				blue/fold programming support. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbEightConsumer</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>Eight consumer sample node with configuration and blue/fold
+				programming support. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbBasicNode</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>Two consumer, two producer sample node with configuration and
+				blue/fold programming support. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbEightConsumer</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>Eight consumer sample node with configuration and blue/fold
+				programming support. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbServoNode</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>Three consumer sample node to drive a servo to one of three
+				positions. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbDisplay</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>Display OpenLCB messages on a LCD display. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">CAN2EtherNetClient,
+				CAN2EtherNetServer</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>Provide an ASCII format Ethernet-CAN interface as either a
+				Telnet client or server. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">CAN2USBuino</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>Provide an ASCII-format CAN-USB interface. Useful as an
+				adapter for e.g. a PC program. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">CAN2USBuinoFilters</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>An ASCII-format CAN-USB interface with filtering; work in
+				progress. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbClockGenerator,
+				OlcbFastClockDisplayNode</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>A fast clock time generator and display module for OpenLCB
+				(Work in progress) 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbLocoNet</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>(Work in progress) 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=267 BGCOLOR="#9999cc">
+				<H3 CLASS="western" STYLE="margin-top: 0cm">OlcbNmraDcc</H3>
+			</TD>
+			<TD WIDTH=563 BGCOLOR="#9999cc">
+				<P>(Work in progress) 
+				</P>
+			</TD>
+		</TR>
+	</TABLE>
+</DL>
+<H2 CLASS="western">Library</H2>
+<P>The platform-independent library code lives in the
+<A HREF="libraries/OlcbCommonCAN/index.html">libraries/OlcbCommonCAN
+directory</A>.</P>
+<H2 CLASS="western">Getting the Code</H2>
+<P>The content of this development area, including code, documents
+and web pages, is kept in the <A HREF="https://sourceforge.net/projects/openlcb/develop">OpenLCB</A>
+<A HREF="https://sourceforge.net/">SourceForge.net</A> <A HREF="http://openlcb.svn.sourceforge.net/viewvc/openlcb/trunk">SVN
+repository</A> in the “trunk/prototypes/C” directory. To check it
+out, please do:</P>
+<PRE STYLE="margin-left: 2cm; margin-bottom: 0.5cm"><B>svn co https://openlcb.svn.sourceforge.net/svnroot/openlcb/trunk/prototypes/C C</B></PRE><P STYLE="margin-bottom: 0cm">
+For more information on the SVN source code management tool, please
+see the <A HREF="http://subversion.tigris.org/">SVN website</A> and
+the <A HREF="http://svnbook.red-bean.com/">online SVN book</A>.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<HR>
+<P STYLE="margin-bottom: 0cm">This web sites contains trademarks and
+copyrighted information. Please see the <A HREF="/Licensing.html">Licensing</A>
+page.</P>
+<P STYLE="margin-bottom: 0cm">This is SVN $Revision$ of <SDFIELD TYPE=DATETIME SDVAL="40041.4309143519" SDNUM="1033;1033;MM/DD/YY">08/16/09</SDFIELD>.</P>
+</BODY>
+</HTML>
