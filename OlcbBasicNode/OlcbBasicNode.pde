@@ -1,5 +1,5 @@
 //==============================================================
-// OlcbConfigureTest
+// OlcbBasicNode
 //   A prototype of a basic 4-channel OpenLCB board
 // 
 //   setup() at line 189 determines which are consumers and
@@ -169,7 +169,7 @@ void produceFromPins() {
   // with pce.produce(i);
   // The first event of each pair is sent on button down,
   // and second on button up.
-  for (int i = 0; i<4; i++) {
+  for (int i = 0; i<eventNum/2; i++) {
     if (states[i] != buttons[i*2]->state) {
       states[i] = buttons[i*2]->state;
       if (states[i]) {
@@ -194,10 +194,10 @@ void setup()
   nm.setup(&nodeid, events, eventNum);  
   
   // set event types, now that IDs have been loaded from configuration
-  for (int i=0; i<4; i++) {
+  for (int i=0; i<eventNum/2; i++) {
       pce.newEvent(i,true,false); // produce, consume
   }
-  for (int i=4; i<8; i++) {
+  for (int i=eventNum/2; i<eventNum; i++) {
       pce.newEvent(i,false,true); // produce, consume
   }
   

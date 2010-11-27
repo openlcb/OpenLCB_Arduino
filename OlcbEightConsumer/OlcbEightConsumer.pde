@@ -169,26 +169,6 @@ PCE pce(events, eventNum, &txBuffer, &nodeid, pceCallback, store);
 
 BG bg(&pce, buttons, patterns, eventNum, &blue, &gold);
 
-//bool states[] = {false, false, false, false,false,false,false,false};
-//void produceFromPins() {
-  // no events produced here, so
-  // called from loop(), this looks at pins and 
-  // and decides which events to fire.
-  // with pce.produce(i);
-  // The first event of each pair is sent on button down,
-  // and second on button up.
-  //for (int i = 0; i<eventNum/2; i++) {
-  //  if (states[i] != buttons[i*2]->state) {
-  //    states[i] = buttons[i*2]->state;
-  //    if (states[i]) {
-  //      pce.produce(i*2);
-  //    } else {
-  //      pce.produce(i*2+1);
-  //    }
-  //  }
-  // }
-//}
-
 /**
  * Setup does initial configuration
  */
