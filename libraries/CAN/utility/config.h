@@ -42,11 +42,11 @@
  * Remember NOT to use them in your application!
  * It is a good idea to use bits from the port that carries MOSI, MISO, SCK.
  */
-#define	MCP2515_CS				B,2
+#define	MCP2515_CS				B,2   // B,2 for LEDuino; B,1 for Railroad Shield
 #define	MCP2515_INT				D,3
 
-// Interupt is on PD3
-// Chip select is on PB2
+// Interupt is on PD3 (digital pin 3)
+// Chip select is on PB2 (digital pin 10) or PB1 (digital pin 9)
 
 
 // -----------------------------------------------------------------------------
