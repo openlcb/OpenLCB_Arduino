@@ -38,7 +38,7 @@
  * 
  *****************************************************************************/
 
-#include <avr/io.h>
+//#include <avr/io.h>
 #include <avr/interrupt.h>
 #include <string.h>
 #include "ln_config.h"
@@ -113,7 +113,8 @@ ISR(LN_TMR_SIGNAL)     /* signal handler for timer0 overflow */
   if( lnState == LN_ST_RX ) {  // Are we in RX mode
     if( lnBitCount < 9)  {   // Are we in the Stop Bits phase
       lnCurrentByte >>= 1;
-      if( bit_is_set(LN_RX_PORT, LN_RX_BIT)) {
+//      if( bit_is_set(LN_RX_PORT, LN_RX_BIT)) {
+		  if( bit_is_set(LN_RX_PORT, 0)) {
         lnCurrentByte |= 0x80;
       }
       return ;

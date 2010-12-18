@@ -26,10 +26,12 @@
 // but the RX port *MUST BE* the ICP pin (port PINB bit PB0, Arduino pin 8 on a '168) 
 // (TX is used in Timer ISR as well as sendLocoNetPacketTry in ln_sw_uart.cpp)
 #define LN_TX_PORT  PORTD        // pin 7 is PORTD BIT 7
-#define LN_TX_BIT   PD6
+//#define LN_TX_BIT   PD6
+#define LN_TX_BIT   6
 #define LN_TX_DDR   DDRD
 #define LN_RX_PORT  PINB         // pin 8 is PORTB BIT 0
-#define LN_RX_BIT   PB0
+//#define LN_RX_BIT   PB0
+#define LN_RX_BIT   0
 #define LN_RX_DDR   DDRB
 
 #ifndef cbi
