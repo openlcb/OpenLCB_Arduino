@@ -25,14 +25,9 @@
 
 #include "NmraDcc.h"
 
-#ifdef PD2
-#define DCC_BIT         PD2     // must be located on INT0
-#else
-#define DCC_BIT         PORTD2     // must be located on INT0
-#endif
-
-#define DCC_PORT        PORTD   // must be defined to have portable code
-#define DCC_PORT_IN     PIND    // must be defined to have portable code
+#define DCC_BIT      PIND2   // must be located on INT0
+#define DCC_PORT_IN  PIND    // must be defined to port with INT0 pin
+#define DCC_PORT	 PORTD   // Output port for INT0 to enable Pull-Up
 
 //------------------------------------------------------------------------
 // DCC Receive Routine
@@ -114,14 +109,7 @@ DCC_PROCESSOR_STATE ;
 
 DCC_PROCESSOR_STATE DccProcState ;
 
-// Uncomment this line below to use the attachInterrupt to hook the INT0 interrupt
-//#define USE_ATTACH_INT0
-
-#ifdef USE_ATTACH_INT0
 ISR(INT0_vect)
-#else
-void DCC_ISR(void)
-#endif
 {
   OCR0B = TCNT0 + DCC_BIT_SAMPLE_PERIOD ;
 
@@ -231,31 +219,31 @@ uint8_t validCV( uint16_t CV, uint8_t Writable )
 #ifdef USE_DCC_CV_CACHE
 uint8_t cached_read_byte(uint8_t * CV)
 {
-    uint16_t cv = (uint16_t) CV;
+  uint16_t cv = (uint16_t) CV;
     
-    if (cv < MAXCV) 
-    {
-    uint8_t cachecvbit= (cv - 1) % 8;
-        if (DccProcState.CVCache.iscached[(cv-1)/8] & (1 << cachecvbit) )
-            return DccProcState.CVCache.cache[cv-1];
-        else
-            DccProcState.CVCache.iscached[(cv-1)/8] |= (1 << cachecvbit);
-            return DccProcState.CVCache.cache[cv-1] = eeprom_read_byte ( CV ) ;
-    }
+  if (cv < MAXCV) 
+  {
+		uint8_t cachecvbit= (cv - 1) % 8;
+    if (DccProcState.CVCache.iscached[(cv-1)/8] & (1 << cachecvbit) )
+      return DccProcState.CVCache.cache[cv-1];
+    else
+      DccProcState.CVCache.iscached[(cv-1)/8] |= (1 << cachecvbit);
+    return DccProcState.CVCache.cache[cv-1] = eeprom_read_byte ( CV ) ;
+  }
 }
 
 uint8_t cached_write_byte(uint8_t * CV, uint8_t Value)
 {
-    uint16_t cv = (uint16_t) CV;
+  uint16_t cv = (uint16_t) CV;
     
-    if (cv < MAXCV) 
-    {
+  if (cv < MAXCV) 
+  {
     uint8_t cachecvbit= (cv - 1) % 8;
         
-        eeprom_write_byte( CV, Value ) ;
-        DccProcState.CVCache.iscached[(cv-1)/8] |= (1 << cachecvbit);
-        DccProcState.CVCache.cache[cv-1] = Value ;
-    }
+    eeprom_write_byte( CV, Value ) ;
+    DccProcState.CVCache.iscached[(cv-1)/8] |= (1 << cachecvbit);
+    DccProcState.CVCache.cache[cv-1] = Value ;
+  }
 }
 
 #else
@@ -698,6 +686,9 @@ void execDccProcessor( DCC_MSG * pDccMsg )
 
 void initDccProcessor( uint8_t ManufacturerId, uint8_t VersionId, uint8_t Flags, uint8_t OpsModeAddressBaseCV )
 {
+  if( Flags & FLAGS_ENABLE_INT0_PULL_UP )
+		DCC_PORT |= (1<<DCC_BIT);
+  
   DccProcState.Flags = Flags ;
   DccProcState.OpsModeAddressBaseCV = OpsModeAddressBaseCV ;
 
@@ -722,18 +713,16 @@ void NmraDcc::init( uint8_t ManufacturerId, uint8_t VersionId, uint8_t Flags, ui
   // Clear all the static member variables
   memset( &DccRx, 0, sizeof( DccRx) );
 
-  #ifdef USE_ATTACHINTERRUPT
-    attachInterrupt(0, DCC_ISR, RISING);
-  #else
-    // Init Interrupt 0 for Rising Edge
-    EICRA |= (1<<ISC01) | (1<<ISC00) ;
-    EIMSK |= (1<<INT0) ;
-  #endif
+  // Init Interrupt 0 for Rising Edge
+  EICRA |= (1<<ISC01) | (1<<ISC00) ;
+  EIMSK |= (1<<INT0) ;
   
-    // Change Timer0 back to Normal Mode instead of Fast PWM
-  #if defined(__AVR_ATmega168__)
-    TCCR0A &= ~((1<<WGM01)|(1<<WGM00));
-  #endif  
+#ifdef TCCR0A
+  // Change Timer0 Waveform Generation Mode from Fast PWM back to Normal Mode
+  TCCR0A &= ~((1<<WGM01)|(1<<WGM00));
+#else  
+#error NmraDcc Library requires a processor with Timer0 Output Compare B feature 
+#endif
 
   initDccProcessor( ManufacturerId, VersionId, Flags, OpsModeAddressBaseCV ) ;
 }
@@ -774,8 +763,12 @@ uint8_t NmraDcc::process()
     if(xorValue)
       return 0 ;
     else
+		{
+			if( notifyDccMsg )
+				notifyDccMsg( &Msg );
+		
       execDccProcessor( &Msg );
-    
+    }
     return 1 ;
   }
 

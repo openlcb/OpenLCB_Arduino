@@ -69,9 +69,9 @@ typedef struct
 
 #define DCCuinoDemo  0x02
 
-#define FLAGS_MY_ADDRESS_ONLY  	      0x01
-#define FLAGS_OUTPUT_ADDRESS_MODE     0x40  // CV 29/541 bit 6
-#define FLAGS_DCC_ACCESSORY_DECODER  	0x80  // CV 29/541 bit 7
+//#define USE_DCC_CV_CACHE								// Uncomment to enable CV Caching in RAM
+//#define NMRA_DCC_PROCESS_MULTIFUNCTION	// Uncomment to process MultiFunction/Mobile/Locomotive Decoder features
+//#define NMRA_DCC_PROCESS_SERVICEMODE		// Uncomment to process Service Mode Programming features
 
 // Standard CV Addresses
 #define CV_ACCESSORY_DECODER_ADDRESS_LSB       1
@@ -84,7 +84,6 @@ typedef struct
 #define CV_VERSION_ID                          7
 #define CV_MANUFACTURER_ID                     8
 #define CV_29_CONFIG                          29
-#define CV_OPS_MODE_ADDRESS_LSB               33
 #define MAXCV                                 E2END     // the upper limit of the CV value currently defined to max memory.
 
 class NmraDcc
@@ -94,6 +93,13 @@ class NmraDcc
     
   public:
     NmraDcc();
+
+// Flag values to be logically ORed together and passed into the init() method
+#define FLAGS_MY_ADDRESS_ONLY				0x01	// Only process DCC Packets with My Address
+#define FLAGS_ENABLE_INT0_PULL_UP		0x02	// Enable the internal Pull-Up re
+#define FLAGS_OUTPUT_ADDRESS_MODE		0x40  // CV 29/541 bit 6
+#define FLAGS_DCC_ACCESSORY_DECODER	0x80  // CV 29/541 bit 7
+
     void init( uint8_t ManufacturerId, uint8_t VersionId, uint8_t Flags, uint8_t OpsModeAddressBaseCV );
     uint8_t process();
     uint8_t getCV( uint16_t CV );
@@ -110,11 +116,12 @@ extern void notifyDccAccState( uint16_t Addr, uint16_t BoardAddr, uint8_t Output
 
 extern void notifyDccSigState( uint16_t Addr, uint8_t OutputIndex, uint8_t State) __attribute__ ((weak));
 
+extern void    notifyDccMsg( DCC_MSG * Msg ) __attribute__ ((weak));
+
 extern uint8_t notifyCVValid( uint16_t CV, uint8_t Writable ) __attribute__ ((weak));
 extern uint8_t notifyCVRead( uint16_t CV) __attribute__ ((weak));
 extern uint8_t notifyCVWrite( uint16_t CV, uint8_t Value) __attribute__ ((weak));
 extern void    notifyCVChange( uint16_t CV, uint8_t Value) __attribute__ ((weak));
 
 extern void    notifyCVAck(void) __attribute__ ((weak));
-
 #endif

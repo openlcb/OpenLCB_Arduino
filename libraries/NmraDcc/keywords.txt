@@ -23,6 +23,7 @@ notifyDccSpeed		KEYWORD2
 notifyDccFunc		KEYWORD2
 notifyDccAccState	KEYWORD2
 notifyDccSigState	KEYWORD2
+notifyDccMsg		KEYWORD2
 notifyCVValid		KEYWORD2
 notifyCVRead		KEYWORD2
 notifyCVWrite		KEYWORD2
