@@ -47,6 +47,7 @@ class foo{};
 #include "ButtonLed.h"
 
 //===== Clock =========
+#include <LCmini.h>
 #include "DemoLCDFastClock.h"
 
 
