@@ -7,6 +7,10 @@
 //
 //   Bob Jacobsen 2010
 //  
+// Initial testing showed that having pin 10 active
+// caused the program to fail shortly after the link
+// was establishing, hanging up entirely.
+//
 //==============================================================
 
 // next line for stand-alone compile
@@ -118,20 +122,23 @@ unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
 
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
 Event events[] = {
+    Event(), Event(),
     Event(), Event() 
 };
-int eventNum = 2;
+int eventNum = 4;
 
 // output drivers
 ButtonLed outA(6, LOW);
+ButtonLed outB(16, LOW);  // fails if this is 10, the 2nd green
 
 #define ShortBlinkOn   0x00010001L
 #define ShortBlinkOff  0xFFFEFFFEL
 
 long patterns[] = {
+  ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn
 };
-ButtonLed* buttons[] = {&outA,&outA};
+ButtonLed* buttons[] = {&outA,&outA,&outB,&outB};
 
 ButtonLed blue(2, LOW);
 ButtonLed gold(4, LOW);
