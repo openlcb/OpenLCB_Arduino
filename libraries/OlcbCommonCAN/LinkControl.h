@@ -57,10 +57,8 @@ class LinkControl {
   void check();
 
   /**
-   * When a CAN frame is received _after_ initialization is 
-   * complete (e.g. when linkInitialized() is true), it should
-   * be transferred to the LinkControl object via this method
-   * so that it can check for errors and handle Verify requests.
+   * When a CAN frame is received, it should
+   * be transferred to the LinkControl object via this method.
    */
   void receivedFrame(OpenLcbCanBuffer* rcv);
 
