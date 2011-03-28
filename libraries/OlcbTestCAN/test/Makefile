@@ -1,6 +1,6 @@
 # Simple Makefile for tests directory
 
-BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest NodeMemoryTest
+BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest NodeMemoryTest PrngTest
 
 include ../standard.mk
 
