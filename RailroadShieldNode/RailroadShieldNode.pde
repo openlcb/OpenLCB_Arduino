@@ -2,7 +2,7 @@
 // RailroadShieldNode 
 //   A 2-channel OpenLCB node for the RailroadShield
 // 
-//   setup() at line 189 determines which are consumers and
+//   setup() at line 191 determines which are consumers and
 //   which are producers
 //
 //   Bob Jacobsen 2010
@@ -10,6 +10,10 @@
 // Initial testing showed that having pin 10 active
 // caused the program to fail shortly after the link
 // was establishing, hanging up entirely.
+//
+// Note that you have to modify the CAN driver
+// around line 42 in libraries/CAN/utility/config.h
+// to work with the RailroadShield
 //
 //==============================================================
 
