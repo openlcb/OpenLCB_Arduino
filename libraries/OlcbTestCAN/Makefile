@@ -23,11 +23,13 @@ run: all
 	$(OBJDIR)/test/DatagramTest | diff - test/results/DatagramTest.out.txt || echo DatagramTest failed
 	$(OBJDIR)/test/NodeMemoryTest | diff - test/results/NodeMemoryTest.out.txt || echo NodeMemoryTest failed
 	$(OBJDIR)/test/ConfigurationTest | diff - test/results/ConfigurationTest.out.txt || echo ConfigurationTest failed
+	$(OBJDIR)/test/PrngTest | diff - test/results/PrngTest.out.txt || echo PrngTest failed
 
-# reset the comparison files; only if sure!
+# reset the comparison files. Use only if sure new results correct! Commented out to avoid mistakes
 #reset: 
-#	@./test/StreamTest > test/results/StreamTest.out.txt
-#	@./test/DatagramTest > test/results/DatagramTest.out.txt
-#	@./test/NodeMemoryTest > test/results/NodeMemoryTest.out.txt
-#	@./test/ConfigurationTest > test/results/ConfigurationTest.out.txt
-#	@./test/CanMrrlcbTest > test/results/CanMrrlcbTest.out.txt
+#	@$(OBJDIR)/test/CanMrrlcbTest > test/results/CanMrrlcbTest.out.txt
+#	@$(OBJDIR)/test/StreamTest > test/results/StreamTest.out.txt
+#	@$(OBJDIR)/test/DatagramTest > test/results/DatagramTest.out.txt
+#	@$(OBJDIR)/test/NodeMemoryTest > test/results/NodeMemoryTest.out.txt
+#	@$(OBJDIR)/test/ConfigurationTest > test/results/ConfigurationTest.out.txt
+#	@$(OBJDIR)/test/PrngTest > test/results/PrngTest.out.txt
