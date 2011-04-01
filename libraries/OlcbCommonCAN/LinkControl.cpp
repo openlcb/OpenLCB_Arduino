@@ -43,7 +43,8 @@ void LinkControl::reset() {
   // initialize sequence from node ID
   lfsr1 = (((uint32_t)nid->val[0]) << 16) | (((uint32_t)nid->val[1]) << 8) | ((uint32_t)nid->val[2]);
   lfsr2 = (((uint32_t)nid->val[3]) << 16) | (((uint32_t)nid->val[4]) << 8) | ((uint32_t)nid->val[5]);
-  restart();
+  
+  //restart(); // originally advancing one step here, no longer
 }
 
 void LinkControl::restart() {

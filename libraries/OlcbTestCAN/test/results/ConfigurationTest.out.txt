@@ -2,48 +2,33 @@
 Starting ConfigurationTest
 OpenLcb_can_init
 setup done
-queue_xmt_wait: [17020285]
-queue_xmt_wait: [16304285]
-queue_xmt_wait: [15050285]
-queue_xmt_wait: [14607285]
-queue_xmt_wait: [10700285]
-queue_xmt_wait: [1908f285] 02 03 04 05 06 07
+queue_xmt_wait: [17020573]
+queue_xmt_wait: [16304573]
+queue_xmt_wait: [15050573]
+queue_xmt_wait: [14607573]
+queue_xmt_wait: [10700573]
+queue_xmt_wait: [1908f573] 02 03 04 05 06 07
 one second done
 
 --------------
 Single fragment datagram for get config
 can_get_frame:  [1d285bfd] 20 80 00 00 00 00 02
-consume datagram of length 7: 20 80 0 0 0 0 2 
-queue_xmt_wait: [1ebfd285] 4c
-queue_xmt_wait: [1dbfd285] 20 82 03 01 38 00 00
    Ack to config reply datagram
 can_get_frame:  [1e285bfd] 4c
 
 Second single fragment datagram for get config
 can_get_frame:  [1d285bfd] 20 80 00 00 00 00 02
-consume datagram of length 7: 20 80 0 0 0 0 2 
-queue_xmt_wait: [1ebfd285] 4c
-queue_xmt_wait: [1dbfd285] 20 82 03 01 38 00 00
    Ack to config reply datagram
 can_get_frame:  [1e285bfd] 4c
 
 Single fragment datagram for reset
 can_get_frame:  [1d285bfd] 20 a9
-consume datagram of length 2: 20 a9 
-queue_xmt_wait: [1ebfd285] 4c
-restart called
 
 Single fragment datagram for short write
 can_get_frame:  [1d285bfd] 20 23 00 00 00 03 44 55
-consume datagram of length 8: 20 23 0 0 0 3 44 55 
-queue_xmt_wait: [1ebfd285] 4c
 
 Single fragment datagram for short read
 can_get_frame:  [1d285bfd] 20 61 00 00 00 00 08
-consume datagram of length 7: 20 61 0 0 0 0 8 
-queue_xmt_wait: [1ebfd285] 4c
-queue_xmt_wait: [1cbfd285] 50 61 00 00 00 00 00 00
-queue_xmt_wait: [1dbfd285] 00 44 55 00 00 00
    Ack to reply datagram
 can_get_frame:  [1e285bfd] 4c
 
