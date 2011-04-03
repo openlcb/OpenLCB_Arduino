@@ -5,12 +5,12 @@
 /**
  * Provide generic CAN interface for OpenLcb code
  *
- * Heavily modelled on CAN.h, but intended to abstract
+ * Heavily modelled on can.h, but intended to abstract
  * CAN access so that other hardware and software solutions
  * can be provided in the future.
  *
  */
-#include "CAN.h"
+#include "can.h"
 
 class OpenLcbCanBuffer;
 
