@@ -12,7 +12,7 @@
 // The following line is needed because the Arduino environment 
 // won't search a library directory unless the library is included 
 // from the top level file (this file)
-#include <CAN.h>
+#include <can.h>
 #include "logging.h"
 
 int inputRead() {

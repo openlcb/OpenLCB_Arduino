@@ -25,7 +25,7 @@
 #define ADDR_BYTE_4 98
 
 #include <ctype.h>
-#include <CAN.h>
+#include <can.h>
 #include <stdarg.h>
 #include <stdio.h>
 

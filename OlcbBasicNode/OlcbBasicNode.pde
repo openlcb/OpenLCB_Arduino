@@ -22,7 +22,7 @@
 // won't search a library directory unless the library is included 
 // from the top level file (this file)
 #include <EEPROM.h>
-#include <CAN.h>
+#include <can.h>
 
 class foo{};
 

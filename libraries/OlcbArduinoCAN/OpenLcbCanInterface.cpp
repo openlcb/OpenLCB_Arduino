@@ -3,9 +3,9 @@
 
 
 /**
- * Specific implementation for CAN.h MP2515
+ * Specific implementation for CAN MP2515
  */
-#include <CAN.h>
+#include <can.h>
 
 //#include "OpenLcbCanInterface.h"
 #include "OpenLcbCanBuffer.h"

@@ -4,7 +4,7 @@
 #include <WProgram.h>
 
 #include <ctype.h>
-#include <CAN.h>
+#include <can.h>
 #include <stdarg.h>
 #include <stdio.h>
 

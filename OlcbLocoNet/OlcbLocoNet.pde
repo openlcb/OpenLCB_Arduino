@@ -1,7 +1,7 @@
 #include "WProgram.h"
 
 #include <LocoNet.h>
-#include <CAN.h>
+#include <can.h>
 #include <EEPROM.h>
 
 #include <Event.h>

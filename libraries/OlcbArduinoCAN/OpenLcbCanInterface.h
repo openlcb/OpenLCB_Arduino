@@ -4,7 +4,7 @@
 /**
  * Provide generic CAN interface for OpenLcb code
  *
- * Heavily modelled on CAN.h, but intended to abstract
+ * Heavily modelled on can.h, but intended to abstract
  * CAN access so that other hardware and software solutions
  * can be provided in the future.
  *
@@ -16,18 +16,18 @@ class OpenLcbCanBuffer;
  * Specific definitions
  *
  * This section attaches the general interface (see below)
- * to the specific CAN.h implementation
+ * to the specific can.h implementation
  * 
- * This version is for the CAN.h library from 
+ * This version is for the can.h library from 
  * Fabian Greif, Roboterclub Aachen e.V., adapted
  * and extended by Alex Shepherd.
  *
  * Because of the way the Arduino IDE creates the -I include
  * search list, you need to #include a file from each
  * needed library in the top level file.  In the case of
- * this implementation, this is the CAN.h file in the CAN library.
+ * this implementation, this is the can.h file in the CAN library.
  */
-#include <CAN.h>
+#include <can.h>
 
 /**
  * General interface
