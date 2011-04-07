@@ -20,12 +20,16 @@ void OpenLcb_can_init() {
 bool OpenLcb_can_xmt_ready(OpenLcbCanBuffer* b) {
   // use only MP2515 buffer 0 and 1 to ensure that
   // tranmissions take place in order
+#if defined(SUPPORT_MCP2515) && (SUPPORT_MCP2515 == 1)  
   uint8_t status = can_buffers_status();
   // Check to see if Tx Buffer 0 or 1 is free	
   if ((status & (ST_TX0REQ|ST_TX1REQ)) == (ST_TX0REQ|ST_TX1REQ))
     return false;  //  Both at full
   else
     return true;   // at least one has space
+#elif defined(SUPPORT_AT90CAN) && (SUPPORT_AT90CAN == 1)
+    return can_check_free_buffer();  //  Both at full
+#endif
 }
 
 // Queue a CAN frame for sending, if possible
@@ -52,12 +56,16 @@ void OpenLcb_can_send_xmt(OpenLcbCanBuffer* b) {
 // Check whether all frames have been sent,
 // a proxy for the link having gone idle
 bool OpenLcb_can_xmt_idle() {
+#if defined(SUPPORT_MCP2515) && (SUPPORT_MCP2515 == 1)  
   uint8_t status = can_buffers_status();
   // Check to see if Tx Buffer 0,1 and 2 are all free	
   if ((status & (ST_TX0REQ|ST_TX1REQ|ST_TX2REQ)) == 0)
     return true;   // All empty, nothing to send
   else
     return false;  // Any full
+#elif defined(SUPPORT_AT90CAN) && (SUPPORT_AT90CAN == 1)
+    return can_check_free_buffer();  //  Both at full
+#endif
 }
 
 // Make the oldest received CAN frame available,
