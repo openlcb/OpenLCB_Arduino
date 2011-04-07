@@ -134,7 +134,8 @@ extern __attribute__ ((gnu_inline)) inline void _leave_standby_mode(void)
 	uint8_t canpage = CANPAGE;
 	
 	// reenable all MObs
-	for (uint8_t i=0;i<15;i++) {
+	uint8_t i;
+	for (i=0;i<15;i++) {
 		CANPAGE = i << 4;
 		CANCDMOB = CANCDMOB;
 	}

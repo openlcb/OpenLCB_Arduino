@@ -45,7 +45,8 @@ bool at90can_disable_filter(uint8_t number)
 			CANIE2 = 0;
 			
 			// disable all MObs
-			for (uint8_t i = 0;i < 15;i++) {
+			uint8_t i;
+			for (i = 0;i < 15;i++) {
 				CANPAGE = (i << 4);
 				
 				// disable MOb (read-write required)

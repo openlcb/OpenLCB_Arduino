@@ -106,7 +106,8 @@ void at90can_copy_mob_to_message(tCAN *msg)
 		
 		// read data
 		uint8_t *p = msg->data;
-		for (uint8_t i = 0;i < msg->length;i++) {
+		uint8_t i;
+		for ( i = 0;i < msg->length;i++) {
 			*p++ = CANMSG;
 		}
 	}
