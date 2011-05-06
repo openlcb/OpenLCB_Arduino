@@ -29,10 +29,23 @@
 /* Global settings for building the can-lib.
  *
  * Select ONE CAN controller for which you are building the can-lib. 
+ *
+ * Updated to be slightly more sophisticated by D.E. Goodman-Wilson, 5 May 2011
  */
+
+#if defined (__AVR_AT90CAN128__) || defined (__AVR_AT90CAN64__) || defined (__AVR_AT90CAN32__)
+#define	SUPPORT_MCP2515			0
+#define	SUPPORT_AT90CAN			1
+#define	SUPPORT_SJA1000			0
+#elif defined (__USE_SJA1000__)
+#define	SUPPORT_MCP2515			0
+#define	SUPPORT_AT90CAN			0
+#define	SUPPORT_SJA1000			1
+#else
 #define	SUPPORT_MCP2515			1
 #define	SUPPORT_AT90CAN			0
 #define	SUPPORT_SJA1000			0
+#endif
 
 
 // -----------------------------------------------------------------------------
