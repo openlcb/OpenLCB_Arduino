@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>CAN2EtherNetServer Prototype</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.2  (Unix)">
+	<META NAME="CREATED" CONTENT="0;0">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGED" CONTENT="20110521;17553300">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<STYLE TYPE="text/css">
+	<!--
+		H2.ctl { font-family: "Arial Unicode MS" }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" BGCOLOR="#e6e6ff" DIR="LTR">
+<H1><FONT COLOR="#000000"><IMG SRC="../../../web/logo-ajs-dph.png" NAME="OpenLCB" ALIGN=RIGHT WIDTH=337 HEIGHT=135 BORDER=2></FONT>CAN2EtherNetServer
+Prototype</H1>
+<P>This is the index page of the OpenLCB CAN2EtherNetServer C/C++
+Arduino prototype. 
+</P>
+<P>CAN2EtherNetServer provides an Ethernet adapter for CAN frames
+forming the &quot;server&quot; end of a client-server connection.
+Generally, this is the connection for e.g. PC or iPhone programs.</P>
+<P>This is not a full OpenLCB node, but rather a Ethernet-based CAN
+adapter; it has no OpenLCB-specific processing.</P>
+<P>Frames are sent and received in the GridConnect format:</P>
+<P STYLE="margin-left: 2cm">:X182DF285N0203040506080082;</P>
+<P>where the extended header is between X and N, and the payload
+follows the N. Messages to Ethernet are followed by &quot;\n&quot;.
+For information on the format, see:
+<A HREF="http://www.gridconnect.com/canboandto.html">http://www.gridconnect.com/canboandto.html</A>
+</P>
+<P>Inbound messages are parsed between the &quot;:&quot; and &quot;;&quot;
+with characters outside that ignored. Frame validity is not checked.</P>
+<P>This Arduiono Sketch works with an Ethernet shield based on the
+WIZnet chip. The code includes an optional reference to a modified
+library to avoid a pin conflict with some CAN interfaces.</P>
+<P>Up to four Telnet connections are supported automatically by the
+Ethernet librarybuilds all the example Arduino sketches in the
+current directory, thereby ensuring they compile. It then tests
+execution of the library by building several executables in the
+OpenLcbTest directory, then running them and comparing their output
+to reference files.</P>
+<H2 CLASS="western">Versions</H2>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Version: 1.0.0.2</P>
+</UL>
+<P STYLE="margin-left: 2cm; margin-bottom: 0cm">Basic operation
+working. Added optional library to control pin conflicts. Used for
+NMRA Milwaukee demonstrations</P>
+<PRE STYLE="margin-left: 2cm; margin-bottom: 0.5cm; text-decoration: none">svn co https://openlcb.svn.sourceforge.net/svnroot/openlcb/tags/1.0.0.2/prototypes/C/CAN2EtherNetServer</PRE>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm">Version: 1.0.1.0</P>
+</UL>
+<P STYLE="margin-left: 2cm; margin-bottom: 0cm">Will reply to request
+for version number; echoes frames received over a TCP/IP link to all
+TCP/IP links to improve synchronization</P>
+<PRE STYLE="margin-left: 2cm; margin-bottom: 0.5cm; text-decoration: none">svn co https://openlcb.svn.sourceforge.net/svnroot/openlcb/tags/1.0.1.0/prototypes/C/CAN2EtherNetServer</PRE>
+<HR>
+<P STYLE="margin-bottom: 0cm">This web sites contains trademarks and
+copyrighted information. Please see the <A HREF="/Licensing.html">Licensing</A>
+page.</P>
+<P STYLE="margin-bottom: 0cm">This is SVN $Revision$ of <SDFIELD TYPE=DATETIME SDVAL="40041.4309143519" SDNUM="1033;1033;MM/DD/YY">08/16/09</SDFIELD>.</P>
+</BODY>
+</HTML>
