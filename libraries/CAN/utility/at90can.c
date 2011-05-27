@@ -34,7 +34,6 @@
 #include <avr/pgmspace.h>
 #include "can_buffer.h"
 
-
 // ----------------------------------------------------------------------------
 
 prog_char _at90can_cnf[8][3] = {
@@ -182,9 +181,50 @@ bool at90can_init(uint8_t bitrate)
 	can_buffer_init( &can_tx_buffer, CAN_TX_BUFFER_SIZE, can_tx_list );
 	#endif
 	
+	//Clear all mailboxes. DEG 22 May 2011
+	uint8_t i;
+	for(i = 0; i < 15; ++i)
+	{
+		CANPAGE = (i << 4);
+		//clear any interrupt flags
+		CANSTMOB = 0;
+	//DEG 23 May 2011. Configure each mailbox.
+	// From Datasheet, 19.5.2:
+	// "There is no default mode after RESET.
+        // "Every MOb has its own fields to control the operating mode.
+        // "Before enabling the CAN peripheral, each MOb must be
+	// "configured (ex: disabled mode - CONMOB=00)."
+	// Just going to configure them all as receive. Don't know that
+	// This is corect. Maybe they should be set to disable, but one?
+	// H/T http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&t=107164
+		//IDT, RTRTAG, RBnTAG
+		CANIDT1 = 0;                        //ID 
+		CANIDT2 = 0; 
+		CANIDT3 = 0; 
+		CANIDT4 = 0; 
+		//IDMSK, IDEMSK, RTRMSK
+		CANIDM1 = 0;                        //get all messages 
+		CANIDM2 = 0;                        //1 = check bit 
+		CANIDM3 = 0;                        //0 = ignore bit 
+		CANIDM4 = (1<<IDEMSK); 
+		//set to receive, DLC, IDE
+		//set MOBs 5-14 to receive. Is this anything like ideal?
+		if(i >= 5)
+			CANCDMOB = (1 << CONMOB1) | (1 << IDE);
+		else
+			CANCDMOB = 0; //(1 << IDE);
+	}
+	
 	// activate CAN controller
 	CANGCON = (1 << ENASTB);
 	
+	//DEG 26 May 2011
+	//enable individual MOB interrupts!
+	//For whatever reason, this does not take effect when the 
+	//CAN bus is disabled!?
+	CANIE1 = 0x7F;
+	CANIE2 = 0xFF;
+
 	return true;
 }
 
@@ -196,7 +236,7 @@ ISR(CANIT_vect)
 {
 	uint8_t canpage;
 	uint8_t mob;
-	
+
 	if ((CANHPMOB & 0xF0) != 0xF0)
 	{
 		// save MOb page register
@@ -233,14 +273,12 @@ ISR(CANIT_vect)
 			#else
 			_free_buffer++;
 			
-			// reset interrupt
-			if (mob < 8)
-				CANIE2 &= ~(1 << mob);
-			else
-				CANIE1 &= ~(1 << (mob - 8));
+			// reset interrupt to keep it from bugging us until its processed
+			_disable_mob_interrupt(mob);
 			#endif
 		}
-		else {
+		else if (CANSTMOB & (1 << RXOK))
+		{
 			// a message was received successfully
 			#if CAN_RX_BUFFER_SIZE > 0
 			tCAN *buf = can_buffer_get_enqueue_ptr(&can_rx_buffer);
@@ -264,11 +302,8 @@ ISR(CANIT_vect)
 			#else
 			_messages_waiting++;
 			
-			// reset interrupt
-			if (mob < 8)
-				CANIE2 &= ~(1 << mob);
-			else
-				CANIE1 &= ~(1 << (mob - 8));
+			// reset interrupt to keep it from bugging us until its processed
+			_disable_mob_interrupt(mob);
 			#endif
 		}
 		
