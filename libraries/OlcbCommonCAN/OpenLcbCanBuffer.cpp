@@ -230,6 +230,11 @@
     //data[5] = nid->val[5];
   }
 
+  bool OpenLcbCanBuffer::isVerifiedNID()
+  {
+    return isOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI, MTI_VERIFIED_NID);
+  }
+
   bool OpenLcbCanBuffer::isIdentifyConsumers() {
       return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_IDENTIFY_CONSUMERS);
   }

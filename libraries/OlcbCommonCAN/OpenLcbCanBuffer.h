@@ -74,6 +74,7 @@ class EventID;
   bool isVerifyNID();
   bool isVerifyNIDglobal();
   void setVerifiedNID(NodeID* nid);
+  bool isVerifiedNID();
 
   bool isIdentifyConsumers();
   
