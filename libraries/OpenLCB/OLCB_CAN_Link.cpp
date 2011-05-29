@@ -14,6 +14,7 @@ bool OLCB_CAN_Link::initialize(void)
 		return false;
 	}
 	
+	//Negotiate the alise for this Node's real ID.
 	if(!negotiateAlias(_nodeID))
 	{
 	  Serial.println("Couldn't initiate alias negotiation!");
@@ -147,7 +148,9 @@ void OLCB_CAN_Link::nextAlias() {
 
 void OLCB_CAN_Link::update(void)
 {
-  //first, check to see if any new messages require handling
+  //first, see if there are an aliases currently being negotiated
+  negotiateAlias(0);
+  //second, check to see if any new messages require handling
   if(can_get_message(&rxBuffer))
   {
     Serial.println("Got a message!");
@@ -240,12 +243,16 @@ void OLCB_CAN_Link::update(void)
     else //let's see if we can make some hay of this to pass on to our handlers
     {
       Serial.println("Not a message for Link to handle, should be passed on");
-      if (rxBuffer.isDatagram())
+      OLCB_Handler *iter = _handlers;
+      while(iter)
       {
-        //Extract the data, and hand the contents off to the various datagram handlers.
-        //if none of the handlers handle it, send a NAK?
+        if(iter->handleFrame(rxBuffer))
+        {
+          Serial.println("Frame was handled successfully.");
+          break;
+        }
+        iter = iter->next;
       }
-      // how to identify stream frames?
     }
   }
 }
