@@ -23,8 +23,8 @@ class OLCB_Handler
     memcpy(&NID, &_nodeID, sizeof(OLCB_NodeID));
   }
   virtual void update(void) {return;}
-  virtual bool handleFrame(OLCB_Buffer *buffer) {return false;}  
-  virtual bool checkvNID(OLCB_NodeID* nid) {return false;}
+  virtual bool handleFrame(OLCB_Buffer &buffer) {return false;}  
+  virtual bool checkvNID(OLCB_NodeID &nid) {return false;}
   
   OLCB_Handler *next;
  protected:

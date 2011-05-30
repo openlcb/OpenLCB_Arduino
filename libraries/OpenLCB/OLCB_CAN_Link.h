@@ -33,7 +33,8 @@ class OLCB_CAN_Link : protected OLCB_Link
   bool initialize(void);
   
   bool negotiateAlias(OLCB_NodeID *nid);
-    
+  
+  bool handleTransportLevel(void);
   void update(void);
     
   bool sendEvent(OLCB_Event &event) {return false;}

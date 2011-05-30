@@ -20,10 +20,14 @@ bool OLCB_CAN_Link::initialize(void)
 	  Serial.println("Couldn't initiate alias negotiation!");
 	  return false;
 	}
-	while(!negotiateAlias(0))
+	while(!negotiateAlias(0)) //TODO THis isn't right at all.
 	{
-	  update();
-	}
+	  //check to see if any new messages require handling
+    if(can_get_message(&rxBuffer))
+    {
+  	  handleTransportLevel();
+  	}
+  }
   return true;
 }
 
@@ -146,15 +150,8 @@ void OLCB_CAN_Link::nextAlias() {
 
 /////// Methods for sending and receiving OLCB packets over CAN
 
-void OLCB_CAN_Link::update(void)
+bool OLCB_CAN_Link::handleTransportLevel()
 {
-  //first, see if there are an aliases currently being negotiated
-  negotiateAlias(0);
-  //second, check to see if any new messages require handling
-  if(can_get_message(&rxBuffer))
-  {
-    Serial.println("Got a message!");
-    // check received message
     // see if this is a frame with our alias
     if (getAlias() == rxBuffer.getSourceAlias()) {
       Serial.println("Someone's using our alias!");
@@ -171,6 +168,7 @@ void OLCB_CAN_Link::update(void)
         // some other frame; this is an error! Restart
         restart();
       }
+      return true;
     }
     // see if this is a Verify request to us; first check type
     if (rxBuffer.isVerifyNID()) {
@@ -191,7 +189,7 @@ void OLCB_CAN_Link::update(void)
         OLCB_Handler *iter = _handlers;
         while(iter != NULL && !flag)
         {
-          if(iter->checkvNID(&n))
+          if(iter->checkvNID(n))
           {
             txBuffer.setVerifiedNID(&n);
             while(!can_send_message(&txBuffer));
@@ -199,12 +197,14 @@ void OLCB_CAN_Link::update(void)
           }
         }
       }
+      return true;
     }
     else if (rxBuffer.isVerifyNIDglobal()) {
       // reply to global request
       // ToDo: This should be threaded
       txBuffer.setVerifiedNID(_nodeID);
       while(!can_send_message(&txBuffer));
+      return true;
     }
     else if (rxBuffer.isVerifiedNID()) {
     // We have a packet that contains a verified NID. We might have requested this. Let's check.
@@ -239,20 +239,32 @@ void OLCB_CAN_Link::update(void)
         Serial.println(_nodeIDToBeVerified.val[5], HEX);
         Serial.println("=======");
       }
+      return true;
     }
-    else //let's see if we can make some hay of this to pass on to our handlers
+    return false;
+}
+
+void OLCB_CAN_Link::update(void)
+{
+  //check to see if any new messages require handling
+  if(can_get_message(&rxBuffer))
+  {
+    Serial.println("Got a message!");
+    // See if this message is a CAN-level message that we should be handling.
+    if(handleTransportLevel())
+      return; //bail early, the packet grabbed isn't for any of the attached handlers to deal with.
+    //let's see if we can make some hay of this to pass on to our handlers
+    
+    Serial.println("Not a message for Link to handle, should be passed on");
+    OLCB_Handler *iter = _handlers;
+    while(iter)
     {
-      Serial.println("Not a message for Link to handle, should be passed on");
-      OLCB_Handler *iter = _handlers;
-      while(iter)
+      if(iter->handleFrame(rxBuffer))
       {
-        if(iter->handleFrame(rxBuffer))
-        {
-          Serial.println("Frame was handled successfully.");
-          break;
-        }
-        iter = iter->next;
+        Serial.println("Frame was handled successfully.");
+        break;
       }
+      iter = iter->next;
     }
   }
 }
