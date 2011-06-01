@@ -11,6 +11,20 @@
  */
 
 #define DATAGRAM_LENGTH 70
+
+// some error messages for datagram rejected response messages
+#define DATAGRAM_REJECTED                        0x000
+#define DATAGRAM_REJECTED_PERMANENT_ERROR        0x100
+#define DATAGRAM_REJECTED_INFORMATION_LOGGED     0x101
+#define DATAGRAM_REJECTED_SOURCE_NOT_PERMITTED   0x102
+#define DATAGRAM_REJECTED_DATAGRAMS_NOT_ACCEPTED 0x104
+#define DATAGRAM_REJECTED_BUFFER_FULL            0x200
+#define DATAGRAM_REJECTED_OUT_OF_ORDER           0x600
+
+#define DATAGRAM_REJECTED_NO_RESEND_MASK         0x100
+#define DATAGRAM_REJECTED_RESEND_MASK            0x200
+#define DATAGRAM_REJECTED_TRANSPORT_ERROR_MASK   0x400
+
 class OpenLcbCanBuffer;
 class LinkControl;
 
