@@ -58,8 +58,9 @@
 #define MASK_SRC_ALIAS 0x00000FFFL
 
 // bit 2-16
-#define MASK_VARIABLE_FIELD 0x07FFF000L
+#define MASK_VARIABLE_FIELD  0x07FFF000L
 #define SHIFT_VARIABLE_FIELD 12
+#define MASK_DEST_ALIAS      0x00FFF000L
 
 // bit 2-4, at the top of the variable field
 #define MASK_OPENLCB_FORMAT 0x07000L
@@ -80,7 +81,7 @@
   public: 
   
   // Initialize a buffer for transmission
-  void init(uint16_t a);
+  void init(OLCB_NodeID *sourceID);
   
   // start of basic message structure
 
@@ -95,6 +96,8 @@
   
   void setSourceAlias(uint16_t a);
   uint16_t getSourceAlias();
+  void setSourceNID(OLCB_NodeID *NID);
+  void getSourceNID(OLCB_NodeID *NID); //note: Will only set the NIDa!
   
   // end of basic message structure
   
@@ -119,6 +122,7 @@
 
   void setOpenLcbMTI(uint16_t fmt, uint16_t mti);
   bool isOpenLcbMTI(uint16_t fmt, uint16_t mti);
+  bool isOpenLcbMTI(uint16_t fmt);
   
   // end of OpenLCB format support
   
@@ -160,11 +164,17 @@
 
   bool isDatagram();
   bool isLastDatagram();
+  bool isDatagramAck();
+  bool isDatagramNak();
+  uint16_t getDatagramNakErrorCode();
   
-  unsigned int getAlias() {return nodeAlias;}
+  bool getDestinationNID(OLCB_NodeID *nid);
+  void setDestinationNID(OLCB_NodeID *nid);
+  
+//  unsigned int getAlias() {return nodeAlias;}
   
   private: 
-  unsigned int nodeAlias;   // Initialization complete sets, all later use
+//  unsigned int nodeAlias;   // Initialization complete sets, all later use
 
   // service routine to copy content (0-7) to a previously-allocated Eid
   void loadFromEid(OLCB_EventID* eid);

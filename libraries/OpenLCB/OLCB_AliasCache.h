@@ -30,26 +30,26 @@ class OLCB_AliasCache
     }
   }
   
-  void add(OLCB_NodeID &nid)
+  void add(OLCB_NodeID *nid)
   {
-    Serial.println("In AliasCache->add()");
+//    Serial.println("In AliasCache->add()");
     //find the least used entry, while making sure the alias isn't already cached.
-    if(!nid.alias) //No alias? Nothing to cache!
+    if(!nid->alias) //No alias? Nothing to cache!
     {
-      Serial.println("No alias, no cache!");
+//      Serial.println("No alias, no cache!");
       return;
     }
-    else
-    Serial.print("Cacheing alias "); Serial.println(nid.alias,DEC);
+//    else
+//    Serial.print("Cacheing alias "); Serial.println(nid.alias,DEC);
     
     uint8_t leasthits = 255;
     uint8_t index = 0;
     for(uint8_t i=0; i < _size; ++i)
     {
-      if(_nids[i] == nid)
+      if(_nids[i] == *nid)
       {
         //already cached; return.
-        Serial.println("What do you know? Already in the cache!");
+//        Serial.println("What do you know? Already in the cache!");
         return;
       }
       if(_hits[i] < leasthits)
@@ -58,35 +58,34 @@ class OLCB_AliasCache
         index = i;
       }
     }
-    Serial.print("Cacheing it in index "); Serial.println(index, DEC);
-    memcpy(&(_nids[index].val),&(nid.val), 6);
-    _nids[index].alias = nid.alias;
+//    Serial.print("Cacheing it in index "); Serial.println(index, DEC);
+    memcpy(&(_nids[index]), nid, sizeof(OLCB_NodeID));
     _hits[index] = 1;
-    Serial.println("Leaving add()");
+//    Serial.println("Leaving add()");
   }
   
-  bool getAliasByNID(OLCB_NodeID &nid)
+  bool getAliasByNID(OLCB_NodeID *nid)
   {
     for(uint8_t i = 0; i < _size; ++i)
     {
-      if(_nids[i] == nid)
+      if(_nids[i] == *nid)
       {
         if(_hits[i] < 255) ++_hits[i];
-        nid.alias = _nids[i].alias;
+        nid->alias = _nids[i].alias;
         return true;
       }
     }
     return false;
   }
   
-  bool getNIDByAlias(OLCB_NodeID &nid)
+  bool getNIDByAlias(OLCB_NodeID *nid)
   {
     for(uint8_t i = 0; i < _size; ++i)
     {
-      if(_nids[i].alias == nid.alias)
+      if(_nids[i].alias == nid->alias)
       {
         if(_hits[i] < 255) ++_hits[i];
-        memcpy(&(nid.val), &(_nids[i].val), 6);
+        memcpy(&(nid->val), &(_nids[i].val), 6);
         return true;
       }
     }

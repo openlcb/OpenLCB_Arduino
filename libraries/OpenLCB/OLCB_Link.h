@@ -9,40 +9,36 @@
 #include "OLCB_Stream.h"
 #include "OLCB_NodeID.h"
 
+class OLCB_Handler;
 
 /* An abstract base class representing a physical link to the outside world */
 
 class OLCB_Link
 {
  public:
-  OLCB_Link(OLCB_NodeID &id) : _nodeID(&id)
-  {
-    //create default handler
-    _handlers = &_default_handler;
-    _handlers->init();
-  }
+  OLCB_Link(OLCB_NodeID *id) : _nodeID(id), _handlers(0) {}
   
   virtual bool initialize(void) {return false;} //called once, returns true if init succeeded.
     
-  virtual void update(void) {return;} //called repeatedly
-
-  void addHandler(OLCB_Handler &handler)
-  {
-    handler.next = _handlers;
-    _handlers = &handler;
-  }
+  virtual void update(void); //called repeatedly  
+  void addHandler(OLCB_Handler *handler);
   
-  virtual bool sendEvent(OLCB_Event &event) {return false;}
+  virtual bool addVNode(OLCB_NodeID *NID) {return true;}
   
-  virtual bool sendDatagram(OLCB_Datagram &datagram) {return false;}
+  virtual bool sendEvent(OLCB_Event *event) {return true;}
   
-  virtual bool sendStream(OLCB_Stream &stream) {return false;}
+  virtual uint8_t sendDatagramFragment(OLCB_Datagram *datagram, uint8_t start) {return 0;}
+  virtual bool ackDatagram(OLCB_NodeID *source, OLCB_NodeID *dest) {return true;}
+  virtual bool nakDatagram(OLCB_NodeID *source, OLCB_NodeID *dest, int reason) {return true;}
+  
+  virtual bool sendStream(OLCB_Stream *stream) {return true;}
   //Not sure that this is how streams should work at all!
   
   
+  OLCB_NodeID* getNodeID(void) {return _nodeID;}
+  
  protected:
   OLCB_Handler* _handlers;
-  OLCB_Handler _default_handler;
   OLCB_NodeID* _nodeID;
 };
 

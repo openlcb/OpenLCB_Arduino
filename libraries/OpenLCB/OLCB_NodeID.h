@@ -5,10 +5,11 @@
 #include "WProgram.h"
 
 class OLCB_NodeID {
-  public: 
-
+  public:
+  
   uint8_t val[6];
   uint16_t alias; //used by CAN and other buses.
+
   
   OLCB_NodeID() {
       alias = 0;
@@ -33,7 +34,7 @@ class OLCB_NodeID {
   
   void set(uint8_t b0, uint8_t b1, uint8_t b2, 
          uint8_t b3, uint8_t b4, uint8_t b5) {
-      alias = 0;
+      alias = 0; //have to reset alias!
       val[0] = b0;
       val[1] = b1;
       val[2] = b2;
@@ -62,18 +63,14 @@ class OLCB_NodeID {
   {
     if(alias)
     {
-      Serial.println("Not empty, beacuse non-zero alias");
       return false;
     }
-    Serial.println("Might or might not be empty; has zero alias");
-    Serial.println(val[0],DEC);
-    Serial.println(val[1],DEC);
-    Serial.println(val[2],DEC);
-    Serial.println(val[3],DEC);
-    Serial.println(val[4],DEC);
-    Serial.println(val[5],DEC);
-    Serial.println(val[0] || val[1] || val[2] || val[3] || val[4] || val[5], DEC);
-    return val[0] || val[1] || val[2] || val[3] || val[4] || val[5];
+    else if (val[0] || val[1] || val[2] || val[3] || val[4] || val[5])
+    {
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -85,6 +82,25 @@ class OLCB_NodeID {
           if (*this == *(array+i)) return array+i;
       }
       return 0;
+  }
+  
+  void print(void)
+  {
+    char id[] = "nid: ";
+    Serial.print(id);
+    Serial.println(alias,DEC);
+    Serial.print(id);
+    Serial.println(val[0],DEC);
+    Serial.print(id);
+    Serial.println(val[1],DEC);
+    Serial.print(id);
+    Serial.println(val[2],DEC);
+    Serial.print(id);
+    Serial.println(val[3],DEC);
+    Serial.print(id);
+    Serial.println(val[4],DEC);
+    Serial.print(id);
+    Serial.println(val[5],DEC);
   }
 
 };

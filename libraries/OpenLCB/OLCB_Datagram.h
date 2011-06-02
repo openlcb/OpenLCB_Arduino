@@ -3,6 +3,25 @@
 
 #include "OLCB_NodeID.h"
 
+#define DATAGRAM_LENGTH 70
+
+// some error messages for datagram rejected response messages
+#define DATAGRAM_REJECTED                        0x000
+#define DATAGRAM_REJECTED_PERMANENT_ERROR        0x100
+#define DATAGRAM_REJECTED_INFORMATION_LOGGED     0x101
+#define DATAGRAM_REJECTED_SOURCE_NOT_PERMITTED   0x102
+#define DATAGRAM_REJECTED_DATAGRAMS_NOT_ACCEPTED 0x104
+#define DATAGRAM_REJECTED_BUFFER_FULL            0x200
+#define DATAGRAM_REJECTED_OUT_OF_ORDER           0x600
+
+#define DATAGRAM_REJECTED_NO_RESEND_MASK         0x100
+#define DATAGRAM_REJECTED_RESEND_MASK            0x200
+#define DATAGRAM_REJECTED_TRANSPORT_ERROR_MASK   0x400
+
+#define MTI_DATAGRAM_RCV_OK             0x4CF
+#define MTI_DATAGRAM_REJECTED           0x4DF
+
+
 
 /*************************
  A few things to worry about.
@@ -19,17 +38,10 @@ class OLCB_Datagram
 {
  public:
   OLCB_Datagram() {return;}
-  
+  OLCB_NodeID* source;
   OLCB_NodeID* destination;
-  uint8_t len;
-  uint8_t *data;
- protected:
-};
-
-struct OLCB_DatagramFragment
-{
-  uint8_t data[10];
-  uint8_t size;
+  uint8_t length;
+  uint8_t data[DATAGRAM_LENGTH];
 };
 
 #endif

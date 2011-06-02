@@ -21,11 +21,14 @@
 // time to wait between last CIM and RIM
 #define CONFIRM_WAIT_TIME 500
 
-class OLCB_CAN_Link : protected OLCB_Link
+class OLCB_CAN_Link : public OLCB_Link
 {
  public:
-  OLCB_CAN_Link(OLCB_NodeID &id):OLCB_Link(id), _aliasCacheTimer(-1), _aliasTimer(-1)
+  OLCB_CAN_Link(OLCB_NodeID *id):OLCB_Link(id), _aliasCacheTimer(-1), _aliasTimer(-1)
   {
+//    Serial.print("OLCB_CAN_Link: ");
+//    Serial.println((uint16_t)id, HEX);
+
     _translationCache.init(10); //initialize nida cache to 10 entries. Might be conservative
     _nodeIDToBeVerified.set(0,0,0,0,0,0);
   }
@@ -35,15 +38,23 @@ class OLCB_CAN_Link : protected OLCB_Link
   bool negotiateAlias(OLCB_NodeID *nid);
   
   bool handleTransportLevel(void);
-  void update(void);
+  virtual void update(void);
     
-  bool sendEvent(OLCB_Event &event) {return false;}
+  bool sendEvent(OLCB_Event *event) {return false;}
   
-  bool sendDatagram(OLCB_Datagram &datagram);
+  uint8_t sendDatagramFragment(OLCB_Datagram *datagram, uint8_t start);
+  bool ackDatagram(OLCB_NodeID *source, OLCB_NodeID *dest);
+  bool nakDatagram(OLCB_NodeID *source, OLCB_NodeID *dest, int reason);
   
-  bool sendStream(OLCB_Stream &stream) {return false;}
+  bool sendStream(OLCB_Stream *stream) {return false;}
   //Not sure that this is how streams should work at all!
   
+  void sendVerifiedNID(OLCB_NodeID *nid);
+  
+  bool addVNode(OLCB_NodeID *NID)
+  {
+    return negotiateAlias(NID);//TODO This can sometimes fail!
+  }
   
 // protected:
   
@@ -91,7 +102,9 @@ class OLCB_CAN_Link : protected OLCB_Link
   OLCB_AliasCache _translationCache;
   
   /*Methods for handling nida caching*/
-  bool sendNIDVerifyRequest(OLCB_NodeID &nid);
+  bool sendNIDVerifyRequest(OLCB_NodeID *nid);
+  
+  
 };
 
 #endif //__OLCB_LINK_H__

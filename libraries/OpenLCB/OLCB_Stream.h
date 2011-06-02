@@ -5,8 +5,4 @@ class OLCB_Stream
 {
 };
 
-class OLCB_StreamHandler
-{
-};
-
 #endif
