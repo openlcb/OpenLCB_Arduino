@@ -210,9 +210,10 @@ bool OLCB_CAN_Link::handleTransportLevel()
         OLCB_Handler *iter = _handlers;
         while(iter)
         {
+          Serial.println("checking iter to see if it will verify the ID");
           if(iter->verifyNID(&n))
           {
-            Serial.println("Sending verified NID for vnode");
+            Serial.println("Yep! Sending verified NID for vnode");
             iter->NID->print();
             Serial.println("----");
             sendVerifiedNID(iter->NID);
@@ -220,11 +221,12 @@ bool OLCB_CAN_Link::handleTransportLevel()
           }
           else
           {
+            Serial.println("Nope! :(");
             iter = iter->next;
-            Serial.println("No one wants to verify?");
           }
         }
       }
+      Serial.println("Done, returning");
       return true;
     }
     // Maybe this is a global Verify request, in which case we have a lot of packets to send!
