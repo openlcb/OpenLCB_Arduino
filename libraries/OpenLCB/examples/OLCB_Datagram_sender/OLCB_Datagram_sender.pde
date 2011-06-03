@@ -53,7 +53,7 @@ void setup() {
   
   datagram_handler.setLink((OLCB_Link*)&link);
   
-  dg.destination = &dest;
+  dg.destination.copy(&dest);
   dg.data[0] = 1;
   dg.data[1] = 2;
   dg.data[2] = 4;
@@ -72,7 +72,8 @@ void loop() {
     //send datagram
     if(datagram_handler.sendDatagram(&dg))
     {
-      Serial.println("Datagram away!");
+      Serial.println("Datagram away! Sent to:");
+      dest.print();
       dest.set(6,1,0,0,0,++i);
     }
 //    else

@@ -38,8 +38,8 @@ class OLCB_Datagram
 {
  public:
   OLCB_Datagram() {return;}
-  OLCB_NodeID* source;
-  OLCB_NodeID* destination;
+  OLCB_NodeID source;
+  OLCB_NodeID destination;
   uint8_t length;
   uint8_t data[DATAGRAM_LENGTH];
 };

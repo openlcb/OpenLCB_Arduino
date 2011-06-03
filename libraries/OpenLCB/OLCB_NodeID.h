@@ -84,6 +84,15 @@ class OLCB_NodeID {
       return 0;
   }
   
+  void copy(OLCB_NodeID *src)
+  {
+    alias = src->alias;
+    for (int i = 0; i<6; i++)
+    {
+      val[i] = src->val[i];
+    }
+  }
+  
   void print(void)
   {
     char id[] = "nid: ";

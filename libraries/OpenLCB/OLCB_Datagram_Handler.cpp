@@ -6,16 +6,16 @@ void OLCB_Datagram_Handler::setLink(OLCB_Link *newLink)
   OLCB_Handler::setLink(newLink);
   _rxDatagramBuffer = (OLCB_Datagram*)malloc(sizeof(OLCB_Datagram));
   _txDatagramBuffer = (OLCB_Datagram*)malloc(sizeof(OLCB_Datagram));
-  _rxDatagramBuffer->destination = NID;
-  _txDatagramBuffer->source = NID;
+  _rxDatagramBuffer->destination.copy(NID);
+  _txDatagramBuffer->source.copy(NID);
   _initialized = true;
 }
   
 void OLCB_Datagram_Handler::setNID(OLCB_NodeID *newNID)
 {
   OLCB_Handler::setNID(newNID);
-  _rxDatagramBuffer->destination = NID;
-  _txDatagramBuffer->source = NID;
+  _rxDatagramBuffer->destination.copy(NID);
+  _txDatagramBuffer->source.copy(NID);
   _initialized = _link->addVNode(NID);
 }
 
@@ -30,7 +30,7 @@ bool OLCB_Datagram_Handler::sendDatagram(OLCB_Datagram *datagram)
   _txDatagramBufferFree = false;
   //Copy the datagram to free the original up for other uses.
   memcpy(_txDatagramBuffer,datagram,sizeof(OLCB_Datagram));
-  _txDatagramBuffer->source = NID; //set the source to be me!
+  _txDatagramBuffer->source.copy(NID); //set the source to be me!
   _txFlag = true;
   _loc = 0;
   _sentTime = millis(); //log the final transmission time for response timeout checking
@@ -53,8 +53,11 @@ bool OLCB_Datagram_Handler::handleFrame(OLCB_Buffer *frame)
     //see if it is an addressed non-datagram to us, and if it is an expected ACK or NAK
     if(frame->isDatagramAck())
     {
+//      Serial.println("Got an ACK");
       OLCB_NodeID n;
       frame->getDestinationNID(&n);
+ //     n.print();
+ //     NID->print();
       if(NID != 0 && n == *NID) //Yay! datagram sent OK
       {
         datagramResult(true,0);
@@ -117,7 +120,7 @@ bool OLCB_Datagram_Handler::handleFrame(OLCB_Buffer *frame)
 //  Serial.println(frame->id,HEX);
 //  Serial.print("And the ALIAS is thus: ");
 //  Serial.println(frame->id & MASK_SRC_ALIAS,HEX);
-  if(_rxDatagramBufferFree || n == *(_rxDatagramBuffer->source))
+  if(_rxDatagramBufferFree || n == _rxDatagramBuffer->source)
   {
     //begin filling!
 
@@ -127,11 +130,22 @@ bool OLCB_Datagram_Handler::handleFrame(OLCB_Buffer *frame)
       _rxDatagramBufferFree = false;
   //    Serial.println("reserving rxbuffer for datagram reception");
       //TODO FOR SOME REASON THE FOLLOWING LINE (or variants on it) CORRUPT THE FIRST TWO BYTES OF 
-      //_rxDatagramBuffer.source to be 0xc6. WHY GOD WHY!?
-      memcpy(_rxDatagramBuffer->source, &n, sizeof(OLCB_NodeID));
+      //_rxDatagramBuffer->source to be 0xc6. WHY GOD WHY!?
+//      memcpy(_rxDatagramBuffer->source, &n, sizeof(OLCB_NodeID));
+//        _rxDatagramBuffer->source->alias = n.alias;
+//        _rxDatagramBuffer->source->val[0] = n.val[0];
+//        _rxDatagramBuffer->source->val[0] = n.val[1];
+//        _rxDatagramBuffer->source->val[0] = n.val[2];
+//        _rxDatagramBuffer->source->val[0] = n.val[3];
+//        _rxDatagramBuffer->source->val[0] = n.val[4];
+//        _rxDatagramBuffer->source->val[0] = n.val[5];
 //      n.print();
-//      _rxDatagramBuffer.source->print();
-      _rxDatagramBuffer->length = 0;
+//      _rxDatagramBuffer->source->print();
+        _rxDatagramBuffer->length = 0;
+        frame->getSourceNID(&(_rxDatagramBuffer->source));
+//        _rxDatagramBuffer->source.print();
+//        n.print(); //TODO this one and the one above are DIFFERENT but should not be!!
+
     }
 
     for (int i=0; i< frame->length; i++) {
@@ -145,12 +159,15 @@ bool OLCB_Datagram_Handler::handleFrame(OLCB_Buffer *frame)
       {
         //Something isn't quite right here, not getting the right source NID? The alias is right...
 //        Serial.println("OLCB_Datagram_Handler: Datagram loaded, will ACK.\n");
-        while(!_link->ackDatagram(NID,_rxDatagramBuffer->source));
+//        NID->print();
+//        _rxDatagramBuffer->source->print();
+//        n.print(); //TODO this one and the one above are DIFFERENT but should not be!!
+        while(!_link->ackDatagram(NID,&(_rxDatagramBuffer->source)));
       }
       else
       {
 //        Serial.println("OLCB_Datagram_Handler: Datagram loaded, will NAK.\n");
-        while(!_link->nakDatagram(NID,_rxDatagramBuffer->source, DATAGRAM_REJECTED));
+        while(!_link->nakDatagram(NID,&(_rxDatagramBuffer->source), DATAGRAM_REJECTED));
       }
       _rxDatagramBufferFree = true; //in either case, the buffer is now free
     }
@@ -158,7 +175,7 @@ bool OLCB_Datagram_Handler::handleFrame(OLCB_Buffer *frame)
   else //we can't currently accept this frame, because the buffer is not free
   {
 //    Serial.println("OLCB_Datagram_Handler: Too busy to handle just now, will WAIT.\n");
-    while(!_link->nakDatagram(NID,_rxDatagramBuffer->source, DATAGRAM_REJECTED_BUFFER_FULL));
+    while(!_link->nakDatagram(NID,&(_rxDatagramBuffer->source), DATAGRAM_REJECTED_BUFFER_FULL));
   }
 }
 

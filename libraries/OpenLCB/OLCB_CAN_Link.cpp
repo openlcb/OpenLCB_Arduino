@@ -210,23 +210,23 @@ bool OLCB_CAN_Link::handleTransportLevel()
         OLCB_Handler *iter = _handlers;
         while(iter)
         {
-          Serial.println("checking iter to see if it will verify the ID");
+//          Serial.println("checking iter to see if it will verify the ID");
           if(iter->verifyNID(&n))
           {
-            Serial.println("Yep! Sending verified NID for vnode");
-            iter->NID->print();
-            Serial.println("----");
+//            Serial.println("Yep! Sending verified NID for vnode");
+//            iter->NID->print();
+//            Serial.println("----");
             sendVerifiedNID(iter->NID);
             break;
           }
           else
           {
-            Serial.println("Nope! :(");
+//            Serial.println("Nope! :(");
             iter = iter->next;
           }
         }
       }
-      Serial.println("Done, returning");
+//      Serial.println("Done, returning");
       return true;
     }
     // Maybe this is a global Verify request, in which case we have a lot of packets to send!
@@ -279,8 +279,8 @@ void OLCB_CAN_Link::update(void)
   //check to see if any new messages require handling
   if(can_get_message(&rxBuffer))
   {
-//    Serial.println("Got a message!");
-//    Serial.println(rxBuffer.id, HEX);
+    Serial.println("Got a message!");
+    Serial.println(rxBuffer.id, HEX);
 //    for(int i = 0; i < rxBuffer.length; ++i)
 //      Serial.println(rxBuffer.data[i],HEX);
 //    Serial.println("==================");
@@ -323,31 +323,31 @@ uint8_t OLCB_CAN_Link::sendDatagramFragment(OLCB_Datagram *datagram, uint8_t sta
   //start is the index of the next byte to start from.
   //returns the number of bytes sent.
 //  Serial.print("sending datagram fragment to alias ");
-//  Serial.println(datagram->destination->alias,DEC);
-  if(!datagram->destination->alias)
+//  Serial.println(datagram->destination.alias,DEC);
+  if(!datagram->destination.alias)
   {
     //try the cache
-    uint16_t alias = _translationCache.getAliasByNID(datagram->destination);
+    uint16_t alias = _translationCache.getAliasByNID(&(datagram->destination));
     if(!alias) //not cached!
     {
 //      Serial.print("Alias not in cache...");
       //need to ask
-      sendNIDVerifyRequest(datagram->destination); //if it can't go through, it'll get called again. no need to loop.
+      sendNIDVerifyRequest(&(datagram->destination)); //if it can't go through, it'll get called again. no need to loop.
       return 0;
     }
 //    else
 //    {
 //      Serial.print("found an alias in the cache! ");
-//      Serial.println(datagram->destination->alias,DEC);
+//      Serial.println(datagram->destination.alias,DEC);
 //    }
   }
   
   //now, figure out how many bytes remain, and whether this is the last fragment that needs to be sent.
   // Notice that the CAN link can send 8 bytes per frame.
   //set the source, and init the buffer.
-  txBuffer.init(datagram->source);
+  txBuffer.init(&(datagram->source));
   //set the destination
-  txBuffer.setDestinationNID(datagram->destination);
+  txBuffer.setDestinationNID(&(datagram->destination));
   txBuffer.setFrameTypeOpenLcb();
   uint8_t len = min(datagram->length-start,8);
   txBuffer.length = len;
@@ -381,7 +381,7 @@ bool OLCB_CAN_Link::sendNIDVerifyRequest(OLCB_NodeID *nid)
 //  Serial.println("=====");
 //  Serial.println((time - _aliasCacheTimer), DEC);
 //  Serial.println("=====");
-  if(!_nodeIDToBeVerified.empty() && ((time - _aliasCacheTimer) < 1000) ) //it's not zeros, and it hasn't yet been a full second since the last request
+  if(!_nodeIDToBeVerified.empty() && ((time - _aliasCacheTimer) < 2000) ) //it's not zeros, and it hasn't yet been a full second since the last request
   {
 //    Serial.println("Previous request still outstanding, fail");
     return false;
