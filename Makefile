@@ -9,6 +9,10 @@ SUBDIRS := $(foreach V,$(wildcard */Makefile),$(V:/Makefile=))
 
 # make sure Arduino sketches build OK first
 all: $(foreach v,$(SUBDIRS),$(v).all)
+	# make Arduino C library (no tests exist)
+	cd libraries/OlcbArduinoCAN; make lib
+	# make new OpenLCB C++ library (no tests exist)
+	cd libraries/OpenLCB; make lib
 	# build common C library and test
 	cd libraries/OlcbTestCAN; make run
 

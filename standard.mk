@@ -1,14 +1,9 @@
 # Simple makefile fragment for Arduino sketch, somewhat brute force.
-
-# Arduino install definitions, for Arduino 18
-# The ARDUINO_ROOT definition varies with install location
-ARDUINO_ROOT := /Applications/Arduino.app/Contents/Resources/Java/
-CC_OPTIONS_ARDUINO := -Os -w -fno-exceptions -ffunction-sections -fdata-sections -std=gnu99 -mmcu=atmega168 -DF_CPU=16000000L
-
-INCLUDE_ARDUINO := -I${ARDUINO_ROOT}hardware/arduino/cores/arduino 
+# Requires a suitable arduino.mk has been included first
 
 INCLUDE_ARDUINO := ${INCLUDE_ARDUINO} -I${ARDUINO_ROOT}libraries/EEPROM
 INCLUDE_ARDUINO := ${INCLUDE_ARDUINO} -I${ARDUINO_ROOT}libraries/LiquidCrystal
+INCLUDE_ARDUINO := ${INCLUDE_ARDUINO} -I${ARDUINO_ROOT}libraries/SPI
 INCLUDE_ARDUINO := ${INCLUDE_ARDUINO} -I${ARDUINO_ROOT}libraries/Servo
 
 # note that this in meant to be included one level down, where PWD refers to a specific examples/sketch
@@ -17,10 +12,17 @@ INCLUDE_ARDUINO := ${INCLUDE_ARDUINO} -I${ARDUINO_ROOT}libraries/Servo
 INCLUDE_OPTIONS := -I${PWD}/libraries/OlcbArduinoCAN 
 INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/OlcbCommonCAN 
 INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/CAN 
-INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/EtherNet2 
 INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/LCmini
 INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/LocoNet
 INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/NmraDcc
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/EthernetBonjour
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/EthernetDNS
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/EthernetDHCP
+
+# libraries that locals may sub for
+
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${PWD}/libraries/EtherNet2 
+INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${ARDUINO_ROOT}libraries/Ethernet
 
 TMPDIR := $(shell mktemp -d /tmp/Arduino.XXXXXXXX)
 

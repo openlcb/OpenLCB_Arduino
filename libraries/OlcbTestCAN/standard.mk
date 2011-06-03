@@ -29,7 +29,7 @@ $(OBJDIR):
 	
 # Compile general C++ file
 $(OBJDIR)/%.o: %.cpp
-	@$(CXX) $(CCFLAGS) $(CPPFLAGS) -c -o $(OBJDIR)/$(*F).o $(<F)
+	$(CXX) $(CCFLAGS) $(CPPFLAGS) -c -o $(OBJDIR)/$(*F).o $(<F)
 
 # compile everything
 compile: $(OBJDIR) $(OBJLIST) $(foreach v,$(SUBDIRS),$(v).compile)
