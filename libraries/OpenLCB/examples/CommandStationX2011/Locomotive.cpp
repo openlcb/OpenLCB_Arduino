@@ -3,7 +3,7 @@
 void Locomotive::init(void)
 {
   available = true;
-  state = INTIAL;
+  state = LOCOMOTIVE_INITIAL;
 }
 
 void Locomotive::update(void)
@@ -13,22 +13,25 @@ void Locomotive::update(void)
   if((cur_time - timer) > 5000) //5 seconds have passed, time to update!
   {
     timer = cur_time;
-    packetScheduler->setSpeed128(getDCCAddress(), speed*direction);
+    packetScheduler.setSpeed128(getDCCAddress(), speed*direction);
   }
 }
 
 bool Locomotive::processDatagram(void)
 {
-  switch(_rxDatagramBufer->data[0])
+  if(_rxDatagramBuffer->data[0] == DATAGRAM_MOTIVE) //is this a datagram for loco control?
   {
+    switch(_rxDatagramBuffer->data[1])
+    {
     case DATAGRAM_MOTIVE_ATTACH:
       return attachDatagram();
     case DATAGRAM_MOTIVE_RELEASE:
       return releaseDatagram();
-    case DATAGRAM_MOTIVE_SET_SPEED:
+    case DATAGRAM_MOTIVE_SETSPEED:
       return setSpeedDatagram();
-    case DATAGRAM_MOTIVE_SET_FUNCTION:
+    case DATAGRAM_MOTIVE_SETFUNCTION:
       return setFunctionDatagram();
+    }
   }
   return false;
 }
@@ -37,13 +40,13 @@ void Locomotive::datagramResult(bool accepted, uint16_t errorcode)
 {
   // cases to handle:
   //  *attached NAKd (make self available) TODO
-  if((state == ATTACHING) && accepted)
+  if((state == LOCOMOTIVE_ATTACHING) && accepted)
   {
-    state = ATTACHED;
+    state = LOCOMOTIVE_ATTACHED;
   }
   else
   {
-    state = INITIAL;
+    state = LOCOMOTIVE_INITIAL;
     available = true;
   }
 }
@@ -58,7 +61,7 @@ bool Locomotive::attachDatagram(void)
     throttle.copy(&(_rxDatagramBuffer->source));
     available = false;
     d.data[0] = DATAGRAM_MOTIVE_ATTACHED;
-    state = ATTACHING;
+    state = LOCOMOTIVE_ATTACHING;
   }
   else //not free!
   {
@@ -78,7 +81,7 @@ bool Locomotive::releaseDatagram(void)
     d.data[0] = DATAGRAM_MOTIVE_RELEASED;
     sendDatagram(&d); //THIS IS BAD FORM releasing before making sure release is ACK'd. TODO
     available = false;
-    state = INITIAL;
+    state = LOCOMOTIVE_INITIAL;
     return true;
   }
   return false; //what you talkin' 'bout, Willis?
@@ -93,8 +96,8 @@ bool Locomotive::setSpeedDatagram(void)
     if(_rxDatagramBuffer->data[1] == 1)
       direction = 1;
     else
-      direction = -1
-    packetScheduler->setSpeed128(getDCCAddress(), speed*direction);
+      direction = -1;
+    packetScheduler.setSpeed128(getDCCAddress(), speed*direction);
     return true;
   }
   return false;
@@ -108,14 +111,15 @@ bool Locomotive::setFunctionDatagram(void)
     if(_rxDatagramBuffer->data[2]) //function on
       functions |= (1<<_rxDatagramBuffer->data[1]);
     else //function off
-      functions &= ~(1<<_rxDatagramBuffer->data[1]);
-    packetScheduler->setFunctions(getDCCAddress(), (functions>>16), (functions&0xFF), 0);
+    functions &= ~(1<<_rxDatagramBuffer->data[1]);
+    packetScheduler.setFunctions(getDCCAddress(), (functions>>16), (functions&0xFF), 0);
     return true;
   }
-  return false
+  return false;
 }
 
 uint16_t Locomotive::getDCCAddress(void)
 {
   return ((uint16_t)(NID->val[4])<<16) | (NID->val[5]);
 }
+

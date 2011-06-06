@@ -17,16 +17,19 @@
 
 #include <can.h>
 
-DCCPacketScheduler dps;
+#include "Locomotive.h"
+#include "LocomotiveFactory.h"
+
+DCCPacketScheduler packetScheduler;
 
 Locomotive locos[25];
 
 void setup()
 {
-  Locomotive::packetScheduler = &dps;
+  packetScheduler.setup();
 }
 
 void loop()
 {
-  dps.update();
+  packetScheduler.update();
 }
