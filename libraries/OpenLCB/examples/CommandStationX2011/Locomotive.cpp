@@ -60,12 +60,12 @@ bool Locomotive::attachDatagram(void)
   {
     throttle.copy(&(_rxDatagramBuffer->source));
     available = false;
-    d.data[0] = DATAGRAM_MOTIVE_ATTACHED;
+    d.data[1] = DATAGRAM_MOTIVE_ATTACHED;
     state = LOCOMOTIVE_ATTACHING;
   }
   else //not free!
   {
-    d.data[0] = DATAGRAM_MOTIVE_ATTACH_DENIED;
+    d.data[1] = DATAGRAM_MOTIVE_ATTACH_DENIED;
   }
   sendDatagram(&d);
   return true;
@@ -78,7 +78,7 @@ bool Locomotive::releaseDatagram(void)
     OLCB_Datagram d;
     d.destination.copy(&(_rxDatagramBuffer->source));
     d.length = 1;
-    d.data[0] = DATAGRAM_MOTIVE_RELEASED;
+    d.data[1] = DATAGRAM_MOTIVE_RELEASED;
     sendDatagram(&d); //THIS IS BAD FORM releasing before making sure release is ACK'd. TODO
     available = false;
     state = LOCOMOTIVE_INITIAL;
@@ -89,11 +89,12 @@ bool Locomotive::releaseDatagram(void)
 
 bool Locomotive::setSpeedDatagram(void)
 {
+  //TODO CHECK DATAGRAM LENGTH!!
   if(!available && _rxDatagramBuffer->source == throttle)
   {
-    //Speed in data[2], and direction in data[1].
-    speed = (_rxDatagramBuffer->data[2] / 100.0) * 127;
-    if(_rxDatagramBuffer->data[1] == 1)
+    //Speed in data[3], and direction in data[2].
+    speed = (_rxDatagramBuffer->data[3] / 100.0) * 127;
+    if(_rxDatagramBuffer->data[2] == 1)
       direction = 1;
     else
       direction = -1;
@@ -105,13 +106,14 @@ bool Locomotive::setSpeedDatagram(void)
 
 bool Locomotive::setFunctionDatagram(void)
 {
+  //TODO CHECK DATAGRAM LENGTH!!
   if(!available && _rxDatagramBuffer->source == throttle)
   {
-    //function no. in data[1] and on/off in data[2]
-    if(_rxDatagramBuffer->data[2]) //function on
-      functions |= (1<<_rxDatagramBuffer->data[1]);
+    //function no. in data[2] and on/off in data[3]
+    if(_rxDatagramBuffer->data[3]) //function on
+      functions |= (1<<_rxDatagramBuffer->data[2]);
     else //function off
-    functions &= ~(1<<_rxDatagramBuffer->data[1]);
+    functions &= ~(1<<_rxDatagramBuffer->data[2]);
     packetScheduler.setFunctions(getDCCAddress(), (functions>>16), (functions&0xFF), 0);
     return true;
   }
