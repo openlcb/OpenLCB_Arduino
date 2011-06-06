@@ -20,16 +20,22 @@
 #include "Locomotive.h"
 #include "LocomotiveFactory.h"
 
-DCCPacketScheduler packetScheduler;
 
-Locomotive locos[25];
+DCCPacketScheduler packetScheduler;
+LocomotiveFactory factory;
+
+OLCB_NodeID nid(2,1,13,0,0,23);
+OLCB_CAN_Link link(&nid);
 
 void setup()
 {
   packetScheduler.setup();
+  link.initialize();
+  factory.setLink((OLCB_Link*)&link);
 }
 
 void loop()
 {
   packetScheduler.update();
+  link.update();
 }
