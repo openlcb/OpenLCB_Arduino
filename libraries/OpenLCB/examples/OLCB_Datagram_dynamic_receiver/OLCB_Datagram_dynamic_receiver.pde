@@ -24,7 +24,8 @@ class virtualNode: public OLCB_Datagram_Handler
   {
      //To have made it this far, we can be sure that _rxDatagramBuffer has a valid datagram loaded up, and that it is in fact addressed to us.
      Serial.println("Node with id Received a datagram!");
-     _rxDatagramBuffer->destination.print();
+     _rxDatagramBuffer->destination.print(); //is this really us?
+     NID->print();
      for(int i = 0; i < _rxDatagramBuffer->length; ++i)
      {
        Serial.print("    ");
@@ -55,6 +56,7 @@ class virtualNodeFactory: public OLCB_Datagram_Handler
    //notice that because of the order the various handlers get added to link, this method will only ever be
    //called if none of the extant virtualNodes have already handled it. So we know going into it that there
    //isn't already a virtual node at this address.
+  
   bool verifyNID(OLCB_NodeID *nid)
   {
     if( (nid->val[0] == 6) && (nid->val[1] == 1) ) //if it's intended for a DCC locomotive
