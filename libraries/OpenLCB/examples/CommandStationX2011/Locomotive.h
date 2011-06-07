@@ -10,7 +10,7 @@
 #define LOCOMOTIVE_ATTACHING 1
 #define LOCOMOTIVE_ATTACHED 2
 
-//datagram byte 0 (command identifier)
+//datagram byte 0 (command identifier)le
 #define DATAGRAM_MOTIVE                 0x30
 //datagram byte 1 (sub-command identifier, lower nibble only; upper nibble reserverd)
 #define DATAGRAM_MOTIVE_ATTACH          0x01
