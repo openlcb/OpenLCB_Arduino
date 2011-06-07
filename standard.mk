@@ -26,10 +26,14 @@ INCLUDE_OPTIONS := ${INCLUDE_OPTIONS} -I${ARDUINO_ROOT}libraries/Ethernet
 
 TMPDIR := $(shell mktemp -d /tmp/Arduino.XXXXXXXX)
 
+# assumes only one PDE file
 PDE := $(foreach V,$(wildcard *.pde),$(V:.pde=))
 
-all:
+# copy header files, if any, to temp build directory
+$(foreach V,$(wildcard *.h),${TMPDIR}/$(V)):
+	cp *.h ${TMPDIR}/
+
+all: $(foreach V,$(wildcard *.h),${TMPDIR}/$(V))
 	cp ${PDE}.pde ${TMPDIR}/${PDE}.cpp
-	-cp *.h ${TMPDIR}/ >& /dev/null
 	cd ${TMPDIR}; ${ARDUINO_ROOT}hardware/tools/avr/bin/avr-g++ -c -g  ${CC_OPTIONS_ARDUINO} ${INCLUDE_ARDUINO} ${INCLUDE_OPTIONS} *.cpp -o /dev/null
 	rm -r ${TMPDIR}
