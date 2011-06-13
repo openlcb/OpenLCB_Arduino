@@ -47,6 +47,7 @@ void Locomotive::datagramResult(bool accepted, uint16_t errorcode)
   if((state == LOCOMOTIVE_ATTACHING) && accepted)
   {
     state = LOCOMOTIVE_ATTACHED;
+    available = false;
   }
   else
   {
@@ -89,7 +90,7 @@ bool Locomotive::releaseDatagram(void)
     d.data[0] = DATAGRAM_MOTIVE;
     d.data[1] = DATAGRAM_MOTIVE_RELEASED;
     sendDatagram(&d); //THIS IS BAD FORM releasing before making sure release is ACK'd. TODO
-    available = false;
+    available = true;
     state = LOCOMOTIVE_INITIAL;
     return true;
   }

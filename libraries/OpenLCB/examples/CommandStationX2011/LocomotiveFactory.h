@@ -4,6 +4,12 @@
 #include <OLCB_Datagram_Handler.h>
 #include "Locomotive.h"
 
+#if defined(__AVR_AT90CAN128__) || defined(__AVR_ATMEGA1280__)
+#define NUM_SLOTS 50
+#else
+#define NUM_SLOTS 5
+#endif
+
 class LocomotiveFactory : public OLCB_Datagram_Handler
 {
   public:
@@ -13,7 +19,7 @@ class LocomotiveFactory : public OLCB_Datagram_Handler
   void update(void);
   
  private:
-  Locomotive _locos[50];
+  Locomotive _locos[NUM_SLOTS];
 };
 
 #endif

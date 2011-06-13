@@ -12,9 +12,9 @@ bool LocomotiveFactory::verifyNID(OLCB_NodeID *nid)
   if( (nid->val[0] == 6) && (nid->val[1] == 1) ) //if it's intended for a DCC locomotive
   {
     Serial.println("Producing a new virtual node for address: ");
-    nid->print();
+//    nid->print();
     //find a slot for it
-    for(int i = 0; i < 50; ++i)
+    for(int i = 0; i < NUM_SLOTS; ++i)
     {
       if(_locos[i].isAvailable()) //an empty slot is found!
       {
@@ -40,7 +40,7 @@ void LocomotiveFactory::update(void)
 {
   //This is where we should force a verifiedID from any recently created loco, as it would have missed
   // the initial request.
-  for(int i = 0; i < 50; ++i)
+  for(int i = 0; i < NUM_SLOTS; ++i)
   {
     if(!_locos[i].verified && _locos[i].NID->alias) //"verified" is just a flag to let us know that it hasn't verified its
     // NID yet; checking alias ensures that it has been assigned one. In this case, we need to tell the node to
