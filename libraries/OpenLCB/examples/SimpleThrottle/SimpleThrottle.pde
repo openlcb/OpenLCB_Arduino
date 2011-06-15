@@ -23,7 +23,7 @@ class Throttle: public OLCB_Datagram_Handler
   void init(void)
   {
       speed = 0;
-      old_speed = 0;
+      old_speed = 127;
       direction = 1; //forwards
       initialized = false;
   }
@@ -36,13 +36,12 @@ class Throttle: public OLCB_Datagram_Handler
       dg.data[1] = 0x01; //attach
       dg.length = 2;
 //      initialized = true;
+      Serial.println("sending attach request");
       sendDatagram(&dg);
     }
     else
     {
-      unsigned int analog_value = analogRead(0);
-      char raw_speed = (analog_value >> 4); //divide by two to take a 0-1023 range number and make it 0-127 range.
-      
+      speed = map(analogRead(A0), 0, 1023, 0, 100); //divide by two to take a 0-1023 range number and make it 0-127 range.
       if(speed != old_speed)
       {
         dg.data[0] = 0x30;
@@ -54,6 +53,7 @@ class Throttle: public OLCB_Datagram_Handler
         {
           Serial.println("Datagram away! Sent to:");
         }
+        old_speed = speed;
       }
     }
     OLCB_Datagram_Handler::update();
@@ -75,6 +75,22 @@ class Throttle: public OLCB_Datagram_Handler
        initialized = true;
      }
   }
+  
+  
+  bool processDatagram(void)
+  {
+    if((_rxDatagramBuffer->data[0] == 0x30) && (_rxDatagramBuffer->data[1] == 0x02))
+    {
+    //TODO check the source. 
+      Serial.println("Making state IDLE in processDatagram()");
+      initialized = true;
+      Serial.println("****Throttle attached!****");
+      return true;
+    }
+    else return false;
+}
+  
+  
   boolean initialized;
  private:
   unsigned char speed, old_speed;
