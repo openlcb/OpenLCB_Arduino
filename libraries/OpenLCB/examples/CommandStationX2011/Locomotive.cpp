@@ -154,10 +154,10 @@ bool Locomotive::setFunctionDatagram(void)
     Serial.println("  setting function!");
     //function no. in data[2] and on/off in data[3]
     if(_rxDatagramBuffer->data[3]) //function on
-      functions |= (1<<_rxDatagramBuffer->data[2]);
+      functions |= (1<<(_rxDatagramBuffer->data[2]-1));
     else //function off
-    functions &= ~(1<<_rxDatagramBuffer->data[2]);
-    packetScheduler.setFunctions(getDCCAddress(), (functions>>16), (functions&0xFF), 0);
+    functions &= ~(1<<(_rxDatagramBuffer->data[2]-1));
+    packetScheduler.setFunctions(getDCCAddress(), (functions&0xFF), (functions>>16), 0);
     return true;
   }
   Serial.println("  not attached!");
