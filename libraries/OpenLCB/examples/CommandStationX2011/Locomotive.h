@@ -61,6 +61,7 @@ class Locomotive : public OLCB_Datagram_Handler
   uint8_t state;
   uint16_t timer;
   bool verified;
+  bool sendAttached;
 };
 
 //TODO: No method for removing a Locomotive (to undo a setLink() and setNID() operation)

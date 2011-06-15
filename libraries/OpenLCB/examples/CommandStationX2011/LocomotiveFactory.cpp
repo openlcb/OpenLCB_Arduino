@@ -1,4 +1,5 @@
 #include "LocomotiveFactory.h"
+#include "OLCB_CAN_Link.h"
 
 //This is where we watch to see if a new request for a locomotive is likely to occur, and create an
 //instance of the Locomotive class to service it. We check by watching for verifyNID messages, which
@@ -22,7 +23,8 @@ bool LocomotiveFactory::verifyNID(OLCB_NodeID *nid)
         Serial.println(i,DEC);
         _locos[i].setLink(_link);
         _locos[i].setNID(nid);
-        return false; //what the what? we're actually not yet ready to send out the verifiedNID packet!
+        _locos[i].verified = false; //just in case
+        return false; //what the what? we're actually not yet ready to send out the verifiedNID packet, as we don't yet have an alias.
         //That's up to the virtual node to do on its own!
       }
     }
@@ -46,8 +48,9 @@ void LocomotiveFactory::update(void)
     // NID yet; checking alias ensures that it has been assigned one. In this case, we need to tell the node to
     // send out a verified ID message.
     {
-      _locos[i].verifyNID(_locos[i].NID);
-      _locos[i].verified = false;
+      Serial.println("Sending VerifedNID");
+      ((OLCB_CAN_Link*)_link)->sendVerifiedNID(_locos[i].NID);
+      _locos[i].verified = true;
     }
   }
 }
