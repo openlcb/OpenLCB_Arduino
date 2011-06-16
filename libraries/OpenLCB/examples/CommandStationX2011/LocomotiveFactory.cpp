@@ -12,15 +12,15 @@ bool LocomotiveFactory::verifyNID(OLCB_NodeID *nid)
 {
   if( (nid->val[0] == 6) && (nid->val[1] == 1) ) //if it's intended for a DCC locomotive
   {
-    Serial.println("Producing a new virtual node for address: ");
+    //Serial.println("Producing a new virtual node for address: ");
 //    nid->print();
     //find a slot for it
     for(int i = 0; i < NUM_SLOTS; ++i)
     {
       if(_locos[i].isAvailable()) //an empty slot is found!
       {
-        Serial.print("    Installing in slot ");
-        Serial.println(i,DEC);
+        //Serial.print("    Installing in slot ");
+        //Serial.println(i,DEC);
         _locos[i].setLink(_link);
         _locos[i].setNID(nid);
         _locos[i].verified = false; //just in case
@@ -28,7 +28,7 @@ bool LocomotiveFactory::verifyNID(OLCB_NodeID *nid)
         //That's up to the virtual node to do on its own!
       }
     }
-    Serial.println("    Out of slots. Too bad."); //TODO Need to figure out what to do in this case?
+    //Serial.println("    Out of slots. Too bad."); //TODO Need to figure out what to do in this case?
     //It won't do to let the throttle requesting the loco just hang, we need to tell it something informative.
     //Problem is, without enough memory, we can't request an alias to go with the requested NID, and so
     //we can't respond /as/ the loco being queried. Need a mechanism for telling a throttle about this?
@@ -48,7 +48,7 @@ void LocomotiveFactory::update(void)
     // NID yet; checking alias ensures that it has been assigned one. In this case, we need to tell the node to
     // send out a verified ID message.
     {
-      Serial.println("Sending VerifedNID");
+      //Serial.println("Sending VerifedNID");
       ((OLCB_CAN_Link*)_link)->sendVerifiedNID(_locos[i].NID);
       _locos[i].verified = true;
     }

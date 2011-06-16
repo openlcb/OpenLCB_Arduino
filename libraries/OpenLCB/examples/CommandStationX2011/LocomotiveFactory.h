@@ -5,7 +5,7 @@
 #include "Locomotive.h"
 
 #if defined(__AVR_AT90CAN128__) || defined(__AVR_ATMEGA1280__)
-#define NUM_SLOTS 50
+#define NUM_SLOTS 25
 #else
 #define NUM_SLOTS 5
 #endif

@@ -29,8 +29,8 @@ OLCB_CAN_Link link(&nid);
 
 void setup()
 {
-  Serial.begin(115200);
-  Serial.println("Hello world!");
+  //Serial.begin(115200);
+  //Serial.println("Hello world!");
   packetScheduler.setup();
   link.initialize();
   factory.setLink((OLCB_Link*)&link);
