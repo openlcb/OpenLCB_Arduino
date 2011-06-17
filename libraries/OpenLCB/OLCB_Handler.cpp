@@ -2,7 +2,9 @@
 
 void OLCB_Handler::setNID(OLCB_NodeID *newNID)
 {
-  NID = (OLCB_NodeID*)malloc(sizeof(OLCB_NodeID));
+  //Only allocate memory for a new NID the first time this gets called!
+  if(NID == _link->getNodeID()) //don't want to over-write the link's ID!
+    NID = (OLCB_NodeID*)malloc(sizeof(OLCB_NodeID));
   memcpy(NID,newNID, sizeof(OLCB_NodeID));
 }
 
