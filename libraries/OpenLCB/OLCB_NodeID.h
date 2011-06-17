@@ -93,7 +93,7 @@ class OLCB_NodeID {
     }
   }
   
-  void print(void)
+/*  void print(void)
   {
     char id[] = "nid: ";
     Serial.print(id);
@@ -110,7 +110,7 @@ class OLCB_NodeID {
     Serial.println(val[4],DEC);
     Serial.print(id);
     Serial.println(val[5],DEC);
-  }
+  }*/
 
 };
 

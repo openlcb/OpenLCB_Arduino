@@ -22,6 +22,7 @@ class OLCB_Link
     
   virtual void update(void); //called repeatedly  
   void addHandler(OLCB_Handler *handler);
+  void removeHandler(OLCB_Handler *handler);
   
   virtual bool addVNode(OLCB_NodeID *NID) {return true;}
   

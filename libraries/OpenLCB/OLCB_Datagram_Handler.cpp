@@ -34,6 +34,7 @@ bool OLCB_Datagram_Handler::sendDatagram(OLCB_Datagram *datagram)
   _txFlag = true;
   _loc = 0;
   _sentTime = millis(); //log the final transmission time for response timeout checking
+  Serial.println("Datagram prepped for transport");
   return true;
 }
 
@@ -191,6 +192,7 @@ void OLCB_Datagram_Handler::update(void)
   {
     if(_txFlag) //We're in the middle of a transmission
     {
+          Serial.println("Sending datagram fragment");
       uint8_t sent = _link->sendDatagramFragment(_txDatagramBuffer, _loc);
 //      Serial.print("Sent ");
 //      Serial.print(sent,DEC);

@@ -279,8 +279,8 @@ void OLCB_CAN_Link::update(void)
   //check to see if any new messages require handling
   if(can_get_message(&rxBuffer))
   {
-    Serial.println("Got a message!");
-    Serial.println(rxBuffer.id, HEX);
+//    Serial.println("Got a message!");
+//    Serial.println(rxBuffer.id, HEX);
 //    for(int i = 0; i < rxBuffer.length; ++i)
 //      Serial.println(rxBuffer.data[i],HEX);
 //    Serial.println("==================");
@@ -292,6 +292,11 @@ void OLCB_CAN_Link::update(void)
     //otherwise, let's pass it on to our handlers
     
 //    Serial.println("Not a message for Link to handle, should be passed on");
+    //First, if there is a source for this message, see if we can pull the full NID from the cache!
+    OLCB_NodeID n;
+    rxBuffer.getSourceNID(&n); //get the alias
+    if(_translationCache.getNIDByAlias(&n)) //attempt to fill it in with a NID from the cache
+      rxBuffer.setSourceNID(&n); //overwrite the original with the full NID
     OLCB_Handler *iter = _handlers;
     while(iter)
     {
