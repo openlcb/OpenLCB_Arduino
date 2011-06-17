@@ -12,6 +12,7 @@ void OLCB_Handler::setNID(OLCB_NodeID *newNID)
 void OLCB_Handler::setLink(OLCB_Link *newLink)
 {
   _link = newLink;
-  NID = _link->getNodeID();
+  if(!NID) //if no NID has been allocated, just grab the link's
+    NID = _link->getNodeID();
   _link->addHandler(this);
 }
