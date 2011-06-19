@@ -64,12 +64,13 @@ void Locomotive::datagramResult(bool accepted, uint16_t errorcode)
     {
   //    Serial.println("Attached request ack'd");
       state = LOCOMOTIVE_INITIAL;
-      available = false;
+//      available = false;
     }
     else //the ATTACHED datagram was NAK'd? ReallY? reset.
     {
+//      Serial.print("Attached request NOT ack'd, resetting. reason: ");
+//      Serial.println(errorcode, HEX);
       reset();
-  //    Serial.println("Attached request NOT ack'd, resetting");
     }
   }
   else if(state == LOCOMOTIVE_RELEASING)
@@ -77,19 +78,22 @@ void Locomotive::datagramResult(bool accepted, uint16_t errorcode)
     if(accepted)
     {
        //release!
-//       Serial.println("Released ack'd");
+ //      Serial.println("Released ack'd");
        reset(); //change nothing else!
     }
     else
     {
-//       Serial.println("Released not ack'd!?"); //not even sure what to do in this case. Release anyway?!
-       reset();
+//       Serial.print("Released not ack'd!? reason: "); //not even sure what to do in this case. Release anyway?!
+//       Serial.println(errorcode, HEX);
+       //state = LOCOMOTIVE_INITIAL; //I guess?
+       reset(); //not sure this is correct behavior. TODO
     }
   }
 }
 
 bool Locomotive::attachDatagram(void)
 {
+//  Serial.println("Got an attach datagram");
   OLCB_Datagram d;
   d.destination.copy(&(_rxDatagramBuffer->source));
   d.length = 2;
@@ -97,6 +101,7 @@ bool Locomotive::attachDatagram(void)
   //check the source
   if(available || _rxDatagramBuffer->source == throttle) //if available, or if coming from an already-attached throttle (perhaps it rebooted?)
   {
+    available = false; //just so no one tries to mess with us!
 //    Serial.println("Preparing to attach...");
     throttle.copy(&(_rxDatagramBuffer->source)); //really shouldn't do this until the attached datagram is ACKd
     d.data[1] = DATAGRAM_MOTIVE_ATTACHED;
@@ -176,3 +181,18 @@ uint16_t Locomotive::getDCCAddress(void)
   return ((uint16_t)(NID->val[4])<<16) | (NID->val[5]);
 }
 
+//bool Locomotive::verifyNID(OLCB_NodeID *nid)
+//{
+//   Serial.println("Is this verify request for me?");
+//   if(OLCB_Datagram_Handler::verifyNID(nid))
+//   {
+//      Serial.println("Yes! Sending Verified!");
+//      return true;
+//   }
+//   else
+//   {
+//     Serial.println("No. Passing it on.");
+//     return false;
+//   }
+//   return false;
+//}

@@ -93,7 +93,7 @@ class OLCB_CAN_Link : public OLCB_Link
   
   uint16_t getAlias();
  
-  unsigned long _aliasTimer, _aliasCacheTimer; // used to wait for specific times (Arduino type definition)
+  uint32_t _aliasTimer, _aliasCacheTimer; // used to wait for specific times (Arduino type definition)
   uint32_t lfsr1, lfsr2;  // PRNG sequence value: lfsr1 is upper 24 bits, lfsr2 lower
   uint8_t state; // internal state counter, starts at zero
   

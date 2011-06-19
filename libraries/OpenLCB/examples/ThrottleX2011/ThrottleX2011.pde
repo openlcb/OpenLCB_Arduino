@@ -74,7 +74,7 @@ void setup() {
 //  global_lcd.drawProgmemBitmap(railstars_logo, RAILSTARS_WIDTH, RAILSTARS_HEIGHT);
 
 //  Serial.begin(115200);
-//  Serial.print("RAILSTARS");
+//  Serial.println("RAILSTARS");
 
   IBridge_GPIO_Config();
   link.initialize();

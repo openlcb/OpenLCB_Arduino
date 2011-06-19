@@ -395,12 +395,12 @@ uint8_t OLCB_CAN_Link::sendDatagramFragment(OLCB_Datagram *datagram, uint8_t sta
 bool OLCB_CAN_Link::sendNIDVerifyRequest(OLCB_NodeID *nid)
 {
   //first, see if a request is pending
-  uint16_t time = millis();
+//  uint32_t time = millis();
   
 //  Serial.println("=====");
 //  Serial.println((time - _aliasCacheTimer), DEC);
 //  Serial.println("=====");
-  if(!_nodeIDToBeVerified.empty() && ((time - _aliasCacheTimer) < 2000) ) //it's not zeros, and it hasn't yet been a full second since the last request
+  if(!_nodeIDToBeVerified.empty() && ((millis() - _aliasCacheTimer) < 2000) ) //it's not zeros, and it hasn't yet been a full second since the last request
   {
 //    Serial.println("Previous request still outstanding, fail");
     return false;

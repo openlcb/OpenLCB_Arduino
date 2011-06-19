@@ -31,8 +31,11 @@ bool OLCB_Datagram_Handler::sendDatagram(OLCB_Datagram *datagram)
   _txDatagramBuffer->source.copy(NID); //set the source to be me!
   _txFlag = true;
   _loc = 0;
+//  Serial.println("Datagram prepped for transport");
   _sentTime = millis(); //log the final transmission time for response timeout checking
-  //Serial.println("Datagram prepped for transport");
+//  Serial.print("_sentTime = ");
+//  Serial.println(_sentTime, DEC);
+  
   return true;
 }
 
@@ -71,6 +74,9 @@ bool OLCB_Datagram_Handler::handleFrame(OLCB_Buffer *frame)
       if(NID != 0 && n == *NID) //Yay! datagram sent OK, but NAK'd
       {
         uint16_t errorCode = frame->getDatagramNakErrorCode();
+//        Serial.println("Received an honest to god NAK packet. Let's see what's inside!");
+//        for(int i = 0; i < frame->length; ++i)
+//          Serial.println(frame->data[i], HEX);
         switch(errorCode)
         {
           case DATAGRAM_REJECTED_BUFFER_FULL:
@@ -213,6 +219,8 @@ void OLCB_Datagram_Handler::update(void)
         _txFlag = false; //done transmitting
         _loc = 0; //reset the location
         _sentTime = millis(); //log the final transmission time for response timeout checking
+//        Serial.print("_sentTime = ");
+//        Serial.println(_sentTime, DEC);
       }
       else
       {
@@ -221,9 +229,11 @@ void OLCB_Datagram_Handler::update(void)
     }
     
     //If we're not transmitting, but awaiting a response, make sure that the response hasn't timed out!
-    else if(!_txDatagramBufferFree && (millis()-_sentTime) > DATAGRAM_ACK_TIMEOUT )
+    else if(!_txDatagramBufferFree && ((millis()-_sentTime) > DATAGRAM_ACK_TIMEOUT) )
     {
-//      Serial.println("the rxbuffer was not free, and it timed out, so releasing");
+//      Serial.println("_txDatagramBufferFree was not free (meaning awaiting an ACK), and the never came before the timeout, so releasing");
+//      Serial.println(millis(), DEC);
+//      Serial.println(_sentTime, DEC);
 //      Serial.println(millis()-_sentTime, DEC);
       _txDatagramBufferFree = true;
       _txFlag = false;

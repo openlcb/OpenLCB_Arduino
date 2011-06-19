@@ -9,6 +9,11 @@
 #define SETTING_FUNCTION 3
 #define RELEASING 4
 
+#define FORWARD true
+#define REVERSE false
+#define OLCB_FORWARD 1
+#define OLCB_REVERSE 2
+
 //datagram byte 0 (command identifier)le
 #define DATAGRAM_MOTIVE                 0x30
 //datagram byte 1 (sub-command identifier, lower nibble only; upper nibble reserverd)
@@ -34,7 +39,7 @@ class Throttle: public OLCB_Datagram_Handler
   void datagramResult(bool accepted, uint16_t errorcode);
   bool processDatagram(void);
 
-  void setSpeed(unsigned short speed, boolean foward);
+  void setSpeed(unsigned short speed, boolean direction);
   unsigned short getSpeed(void) {return _speed;}
   boolean getDirection(void) {return _direction;}
   void setFunction(byte funcID, boolean on);

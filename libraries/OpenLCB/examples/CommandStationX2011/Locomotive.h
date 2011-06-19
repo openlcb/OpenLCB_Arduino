@@ -43,6 +43,8 @@ class Locomotive : public OLCB_Datagram_Handler
   bool processDatagram(void);
   void datagramResult(bool accepted, uint16_t errorcode);
   
+  //bool verifyNID(OLCB_NodeID *nid);
+  
   //used to determine if this locomotive can be safely deleted.
   bool isAvailable(void) { return available; }
  

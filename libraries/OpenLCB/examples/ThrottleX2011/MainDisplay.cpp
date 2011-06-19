@@ -83,16 +83,19 @@ void MainDisplay::ProcessKey(unsigned short key)
   {
     //speed keys
   case 2: //decrease speed
+//    Serial.println("speed down");
     speed = global_throttle->getSpeed();
     direction = global_throttle->getDirection();
     if(speed > 0) global_throttle->setSpeed(speed - 1, direction);
     return;
   case 3: //increase speed
+//    Serial.println("speed up");
     speed = global_throttle->getSpeed();
     direction = global_throttle->getDirection();
     if(speed < 100) global_throttle->setSpeed(speed + 1, direction);
     return;
   case 4: //direction
+//    Serial.println("reverse direction");
     speed = global_throttle->getSpeed();
     direction = global_throttle->getDirection();
     global_throttle->setSpeed(speed, !direction);
@@ -143,7 +146,12 @@ void MainDisplay::ProcessKey(unsigned short key)
   default:  //error!
     return;
   }
+  
   boolean func_val = global_throttle->getFunction(func);
+//  if(!func_val)
+//    Serial.println("function on");
+//  else
+//    Serial.println("function off");
   global_throttle->setFunction(func, !func_val);
 }
 

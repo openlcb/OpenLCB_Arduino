@@ -13,29 +13,67 @@ void OLCB_Link::update(void)//called repeatedly
   
 void OLCB_Link::addHandler(OLCB_Handler *handler)
 {
-//    Serial.println("OLCB_Link::addHandler: registering handler");
+//  Serial.print("OLCB_Link::addHandler: registering handler ");
+//  Serial.println((uint16_t)handler, HEX);
   handler->next = _handlers;
   _handlers = handler;
+//  Serial.println("====");
+//  OLCB_Handler *iter = _handlers;
+//  while(iter != NULL)
+//  {
+//    Serial.println((uint16_t)iter, HEX);
+//    iter = iter->next;
+//  }
+//  Serial.println("====");
 }
 
 void OLCB_Link::removeHandler(OLCB_Handler *handler)
 {
-  if(handler == _handlers) //if it's at the start
-  {
-    _handlers = handler->next;
+//  Serial.println("Removing Handler ");
+  if(!_handlers) //nothing to remove!
     return;
-  }
-  //otherwise, find it in the list
+    
+
+//  Serial.println((uint16_t)handler, HEX);
   
+//  Serial.println("====");
   OLCB_Handler *iter = _handlers;
-  while((iter != NULL) && (iter->next != handler))
+//  while(iter != NULL)
+//  {
+//    Serial.println((uint16_t)iter, HEX);
+//    iter = iter->next;
+//  }
+//  Serial.println("====");
+  
+  //Looking for the handler that comes before handler.
+//  iter = _handlers;
+  if(iter == handler)
   {
-    iter = iter->next;
+//    Serial.println("The first item is the one to remove!");
+    _handlers = handler->next;
   }
-  //here, either we've reached the end of the list, or
-  //iter->next == handler
-  if(iter)
+  else
   {
-    iter->next = iter->next->next;
+    while(iter->next != NULL)
+   {
+     if(iter->next == handler)
+     {
+//       Serial.print("Found the one before: ");
+//        Serial.println((uint16_t)iter, HEX);
+        //remove it from the list
+       iter->next = handler->next;
+        break;
+      }
+     iter = iter->next;
+    }
   }
+  
+//  Serial.println("==*==");
+//  iter = _handlers;
+//  while(iter != NULL)
+//  {
+//    Serial.println((uint16_t)iter, HEX);
+//    iter = iter->next;
+//  }
+//  Serial.println("==*==");
 }

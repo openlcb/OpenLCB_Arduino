@@ -6,9 +6,9 @@
 void Throttle::init(void)
 {
   _speed = 0;
-  _direction = true; //forwards
+  _direction = FORWARD;
   for(int i = 0; i < NUM_FUNCS; ++i)
-    _functions[i] = false; //off
+    _functions[i] = !i; //start with only headlights on
   _address = 0; //no address
   _attached = false;
   _set_function = false;
@@ -34,10 +34,10 @@ void Throttle::update(void)
   {
     _dg.data[0] = DATAGRAM_MOTIVE;
     _dg.data[1] = DATAGRAM_MOTIVE_SETSPEED; //set speed
-    if(_new_direction) //forward
-      _dg.data[2] = 1;
+    if(_new_direction == FORWARD) //forward
+      _dg.data[2] = OLCB_FORWARD;
     else
-      _dg.data[2] = 2;
+      _dg.data[2] = OLCB_REVERSE;
     _dg.data[3] = _new_speed; //in percent throttle
     _dg.length = 4;
     _state = SETTING_SPEED;
@@ -100,14 +100,15 @@ void Throttle::datagramResult(bool accepted, uint16_t errorcode)
 //      Serial.print("Speed is now set to ");
 //      Serial.println(_new_speed, DEC);
 //      Serial.print(" and direction to ");
-//      if(_new_speed)
-//        Serial.println('1');
+//      if(_new_direction == FORWARD)
+//        Serial.println("FORWARD");
 //      else
-//        Serial.println('2');
+//        Serial.println("REVERSE");
     }
     else
     {
       _new_speed = _speed; //reset new_speed request
+      _new_direction = _direction;
     }
     _state = IDLE;
   }
@@ -117,6 +118,10 @@ void Throttle::datagramResult(bool accepted, uint16_t errorcode)
     if(accepted)
     {
       _functions[_new_function_ID] = _new_function_val;
+//      Serial.print("Function ");
+//      Serial.print(_new_function_ID, DEC);
+//      Serial.print(" is now set to ");
+//      Serial.print(_new_function_val, DEC);
     }
     _state = IDLE;
   }
@@ -126,6 +131,10 @@ void Throttle::datagramResult(bool accepted, uint16_t errorcode)
     if(!accepted)
     {
       _state = IDLE; //force another go. TODO make this more nuanced, so it will give up!
+      _speed = _new_speed = 0;
+      _direction = _new_direction = FORWARD;
+      for(int i = 0; i < NUM_FUNCS; ++i)
+        _functions[i] = !i; //start with only headlights on
     }
   }
 }
@@ -136,12 +145,14 @@ bool Throttle::processDatagram(void)
   {
 //    Serial.println("Received Datagram ATTACHED");
 //    Serial.print(" from ");
+//    Serial.println(_rxDatagramBuffer->source.alias, DEC);
 //    Serial.println((_rxDatagramBuffer->source.val[4] << 8) & (_rxDatagramBuffer->source.val[4]), DEC);
 //    if(_new_address == (_rxDatagramBuffer->source.val[4] << 8) & (_rxDatagramBuffer->source.val[4])) //TODO WIll this cause problems?
 //    {
       _state = IDLE;
       _attached = true;
       _address = _new_address;
+//      Serial.println("ACKing");
       return true;
 //    }
   }
@@ -157,13 +168,14 @@ bool Throttle::processDatagram(void)
 //  Serial.println(_rxDatagramBuffer->length, DEC);
 //  for(int i = 0; i < _rxDatagramBuffer->length; ++i)
 //    Serial.println(_rxDatagramBuffer->data[i], HEX);
+//  Serial.println("NAKing datagram");
   return false;
 }
 
-void Throttle::setSpeed(unsigned short speed, boolean forward)
+void Throttle::setSpeed(unsigned short speed, boolean direction)
 {
   _new_speed = speed;
-  _new_direction = forward;
+  _new_direction = direction;
 }
 
 void Throttle::setFunction(byte funcID, boolean on)
