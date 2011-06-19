@@ -24,15 +24,15 @@ class LocoSelectDisplay : public Interface
   {
     for(int i = 0; i < 3; ++i)
     {
-      Serial.print(_locos[i].NID->alias, DEC);
-      Serial.print(" ");
+//      Serial.print(_locos[i].NID->alias, DEC);
+//      Serial.print(" ");
       if(!_locos[i].NID->alias)
       {
-        Serial.println();
+//        Serial.println();
         return false;
       }
     }
-    Serial.println();
+//    Serial.println();
     return true;
   }
   

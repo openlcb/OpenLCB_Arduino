@@ -28,7 +28,6 @@ OLCB_CAN_Link link(&nid);
 Throttle *global_throttle;
 unsigned short global_state;
 
-#include "railstars_logo.h"
 #include "Globals.h"
 #include "LocoSelectDisplay.h"
 #include "MainDisplay.h"
@@ -74,8 +73,8 @@ void setup() {
 //  global_lcd.setCursor(0, 0);
 //  global_lcd.drawProgmemBitmap(railstars_logo, RAILSTARS_WIDTH, RAILSTARS_HEIGHT);
 
-  Serial.begin(115200);
-  Serial.print("RAILSTARS");
+//  Serial.begin(115200);
+//  Serial.print("RAILSTARS");
 
   IBridge_GPIO_Config();
   link.initialize();
@@ -110,7 +109,7 @@ void loop() {
 
   if(key)
   {
-    delay(100);
+    delay(10);
   }
 }
 

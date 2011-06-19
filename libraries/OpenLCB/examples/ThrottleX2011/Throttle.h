@@ -7,6 +7,7 @@
 #define ATTACHING 1
 #define SETTING_SPEED 2
 #define SETTING_FUNCTION 3
+#define RELEASING 4
 
 //datagram byte 0 (command identifier)le
 #define DATAGRAM_MOTIVE                 0x30

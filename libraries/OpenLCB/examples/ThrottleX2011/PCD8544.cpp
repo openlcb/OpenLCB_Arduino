@@ -422,8 +422,6 @@ void PCD8544::setContrast(uint8_t val) {
 
 
 void PCD8544::display(void) {
-  Serial.println("display(): In display");
-  uint16_t time = millis();
   cli();
   uint8_t col, maxcol, p;
   
@@ -466,8 +464,6 @@ void PCD8544::display(void) {
   yUpdateMax = 0;
 #endif
   sei();
-  Serial.print("display(): took ");
-  Serial.println(millis()-time, DEC);
 }
 
 // clear everything

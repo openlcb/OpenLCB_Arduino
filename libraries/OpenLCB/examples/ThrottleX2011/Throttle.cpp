@@ -20,12 +20,12 @@ void Throttle::update(void)
   //to a loco. Give it another go.
   if(_new_address && !_attached && (_state==IDLE))
   {
-    Serial.print("Attempting to attach to address ");
-    Serial.println(_new_address,DEC);
+//    Serial.print("Attempting to attach to address ");
+//    Serial.println(_new_address,DEC);
     _dg.data[0] = DATAGRAM_MOTIVE;
     _dg.data[1] = DATAGRAM_MOTIVE_ATTACH; //attach
     _dg.length = 2;
-    Serial.println("Making state ATTACHING in update()");
+//    Serial.println("Making state ATTACHING in update()");
     _state = ATTACHING;
     sendDatagram(&_dg);
   }
@@ -41,10 +41,6 @@ void Throttle::update(void)
     _dg.data[3] = _new_speed; //in percent throttle
     _dg.length = 4;
     _state = SETTING_SPEED;
-    Serial.print("Setting speed to ");
-    Serial.println(_new_speed, DEC);
-    Serial.print(" and direction to ");
-    Serial.println(_dg.data[2], DEC);
     sendDatagram(&_dg);
   }
   
@@ -66,7 +62,7 @@ void Throttle::update(void)
 
 void Throttle::datagramResult(bool accepted, uint16_t errorcode)
 {
-   Serial.print("The datagram was ");
+/*   Serial.print("The datagram was ");
    if(!accepted)
      Serial.print("not ");
    Serial.println("accepted.");
@@ -76,21 +72,38 @@ void Throttle::datagramResult(bool accepted, uint16_t errorcode)
      Serial.println(errorcode,HEX);
   }
   Serial.print("And the state was:");
-  Serial.println(_state, DEC);
-  
+  switch(_state)
+  {
+      case SETTING_SPEED:
+        Serial.println("SETTING_SPEED");
+        break;
+      case SETTING_FUNCTION:
+        Serial.println("SETTING_FUNCTION");
+         break;
+      case ATTACHING:
+        Serial.println("ATTACHING");
+         break;
+      case RELEASING:
+        Serial.println("RELEASING (should never happen!?)");
+        break;
+       case IDLE:
+         Serial.println("IDLE");
+         break;
+  }*/
+    
   if(_state == SETTING_SPEED)
   {
     if(accepted)
     {
       _speed = _new_speed;
       _direction = _new_direction;
-      Serial.print("Speed is now set to ");
-      Serial.println(_new_speed, DEC);
-      Serial.print(" and direction to ");
-      if(_new_speed)
-        Serial.println('1');
-      else
-        Serial.println('2');
+//      Serial.print("Speed is now set to ");
+//      Serial.println(_new_speed, DEC);
+//      Serial.print(" and direction to ");
+//      if(_new_speed)
+//        Serial.println('1');
+//      else
+//        Serial.println('2');
     }
     else
     {
@@ -121,19 +134,29 @@ bool Throttle::processDatagram(void)
 {
   if((_rxDatagramBuffer->data[0] == DATAGRAM_MOTIVE) && (_rxDatagramBuffer->data[1] == DATAGRAM_MOTIVE_ATTACHED))
   {
-//    if(_new_address == (_rxDatagramBuffer->source.val[4] << 8) & (_rxDatagramBuffer->source.val[4]))
+//    Serial.println("Received Datagram ATTACHED");
+//    Serial.print(" from ");
+//    Serial.println((_rxDatagramBuffer->source.val[4] << 8) & (_rxDatagramBuffer->source.val[4]), DEC);
+//    if(_new_address == (_rxDatagramBuffer->source.val[4] << 8) & (_rxDatagramBuffer->source.val[4])) //TODO WIll this cause problems?
 //    {
       _state = IDLE;
       _attached = true;
-      _address = _new_address; //cheap hack. Will cause problems if setAddress is called rapidly several times in a row! we should look at the source
+      _address = _new_address;
       return true;
 //    }
   }
-  Serial.println("NAKing datagram");
-  Serial.print("len ");
-  Serial.println(_rxDatagramBuffer->length, DEC);
-  for(int i = 0; i < _rxDatagramBuffer->length; ++i)
-    Serial.println(_rxDatagramBuffer->data[i], HEX);
+  else if((_rxDatagramBuffer->data[0] == DATAGRAM_MOTIVE) && (_rxDatagramBuffer->data[1] == DATAGRAM_MOTIVE_RELEASED) && (_state == RELEASING))
+  {
+//    Serial.println("Recevied Datagram RELEASED");
+    _state = IDLE;
+    return true; //whatever, just ACK it.
+  }
+
+//  Serial.println("NAKing datagram:");
+//  Serial.print("len ");
+//  Serial.println(_rxDatagramBuffer->length, DEC);
+//  for(int i = 0; i < _rxDatagramBuffer->length; ++i)
+//    Serial.println(_rxDatagramBuffer->data[i], HEX);
   return false;
 }
 
@@ -155,21 +178,24 @@ void Throttle::setAddress(unsigned int address)
   //first, if address!=0, release existing locomotive
   if(_address)
   {
-    Serial.print("Releasing address ");
-    Serial.println(_address,DEC);
+//    Serial.print("Releasing address ");
+//    Serial.println(_address,DEC);
     _dg.data[0] = DATAGRAM_MOTIVE;
     _dg.data[1] = DATAGRAM_MOTIVE_RELEASE; //set function
     _dg.length = 2;
+    _state = RELEASING; //This is to force the throttle to wait for a "Released" datagram;
     sendDatagram(&_dg);
   }
-
-  _new_address = address;
-  _address = 0;
-  if(address)
+  else
   {
-    //now, set new address
-    _state = IDLE; //not really, but this will do.
-    _attached = false;
-    _dg.destination.set(6,1,0,0,(_new_address&0xFF00) >> 8,(_new_address&0x00FF));
+    _state = IDLE;
   }
+//  Serial.print("setAddress to: ");
+//  Serial.print(address, DEC);
+  _new_address = address;
+  _address = 0; //not yet!
+    //now, set new address
+//    _state = IDLE; //not really, but this will do.
+  _attached = false;
+  _dg.destination.set(6,1,0,0,(_new_address&0xFF00) >> 8,(_new_address&0x00FF)); //set the locomotive as the destination address for future comms...
 }

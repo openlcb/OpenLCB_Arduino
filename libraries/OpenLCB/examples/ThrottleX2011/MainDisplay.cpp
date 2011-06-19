@@ -13,7 +13,7 @@ void MainDisplay::ProcessMenuKey(unsigned short key)
   if(key == 16) //go to loco select
   {
     global_state = DISP_LOCO_SELECT;
-    //Serial.clear(); //why doesn't this work?
+    global_lcd.clear();
     delay(50);
   }
 }
@@ -77,8 +77,8 @@ void MainDisplay::ProcessKey(unsigned short key)
   unsigned short func = 0;
   unsigned short speed = 0;
   boolean direction = true;
-  Serial.print("Keypress! ");
-  Serial.println(key,HEX);
+//  Serial.print("Keypress! ");
+//  Serial.println(key,HEX);
   switch(key)
   {
     //speed keys

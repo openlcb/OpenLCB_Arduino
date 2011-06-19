@@ -7,7 +7,8 @@ void LocoSelectDisplay::DisplayMenu(void)
     {
       if(_locos[i].hasAddress()) //if it's been assigned
       {
-        global_lcd.drawstring(i*30,5," ");
+        global_lcd.drawstring(i*30,5,"     ");
+        global_lcd.drawstring(i*30,5,String(_locos[i].getAddress(),DEC));
       }
       else
       {
@@ -31,13 +32,13 @@ void LocoSelectDisplay::ProcessMenuKey(unsigned short key)
     return;
   if(_address && (_address < 10000)) //an address was entered
   {
-    Serial.print("Got a new address: ");
-    Serial.println(_address,DEC);
+//    Serial.print("Got a new address: ");
+//    Serial.println(_address,DEC);
     _locos[i].setAddress(_address);
   }
   else //no address was entered
   {
-    Serial.println("no address entered!");
+//    Serial.println("no address entered!");
     if(!_locos[i].hasAddress()) //nothing is in this slot
     {
       return;
@@ -70,7 +71,7 @@ void LocoSelectDisplay::ProcessKey(unsigned short key)
   {
     case 3: //backspace!
       _address = (unsigned short)(_address / 10); //back it up! Does this do integer division correctly?
-      Serial.println(_address);
+      //Serial.println(_address);
       break;
     case 4: //cancel
       _address = 0;
@@ -119,7 +120,7 @@ void LocoSelectDisplay::ProcessKey(unsigned short key)
   {
     _address *= 10;
     _address += val;
-    Serial.println(_address);
+    //Serial.println(_address);
   }
 
   delay(100);
