@@ -25,7 +25,6 @@ class OLCB_Datagram_Handler : public OLCB_Handler
   {
     if((*nid) == (*NID))
     {
-//      Serial.println("Someone wants to know my name!");
       return true;
     }
     return false;
@@ -45,7 +44,7 @@ class OLCB_Datagram_Handler : public OLCB_Handler
  protected:
  
  //TODO condense all these bools into a bitfield
-  uint16_t _sentTime;
+  uint32_t _sentTime;
   bool _initialized;
   bool _txFlag;
   bool _rxDatagramBufferFree;
