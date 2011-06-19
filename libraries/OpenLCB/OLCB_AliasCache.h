@@ -92,6 +92,20 @@ class OLCB_AliasCache
     return false;
   }
   
+  bool removeByAlias(uint16_t alias)
+  {
+    for(uint8_t i=0; i < _size; ++i)
+    {
+      if(_nids[i].alias == alias)
+      {
+        _nids[i].set(0,0,0,0,0,0);
+        _hits[i] = 0;
+        return true;
+      }
+    }
+    return false; //not in cache
+  }
+  
  private:
   uint8_t _size;
   OLCB_NodeID* _nids;

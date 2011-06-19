@@ -50,7 +50,6 @@ class OLCB_Datagram_Handler : public OLCB_Handler
   
   OLCB_Datagram *_rxDatagramBuffer;
   OLCB_Datagram *_txDatagramBuffer;
-  
 };
 
 #endif

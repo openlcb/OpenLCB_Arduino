@@ -34,7 +34,7 @@ bool OLCB_Datagram_Handler::sendDatagram(OLCB_Datagram *datagram)
   _txFlag = true;
   _loc = 0;
   _sentTime = millis(); //log the final transmission time for response timeout checking
-  Serial.println("Datagram prepped for transport");
+  //Serial.println("Datagram prepped for transport");
   return true;
 }
 
@@ -93,9 +93,11 @@ bool OLCB_Datagram_Handler::handleFrame(OLCB_Buffer *frame)
   }
 
   //now, check to see if this datagram is addressed to us. If not, ignore it. (Also, reject if we don't have a NID set!)
+  //Note: Sometimes we want to process a datagram regardless of the address. This is the case for what I call "default handlers". If we are marked as such, skip this check.
   OLCB_NodeID n;
   frame->getDestinationNID(&n);
-  if(NID == 0 || n != *NID)
+//  Serial.println("Got a datagram, checking to see if it is addressed to me");
+  if((NID == 0) || (n != *NID))
   {
 //    Serial.println("OLCB_Datagram_Handler: Datagram not addressed to me!\n");
 //    Serial.println(frame->id,HEX);
@@ -192,7 +194,7 @@ void OLCB_Datagram_Handler::update(void)
   {
     if(_txFlag) //We're in the middle of a transmission
     {
-          Serial.println("Sending datagram fragment");
+//      Serial.println("Sending datagram fragment");
       uint8_t sent = _link->sendDatagramFragment(_txDatagramBuffer, _loc);
 //      Serial.print("Sent ");
 //      Serial.print(sent,DEC);

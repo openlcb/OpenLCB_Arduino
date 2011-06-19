@@ -10,7 +10,8 @@ class OLCB_Link;
 class OLCB_Handler
 {
  public:
-  OLCB_Handler() : NID(0), _link(0), next(0) {return;}
+  OLCB_Handler() : NID(0), _link(0), next(0)
+    {return;}
 
   virtual void init(void) {return;}
 

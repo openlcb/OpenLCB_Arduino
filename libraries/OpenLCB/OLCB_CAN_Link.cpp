@@ -252,8 +252,10 @@ bool OLCB_CAN_Link::handleTransportLevel()
       OLCB_NodeID n;
       rxBuffer.getSourceNID(&n); //get the alias from the message header
       rxBuffer.getNodeID(&n); //Get the actual NID from the message body
- //     Serial.println("Received a Verified Packet");
- //     n.print();
+//      Serial.println("Received a Verified Packet from");
+//      n.print();
+//      Serial.println("***Expected a Verified Packet from   ");
+//      _nodeIDToBeVerified.print();
       if(n.alias == 0) return false;
       if(n == _nodeIDToBeVerified)
       {
@@ -268,6 +270,10 @@ bool OLCB_CAN_Link::handleTransportLevel()
 //        Serial.println("Not going to cache it");
 //      }
       return true;
+    }
+    else if(rxBuffer.isAMR()) //is someone releasing their alias? Remove it from the cache.
+    {
+      _translationCache.removeByAlias(rxBuffer.getSourceAlias());
     }
     return false;
 }
@@ -293,10 +299,18 @@ void OLCB_CAN_Link::update(void)
     
 //    Serial.println("Not a message for Link to handle, should be passed on");
     //First, if there is a source for this message, see if we can pull the full NID from the cache!
+    //TODO NONE OF THIS BELOW WILL WORK BECAUSE OLCB_CAN_Buffer NEVER STORES FULL NIDS! Which is silly!
     OLCB_NodeID n;
     rxBuffer.getSourceNID(&n); //get the alias
     if(_translationCache.getNIDByAlias(&n)) //attempt to fill it in with a NID from the cache
       rxBuffer.setSourceNID(&n); //overwrite the original with the full NID
+    //now, see if it has a destination, and if it's in the cache too
+    if(rxBuffer.getDestinationNID(&n))
+    {
+      //see if we can pull the actual NID from the cache
+      if(_translationCache.getNIDByAlias(&n))
+        rxBuffer.setDestinationNID(&n);
+    }
     OLCB_Handler *iter = _handlers;
     while(iter)
     {
@@ -327,15 +341,15 @@ uint8_t OLCB_CAN_Link::sendDatagramFragment(OLCB_Datagram *datagram, uint8_t sta
   //datagram is the datagram to transmit.
   //start is the index of the next byte to start from.
   //returns the number of bytes sent.
-//  Serial.print("sending datagram fragment to alias ");
-//  Serial.println(datagram->destination.alias,DEC);
+//  Serial.println("sending datagram fragment to ");
+//  datagram->destination.print();
   if(!datagram->destination.alias)
   {
     //try the cache
     uint16_t alias = _translationCache.getAliasByNID(&(datagram->destination));
     if(!alias) //not cached!
     {
-//      Serial.print("Alias not in cache...");
+//      Serial.println("Alias not in cache...");
       //need to ask
       sendNIDVerifyRequest(&(datagram->destination)); //if it can't go through, it'll get called again. no need to loop.
       return 0;
@@ -408,7 +422,6 @@ bool OLCB_CAN_Link::sendNIDVerifyRequest(OLCB_NodeID *nid)
   return true;
 }
 
-
 bool OLCB_CAN_Link::ackDatagram(OLCB_NodeID *source, OLCB_NodeID *dest)
 {
   if(!can_check_free_buffer())
@@ -443,5 +456,12 @@ void OLCB_CAN_Link::sendVerifiedNID(OLCB_NodeID *nid)
 {
   txBuffer.init(nid);
   txBuffer.setVerifiedNID(nid);
+  while(!can_send_message(&txBuffer));
+}
+
+bool OLCB_CAN_Link::sendAMR(OLCB_NodeID *nid)
+{
+  txBuffer.init(nid);
+  txBuffer.setAMR(nid->alias);
   while(!can_send_message(&txBuffer));
 }

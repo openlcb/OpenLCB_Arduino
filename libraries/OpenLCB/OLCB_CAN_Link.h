@@ -104,6 +104,7 @@ class OLCB_CAN_Link : public OLCB_Link
   /*Methods for handling nida caching*/
   bool sendNIDVerifyRequest(OLCB_NodeID *nid);
   
+  bool sendAMR(OLCB_NodeID *nid);
   
 };
 

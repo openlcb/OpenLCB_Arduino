@@ -32,13 +32,17 @@
   {
     id &= ~MASK_SRC_ALIAS;
     id = id | (NID->alias & MASK_SRC_ALIAS);
+    _source.copy(NID);
   }
   
   void OLCB_Buffer::getSourceNID(OLCB_NodeID *NID)
-  //note: Will only set the NIDa!
   {
-    NID->set(0,0,0,0,0,0);
-    NID->alias = (id & MASK_SRC_ALIAS);
+    if(_source.empty()) //if _source.alias == 0, basically.
+    {
+      _source.set(0,0,0,0,0,0);
+    }
+    _source.alias = (id & MASK_SRC_ALIAS);
+    NID->copy(&_source);
   }
 
   void OLCB_Buffer::setFrameTypeCAN() {
@@ -71,8 +75,6 @@
   
   // start of CAN-level messages
  
-#define RIM_VAR_FIELD 0x0700
-
   void OLCB_Buffer::setCIM(int i, uint16_t testval, uint16_t alias) {
     flags.extended = 1;
     // all bits in header default to 1 except MASK_SRC_ALIAS
@@ -98,6 +100,20 @@
 
   bool OLCB_Buffer::isRIM() {
       return isFrameTypeCAN() && getVariableField() == RIM_VAR_FIELD;
+  }
+  
+  void OLCB_Buffer::setAMR(uint16_t alias)
+  {
+    flags.extended = 1;
+    id = 0x1FFFF000 | (alias & MASK_SRC_ALIAS);
+    setFrameTypeCAN();
+    setVariableField(AMR_VAR_FIELD);
+    length = 0;
+  }
+  
+  bool OLCB_Buffer::isAMR()
+  {
+    return isFrameTypeCAN() && getVariableField() == AMR_VAR_FIELD;
   }
 
 
@@ -218,8 +234,13 @@
         (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_LAST) ||
         (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_NON_DATAGRAM) )
     {
-      nid->set(0,0,0,0,0,0);
-      nid->alias = (id & MASK_DEST_ALIAS) >> SHIFT_VARIABLE_FIELD;
+      if(_destination.empty())
+      {
+        _destination.set(0,0,0,0,0,0);
+      }
+      _destination.alias = (id & MASK_DEST_ALIAS) >> SHIFT_VARIABLE_FIELD;
+      
+      nid->copy(&_destination);
       return true;
     }
     return false;
@@ -229,6 +250,7 @@
   {
     id &= ~MASK_DEST_ALIAS;
     id = id | ( ((uint32_t)(nid->alias) << SHIFT_VARIABLE_FIELD) & MASK_DEST_ALIAS );
+    _destination.copy(nid);
   }
   
   bool OLCB_Buffer::isVerifyNID() {

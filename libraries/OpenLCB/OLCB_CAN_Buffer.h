@@ -45,6 +45,9 @@
 #define MTI_DATAGRAM_RCV_OK             0x4CF
 #define MTI_DATAGRAM_REJECTED           0x4DF
 
+#define RIM_VAR_FIELD 0x0700
+#define AMR_VAR_FIELD 0x0703
+
 // for definiton, see
 // http://openlcb.sf.net/trunk/documents/can/index.html
 // 
@@ -97,7 +100,7 @@
   void setSourceAlias(uint16_t a);
   uint16_t getSourceAlias();
   void setSourceNID(OLCB_NodeID *NID);
-  void getSourceNID(OLCB_NodeID *NID); //note: Will only set the NIDa!
+  void getSourceNID(OLCB_NodeID *NID);
   
   // end of basic message structure
   
@@ -108,6 +111,9 @@
   
   void setRIM(uint16_t alias);
   bool isRIM();
+  
+  void setAMR(uint16_t alias);
+  bool isAMR(void);
 
   // end of CAN-level messages
   
@@ -178,6 +184,10 @@
 
   // service routine to copy content (0-7) to a previously-allocated Eid
   void loadFromEid(OLCB_EventID* eid);
+  
+  //TO BE MADE USE OF LATER. belong in OLCB_Buffer.
+  OLCB_NodeID _source;
+  OLCB_NodeID _destination;
 };
 
 #endif
