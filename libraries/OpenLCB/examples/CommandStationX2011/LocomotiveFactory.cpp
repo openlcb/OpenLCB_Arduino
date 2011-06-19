@@ -7,20 +7,19 @@
 //are well-known, we can take advantage of this mechanism to instantiate Locomotive instances
 //just-in-time.
 //Notice that this method will only ever be called if no other existing Locomotive instance
-//already has.
+//has already handled it.
 bool LocomotiveFactory::verifyNID(OLCB_NodeID *nid)
 {
-  if( (nid->val[0] == 6) && (nid->val[1] == 1) ) //if it's intended for a DCC locomotive
+  if( (nid->val[0] == 6) && (nid->val[1] == 1) ) //if it's intended for a DCC locomotive, we ought to pay attention!
   {
-    //Serial.println("Producing a new virtual node for address: ");
-//    nid->print();
     //find a slot for it
+//    Serial.println("LocoFactory: Got a request to create a new loco vnode");
     for(int i = 0; i < NUM_SLOTS; ++i)
     {
       if(_locos[i].isAvailable()) //an empty slot is found!
       {
-        //Serial.print("    Installing in slot ");
-        //Serial.println(i,DEC);
+//        Serial.print("    Installing in slot ");
+//        Serial.println(i,DEC);
         _locos[i].setLink(_link);
         _locos[i].setNID(nid);
         _locos[i].verified = false; //just in case
@@ -28,12 +27,13 @@ bool LocomotiveFactory::verifyNID(OLCB_NodeID *nid)
         //That's up to the virtual node to do on its own!
       }
     }
-    //Serial.println("    Out of slots. Too bad."); //TODO Need to figure out what to do in this case?
+//    Serial.println("    Out of slots. Too bad."); //TODO Need to figure out what to do in this case?
     //It won't do to let the throttle requesting the loco just hang, we need to tell it something informative.
     //Problem is, without enough memory, we can't request an alias to go with the requested NID, and so
     //we can't respond /as/ the loco being queried. Need a mechanism for telling a throttle about this?
     //We could use the LocoFactory's alias, then pass it a datagram to inform it of why it's request
-    //is invalid, and then send out a message indicating that the alias is being invalidated for that NID.
+    //is invalid, and then send out a message indicating that the alias is being invalidated for that NID. Need
+    //a method for invalidating aliases.
   }
   return false; //no room availble, or not a request for a loco. (see above)
 }
@@ -54,3 +54,43 @@ void LocomotiveFactory::update(void)
     }
   }
 }
+
+bool LocomotiveFactory::processDatagram(void)
+{
+  //The only datagrams we care about are attach requests. We will have received them only if an existing loco hasn't handled it. In which case, we need to create the loco,
+  //and assign it the NID from the attach request.
+//  Serial.println("LocomotiveFactory got a datagram!");
+  if( (_rxDatagramBuffer->data[0] == DATAGRAM_MOTIVE) && (_rxDatagramBuffer->data[0] == DATAGRAM_MOTIVE_ATTACH))
+  {
+//    Serial.println("LocoFactory: Got a request to create a new loco vnode (via ATTACH request)");
+    for(int i = 0; i < NUM_SLOTS; ++i) //there has to be a mre efficient way to store this.
+    {
+      OLCB_NodeID nid;
+      //Now figure out the NID. The datagrambuffer should have it all.
+      nid.copy(&(_rxDatagramBuffer->destination));
+      if(_locos[i].isAvailable()) //an empty slot is found!
+      {
+//        Serial.print("    Installing in slot ");
+//        Serial.println(i,DEC);
+        _locos[i].setLink(_link);
+        _locos[i].setNID(&nid);
+        _locos[i].verified = true; //because it should be
+        //this is a dirty hack.
+        memcpy(_locos[i]._rxDatagramBuffer, _rxDatagramBuffer, sizeof(OLCB_Datagram));
+        _locos[i].attachDatagram();
+        return true; //we are ACKing with the wrong source NID. Oh well. This should be fixed later, but should be OK for now? I hope? TODO
+      }
+    }
+//    Serial.println("    Out of slots. Too bad."); //TODO Need to figure out what to do in this case?
+    //It won't do to let the throttle requesting the loco just hang, we need to tell it something informative.
+    //Problem is, without enough memory, we can't request an alias to go with the requested NID, and so
+    //we can't respond /as/ the loco being queried. Need a mechanism for telling a throttle about this?
+    //We could use the LocoFactory's alias, then pass it a datagram to inform it of why it's request
+    //is invalid, and then send out a message indicating that the alias is being invalidated for that NID. Need
+    //a method for invalidating aliases.
+  }
+  return false;
+}
+
+
+//TODO NOT ALL REQUESTS COME THROUGH VERIFY IDs!!!! Sometimes they come through plain old Attach requests! This happens when a loco has been released and the is re-attached.

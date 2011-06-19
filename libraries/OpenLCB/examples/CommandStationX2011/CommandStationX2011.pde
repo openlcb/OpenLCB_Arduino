@@ -1,3 +1,5 @@
+// #include <MemoryFree.h>
+
 #include <OLCB_AliasCache.h>
 #include <OLCB_Buffer.h>
 #include <OLCB_CAN_Buffer.h>
@@ -29,8 +31,8 @@ OLCB_CAN_Link link(&nid);
 
 void setup()
 {
-  //Serial.begin(115200);
-  //Serial.println("Hello world!");
+//  Serial.begin(115200);
+//  Serial.println("Hello world!");
   packetScheduler.setup();
   link.initialize();
   factory.setLink((OLCB_Link*)&link);
@@ -40,4 +42,5 @@ void loop()
 {
   packetScheduler.update();
   link.update();
+//  Serial.println(freeMemory(),DEC);
 }

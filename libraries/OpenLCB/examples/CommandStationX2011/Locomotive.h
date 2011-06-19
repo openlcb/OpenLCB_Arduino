@@ -5,10 +5,12 @@
 
 #include <OLCB_Datagram_Handler.h>
 #include <OLCB_NodeID.h>
+#include <OLCB_CAN_Link.h>
 
 #define LOCOMOTIVE_INITIAL 0
 #define LOCOMOTIVE_ATTACHING 1
 #define LOCOMOTIVE_ATTACHED 2
+#define LOCOMOTIVE_RELEASING 3
 
 //datagram byte 0 (command identifier)le
 #define DATAGRAM_MOTIVE                 0x30
@@ -36,7 +38,7 @@ class Locomotive : public OLCB_Datagram_Handler
  public:
   Locomotive() :available(true), state(LOCOMOTIVE_INITIAL), speed(0), direction(1), verified(true) {}
 
-  void init(void);
+  void reset(void);
   void update(void);
   bool processDatagram(void);
   void datagramResult(bool accepted, uint16_t errorcode);

@@ -1,15 +1,23 @@
 #include "Locomotive.h"
 
-void Locomotive::init(void)
+void Locomotive::reset(void)
 {
   available = true;
   state = LOCOMOTIVE_INITIAL;
   sendAttached = false;
+  verified = false;
+  speed = 0;
+  direction = 1;
+  packetScheduler.setSpeed128(getDCCAddress(), 1);
+  ((OLCB_CAN_Link*)_link)->sendAMR(NID);
+  NID->set(0,0,0,0,0,0); //reset our NID, as it is no longer valid. We assume that our NID was malloc'd by setNID, and is not pointing at the links's NID! A decent assumption, but needs to be stated.
+  throttle.set(0,0,0,0,0,0);
+  _link->removeHandler(this);
 }
 
 void Locomotive::update(void)
 {
-  //handle periodic sending of DCC packet for keep-alive TOD
+  //handle periodic sending of DCC packet for keep-alive
   uint16_t cur_time = millis();
   if((cur_time - timer) > 5000) //5 seconds have passed, time to update!
   {
@@ -17,48 +25,22 @@ void Locomotive::update(void)
     packetScheduler.setSpeed128(getDCCAddress(), speed*direction);
   }
   
-  //see if there is an attached or attachedenied datagram to send
-  if(sendAttached)
-  {
-    OLCB_Datagram d;
-    d.destination.copy(&(_rxDatagramBuffer->source));
-    d.data[0] = DATAGRAM_MOTIVE;
-    d.length = 2;
-    if(available) //if free!
-    {
-      throttle.copy(&(_rxDatagramBuffer->source));
-      available = false;
-      d.data[1] = DATAGRAM_MOTIVE_ATTACHED;
-      state = LOCOMOTIVE_ATTACHING;
-  //    Serial.println("  attaching!");
-    }
-    else //not free!
-    {
-      d.data[1] = DATAGRAM_MOTIVE_ATTACH_DENIED;
-  //    Serial.println("  attach denied!");
-    }
-    if(sendDatagram(&d))
-    {
-      sendAttached = false;
-  //    Serial.println("Datagram away!");
-    }
-  }
   OLCB_Datagram_Handler::update();
 }
 
 bool Locomotive::processDatagram(void)
 {
-//  Serial.println("Got a datagram!");
+//  Serial.println("Locomotive Got a datagram!");
   if(_rxDatagramBuffer->data[0] == DATAGRAM_MOTIVE) //is this a datagram for loco control?
   {
 //    Serial.println("Got a motive datagram!");
     switch(_rxDatagramBuffer->data[1])
     {
     case DATAGRAM_MOTIVE_ATTACH:
-  //    Serial.println("Request attach!");
+//      Serial.println("Request attach!");
       return attachDatagram();
     case DATAGRAM_MOTIVE_RELEASE:
-  //    Serial.println("Request release!");
+//      Serial.println("Request release!");
       return releaseDatagram();
     case DATAGRAM_MOTIVE_SETSPEED:
   //    Serial.println("Request set speed!");
@@ -68,43 +50,64 @@ bool Locomotive::processDatagram(void)
       return setFunctionDatagram();
     }
   }
+//  Serial.println("Datagram not handleable by me");
   return false;
 }
 
 void Locomotive::datagramResult(bool accepted, uint16_t errorcode)
 {
-//   Serial.print("The datagram was ");
-//   if(!accepted)
- //    Serial.print("not ");
-//   Serial.println("accepted.");
-//   if(!accepted)
-//   {
- //    Serial.print("   The reason: ");
- //    Serial.println(errorcode,HEX);
-//  }
   // cases to handle:
-  //  *attached NAKd (make self available) TODO
+  //  *attached NAKd (make self available)
   if(state == LOCOMOTIVE_ATTACHING)
   {
     if(accepted)
     {
   //    Serial.println("Attached request ack'd");
-      state = LOCOMOTIVE_ATTACHED;
+      state = LOCOMOTIVE_INITIAL;
       available = false;
+    }
+    else //the ATTACHED datagram was NAK'd? ReallY? reset.
+    {
+      reset();
+  //    Serial.println("Attached request NOT ack'd, resetting");
+    }
+  }
+  else if(state == LOCOMOTIVE_RELEASING)
+  {
+    if(accepted)
+    {
+       //release!
+//       Serial.println("Released ack'd");
+       reset(); //change nothing else!
     }
     else
     {
-  //    Serial.println("Attached request NOT ack'd, resetting");
-      state = LOCOMOTIVE_INITIAL;
-      available = true;
+//       Serial.println("Released not ack'd!?"); //not even sure what to do in this case. Release anyway?!
+       reset();
     }
   }
 }
 
 bool Locomotive::attachDatagram(void)
 {
-  //Serial.println("Preparing to attach...");
-  sendAttached = true;
+  OLCB_Datagram d;
+  d.destination.copy(&(_rxDatagramBuffer->source));
+  d.length = 2;
+  d.data[0] = DATAGRAM_MOTIVE;
+  //check the source
+  if(available || _rxDatagramBuffer->source == throttle) //if available, or if coming from an already-attached throttle (perhaps it rebooted?)
+  {
+//    Serial.println("Preparing to attach...");
+    throttle.copy(&(_rxDatagramBuffer->source)); //really shouldn't do this until the attached datagram is ACKd
+    d.data[1] = DATAGRAM_MOTIVE_ATTACHED;
+    state = LOCOMOTIVE_ATTACHING; //have to catch the ACK to complete the attachement.
+  }
+  else //not free; send AttachDenied datagram in response.
+  {
+    d.data[1] = DATAGRAM_MOTIVE_ATTACH_DENIED;
+    //don't worry about catching the ACK or NAK.
+  }
+  sendDatagram(&d);
   return true;
 }
 
@@ -112,15 +115,14 @@ bool Locomotive::releaseDatagram(void)
 {
   if(!available && _rxDatagramBuffer->source == throttle)
   {
-//    Serial.println("  releasing!");
+//    Serial.println("  sending released datagram!");
     OLCB_Datagram d;
     d.destination.copy(&(_rxDatagramBuffer->source));
     d.length = 2;
     d.data[0] = DATAGRAM_MOTIVE;
     d.data[1] = DATAGRAM_MOTIVE_RELEASED;
-    sendDatagram(&d); //THIS IS BAD FORM releasing before making sure release is ACK'd. TODO
-    available = true;
-    state = LOCOMOTIVE_INITIAL;
+    sendDatagram(&d); //THIS IS BAD FORM releasing before making sure release is ACK'd. Does it matter, though?
+    state = LOCOMOTIVE_RELEASING;
     return true;
   }
   //Serial.println("  not attached!");
@@ -142,7 +144,7 @@ bool Locomotive::setSpeedDatagram(void)
     packetScheduler.setSpeed128(getDCCAddress(), speed*direction);
     return true;
   }
-  //Serial.println("  not attached!");
+//  Serial.println("  not attached!");
   return false;
 }
 
