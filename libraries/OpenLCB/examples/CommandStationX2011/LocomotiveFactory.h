@@ -2,10 +2,11 @@
 #define __LOCOMOTIVE_FACTORY_H__
 
 #include <OLCB_Datagram_Handler.h>
+//#include <MemoryFree.h>
 #include "Locomotive.h"
 
 #if defined(__AVR_AT90CAN128__) || defined(__AVR_ATMEGA1280__)
-#define NUM_SLOTS 20
+#define NUM_SLOTS 25
 #else
 #define NUM_SLOTS 5
 #endif
@@ -16,7 +17,7 @@ class LocomotiveFactory : public OLCB_Datagram_Handler
   
   bool verifyNID(OLCB_NodeID *nid);
   
-  bool processDatagram(void);
+ // bool processDatagram(void);
   
   void update(void);
   

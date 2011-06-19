@@ -12,7 +12,11 @@
 class OLCB_Datagram_Handler : public OLCB_Handler
 {
  public:
-  OLCB_Datagram_Handler() : OLCB_Handler(), _rxDatagramBufferFree(true), _txDatagramBufferFree(true), _initialized(false), _sentTime(0), _txFlag(false), _loc(0) {}
+  OLCB_Datagram_Handler() : OLCB_Handler(), _rxDatagramBufferFree(true), _txDatagramBufferFree(true), _initialized(false), _sentTime(0), _txFlag(false), _loc(0)
+  {
+    _rxDatagramBuffer = (OLCB_Datagram*)malloc(sizeof(OLCB_Datagram));
+    _txDatagramBuffer = (OLCB_Datagram*)malloc(sizeof(OLCB_Datagram));
+  }
   
   void setLink(OLCB_Link *newLink);
   void setNID(OLCB_NodeID *newNID);

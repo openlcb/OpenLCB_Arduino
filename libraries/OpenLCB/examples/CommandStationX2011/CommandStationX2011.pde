@@ -1,4 +1,6 @@
-// #include <MemoryFree.h>
+//#include <MemoryFree.h>
+
+#define DATAGRAM_LENGTH 5 //5 bytes at most. really.
 
 #include <OLCB_AliasCache.h>
 #include <OLCB_Buffer.h>
@@ -36,6 +38,8 @@ void setup()
   packetScheduler.setup();
   link.initialize();
   factory.setLink((OLCB_Link*)&link);
+//  Serial.println(freeMemory(),DEC);
+//  Serial.println(sizeof(OLCB_Datagram), DEC);
 }
 
 void loop()

@@ -4,8 +4,6 @@
 void OLCB_Datagram_Handler::setLink(OLCB_Link *newLink)
 {
   OLCB_Handler::setLink(newLink);
-  _rxDatagramBuffer = (OLCB_Datagram*)malloc(sizeof(OLCB_Datagram));
-  _txDatagramBuffer = (OLCB_Datagram*)malloc(sizeof(OLCB_Datagram));
   _rxDatagramBuffer->destination.copy(NID);
   _txDatagramBuffer->source.copy(NID);
   _initialized = true;

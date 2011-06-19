@@ -20,9 +20,13 @@ bool LocomotiveFactory::verifyNID(OLCB_NodeID *nid)
       {
 //        Serial.print("    Installing in slot ");
 //        Serial.println(i,DEC);
+//        Serial.println(freeMemory(),DEC);
         _locos[i].setLink(_link);
+//        Serial.println(freeMemory(),DEC);
         _locos[i].setNID(nid);
+//        Serial.println(freeMemory(),DEC);
         _locos[i].verified = false; //just in case
+//        Serial.println(freeMemory(),DEC);
         return false; //what the what? we're actually not yet ready to send out the verifiedNID packet, as we don't yet have an alias.
         //That's up to the virtual node to do on its own!
       }
@@ -55,7 +59,7 @@ void LocomotiveFactory::update(void)
   }
 }
 
-bool LocomotiveFactory::processDatagram(void)
+/* bool LocomotiveFactory::processDatagram(void)
 {
   //The only datagrams we care about are attach requests. We will have received them only if an existing loco hasn't handled it. In which case, we need to create the loco,
   //and assign it the NID from the attach request.
@@ -76,7 +80,7 @@ bool LocomotiveFactory::processDatagram(void)
         _locos[i].setNID(&nid);
         _locos[i].verified = true; //because it should be
         //this is a dirty hack.
-        memcpy(_locos[i]._rxDatagramBuffer, _rxDatagramBuffer, sizeof(OLCB_Datagram));
+        memcpy(&(_locos[i]._rxDatagramBuffer), &_rxDatagramBuffer, sizeof(OLCB_Datagram));
         _locos[i].attachDatagram();
         return true; //we are ACKing with the wrong source NID. Oh well. This should be fixed later, but should be OK for now? I hope? TODO
       }
@@ -90,7 +94,7 @@ bool LocomotiveFactory::processDatagram(void)
     //a method for invalidating aliases.
   }
   return false;
-}
+}*/
 
 
 //TODO NOT ALL REQUESTS COME THROUGH VERIFY IDs!!!! Sometimes they come through plain old Attach requests! This happens when a loco has been released and the is re-attached.

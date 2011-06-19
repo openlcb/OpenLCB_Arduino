@@ -3,7 +3,9 @@
 
 #include "OLCB_NodeID.h"
 
+#ifndef DATAGRAM_LENGTH
 #define DATAGRAM_LENGTH 70
+#endif
 
 // some error messages for datagram rejected response messages
 #define DATAGRAM_REJECTED                        0x000
