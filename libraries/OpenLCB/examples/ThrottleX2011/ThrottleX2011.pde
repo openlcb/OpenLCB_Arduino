@@ -22,7 +22,7 @@ static const byte LCD_WIDTH = 84;
 static const byte LCD_HEIGHT = 48;
 
 PCD8544 global_lcd = PCD8544(8, 9, 10, 12, 11);
-OLCB_NodeID nid(2,1,13,0,0,2);
+OLCB_NodeID nid(5,2,1,2,0,1);
 OLCB_CAN_Link link(&nid);
 
 Throttle *global_throttle;
@@ -54,8 +54,13 @@ void handleKey(unsigned char key)
   interface->ProcessKey(key);
 }
 
+void handleRepeatKey(unsigned char key)
+{
+  interface->ProcessRepeatKey(key);
+}
+
 /***********************************************************************/
-unsigned char key;
+unsigned char key, old_key;
 
 void setup() {
   global_lcd.init();
@@ -87,6 +92,8 @@ void setup() {
   global_state = DISP_LOCO_SELECT;
   interface = &locoSelectDisplay;
 
+  key = old_key = 0;
+
   global_lcd.clear();
   handleDisplay();
 }
@@ -98,7 +105,16 @@ void loop() {
 
   key = IBridge_Read_Key();
   if(key)
-    handleKey(key);
+  {
+    if(key != old_key)
+    {
+      handleKey(key);
+    }
+    else
+    {
+      handleRepeatKey(key);
+    }
+  }
     
 
   //update the state
@@ -107,10 +123,12 @@ void loop() {
   else if(global_state == DISP_LOCO_SELECT)
     interface = &locoSelectDisplay;
 
-  if(key)
+  if(key != old_key)
   {
-    delay(10);
+    delay(20);
   }
+  
+  old_key = key;
 }
 
 

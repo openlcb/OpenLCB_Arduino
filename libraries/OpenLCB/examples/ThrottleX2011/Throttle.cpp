@@ -8,7 +8,7 @@ void Throttle::init(void)
   _speed = 0;
   _direction = FORWARD;
   for(int i = 0; i < NUM_FUNCS; ++i)
-    _functions[i] = !i; //start with only headlights on
+    _functions[i] = 0;
   _address = 0; //no address
   _attached = false;
   _set_function = false;
@@ -131,10 +131,6 @@ void Throttle::datagramResult(bool accepted, uint16_t errorcode)
     if(!accepted)
     {
       _state = IDLE; //force another go. TODO make this more nuanced, so it will give up!
-      _speed = _new_speed = 0;
-      _direction = _new_direction = FORWARD;
-      for(int i = 0; i < NUM_FUNCS; ++i)
-        _functions[i] = !i; //start with only headlights on
     }
   }
 }
@@ -152,7 +148,14 @@ bool Throttle::processDatagram(void)
       _state = IDLE;
       _attached = true;
       _address = _new_address;
-//      Serial.println("ACKing");
+      _speed = _new_speed = 0;
+      _direction = _new_direction = FORWARD;
+      for(int i = 0; i < NUM_FUNCS; ++i)
+        _functions[i] = 0; //start with only headlights on
+      _new_function_ID = 0;
+      _new_function_val = true;
+      _set_function = true; //get those headlights going!
+//      Serial.println("ACKing");    
       return true;
 //    }
   }

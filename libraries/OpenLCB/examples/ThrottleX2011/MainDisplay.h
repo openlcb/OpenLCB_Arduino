@@ -11,6 +11,7 @@ class MainDisplay : public Interface
   void DisplayMenu(void);
   void ProcessKey(unsigned short key);
   void ProcessMenuKey(unsigned short key);
+  void ProcessRepeatKey(unsigned short key);
 };
 
 #endif

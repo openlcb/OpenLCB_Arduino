@@ -3,17 +3,19 @@
 
 void LocoSelectDisplay::DisplayMenu(void)
 {
+    global_lcd.fillrect(0, 39, 84, 9, 1);
     for(int i = 0; i < 3; ++i)
     {
       if(_locos[i].hasAddress()) //if it's been assigned
       {
-        global_lcd.drawstring(i*30,5,"     ");
-        global_lcd.drawstring(i*30,5,String(_locos[i].getAddress(),DEC));
+        global_lcd.drawstringinverse(i*30,5,"     ");
+        global_lcd.drawstringinverse(i*30,5,String(_locos[i].getAddress(),DEC));
       }
       else
       {
-        global_lcd.drawstring(i*30,5,"---- ");
+        global_lcd.drawstringinverse(i*30,5,"---- ");
       }
+      global_lcd.drawline(i*30+26, 48, i*30+26, 40, 0);
     }
 }
 
@@ -78,7 +80,6 @@ void LocoSelectDisplay::ProcessKey(unsigned short key)
       global_lcd.clear();
       global_state = DISP_MAIN;
       //Serial.clear();
-      delay(10);
       return;
     case 2:
       break;
@@ -122,6 +123,4 @@ void LocoSelectDisplay::ProcessKey(unsigned short key)
     _address += val;
     //Serial.println(_address);
   }
-
-  delay(100);
 }

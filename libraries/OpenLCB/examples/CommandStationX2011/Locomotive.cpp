@@ -8,7 +8,7 @@ void Locomotive::reset(void)
   verified = false;
   speed = 0;
   direction = 1;
-  packetScheduler.setSpeed128(getDCCAddress(), 1);
+  packetScheduler.setSpeed(getDCCAddress(), 1);
   ((OLCB_CAN_Link*)_link)->sendAMR(NID);
   NID->set(0,0,0,0,0,0); //reset our NID, as it is no longer valid. We assume that our NID was malloc'd by setNID, and is not pointing at the links's NID! A decent assumption, but needs to be stated.
   throttle.set(0,0,0,0,0,0);

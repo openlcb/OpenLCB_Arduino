@@ -154,12 +154,70 @@ void PCD8544::drawstring_P(uint8_t x, uint8_t line, const char *str) {
   }
 }
 
+void PCD8544::drawstringinverse(uint8_t x, uint8_t line, char *c) {
+  while (c[0] != 0) {
+    drawcharinverse(x, line, c[0]);
+    c++;
+    x += 6; // 6 pixels wide
+    if (x + 6 > LCDWIDTH) {
+      x = 0;    // ran out of this line
+      line++;
+    }
+    if (line >= (LCDHEIGHT/8))
+      return;        // ran out of space :(
+  }
+}
+
+void PCD8544::drawstringinverse(uint8_t x, uint8_t line, String str) {
+  for(uint8_t i = 0; i < str.length(); ++i)
+  {
+    drawcharinverse(x, line, str[i]);
+    x += 6; // 6 pixels wide
+    if (x + 6 > LCDWIDTH) {
+      x = 0;    // ran out of this line
+      line++;
+    }
+    if (line >= (LCDHEIGHT/8))
+      return;        // ran out of space :(
+  }
+}
+
+
+
+void PCD8544::drawstringinverse_P(uint8_t x, uint8_t line, const char *str) {
+  while (1) {
+    char c = pgm_read_byte(str++);
+    if (! c)
+      return;
+    drawcharinverse(x, line, c);
+    x += 6; // 6 pixels wide
+    if (x + 6 > LCDWIDTH) {
+      x = 0;    // ran out of this line
+      line++;
+    }
+    if (line >= (LCDHEIGHT/8))
+      return;        // ran out of space :(
+  }
+}
+
 void  PCD8544::drawchar(uint8_t x, uint8_t line, char c) {
   if (line >= LCDHEIGHT/8) return;
   if ((x+5) >= LCDWIDTH) return;
 
   for (uint8_t i =0; i<5; i++ ) {
     pcd8544_buffer[x + (line*LCDWIDTH) ] = pgm_read_byte(font+(c*5)+i);
+    x++;
+  }
+
+  updateBoundingBox(x, line*8, x+5, line*8 + 8);
+}
+
+void  PCD8544::drawcharinverse(uint8_t x, uint8_t line, char c) {
+  if (line >= LCDHEIGHT/8) return;
+  if ((x+5) >= LCDWIDTH) return;
+
+  for (uint8_t i =0; i<5; i++ ) {
+    pcd8544_buffer[x + (line*LCDWIDTH) ] = (pgm_read_byte(font+(c*5)+i)^0xFF);
     x++;
   }
 

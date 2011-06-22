@@ -28,7 +28,7 @@
 DCCPacketScheduler packetScheduler;
 LocomotiveFactory factory;
 
-OLCB_NodeID nid(2,1,13,0,0,23);
+OLCB_NodeID nid(5,2,1,2,0,0);
 OLCB_CAN_Link link(&nid);
 
 void setup()

@@ -84,9 +84,15 @@ void setContrast(uint8_t val);
 		uint8_t color);
   
   void drawchar(uint8_t x, uint8_t line, char c);
+  void drawcharinverse(uint8_t x, uint8_t line, char c);
+
   void drawstring(uint8_t x, uint8_t line, char *c);
   void drawstring(uint8_t x, uint8_t line, String str);
   void drawstring_P(uint8_t x, uint8_t line, const char *c);
+  void drawstringinverse(uint8_t x, uint8_t line, char *c);
+  void drawstringinverse(uint8_t x, uint8_t line, String str);
+  void drawstringinverse_P(uint8_t x, uint8_t line, const char *c);
+
   void drawbitmap(uint8_t x, uint8_t y, 
 		  const uint8_t *bitmap, uint8_t w, uint8_t h,
 		  uint8_t color);

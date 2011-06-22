@@ -10,6 +10,7 @@ class Interface
   virtual void DisplayMenu(void) {}
   virtual void ProcessKey(unsigned short key) {}
   virtual void ProcessMenuKey(unsigned short key) {}
+  virtual void ProcessRepeatKey(unsigned short key) {}
 };
 
 #endif
