@@ -95,11 +95,11 @@ void setup()
 //  Serial.begin(115200);
 //  Serial.println("Hello world!");
 //  delay(50);
-  packetScheduler.setup();
   link.initialize();
   factory.setLink((OLCB_Link*)&link);
 //  Serial.println(freeMemory(),DEC);
 //  Serial.println(sizeof(OLCB_Datagram), DEC);
+  packetScheduler.setup();
 }
 
 void loop()
