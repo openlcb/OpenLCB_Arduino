@@ -163,7 +163,7 @@ void Throttle::datagramResult(bool accepted, uint16_t errorcode)
     {
       //reset
       _state = IDLE;
-      //_attached = false;
+      _attached = false;
       _address = 0;
     }
     else
@@ -265,5 +265,6 @@ void Throttle::release(void)
   _dg.length = 2;
   _state = RELEASING; //This is to force the throttle to wait for a "Released" datagram;
   _attached = false;
+  _new_address = 0; //to avoid thinking that we're going to attach to something when we're not!
   sendDatagram(&_dg);
 }
