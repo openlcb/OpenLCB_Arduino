@@ -1,3 +1,25 @@
+/***************************************************************************************
+ThrottleX2011
+A demonstration of a very basic OpenLCB throttle.
+Copyright (C)2011 D.E. Goodman-Wilson
+
+This file is part of ThrottleX2011.
+
+    ThrottleX2011 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with ThrottleX2011.  If not, see <http://www.gnu.org/licenses/>.
+    
+***************************************************************************************/
+
 #include "Globals.h"
 #include "LocoSelectDisplay.h"
 
@@ -11,6 +33,10 @@ void LocoSelectDisplay::DisplayMenu(void)
         global_lcd.drawstringinverse(i*30,5,"     ");
         global_lcd.drawstringinverse(i*30,5,String(_locos[i].getAddress(),DEC));
       }
+      else if(_locos[i].isAttaching())
+      {
+        global_lcd.drawstringinverse(i*30,5,".... ");
+      }
       else
       {
         global_lcd.drawstringinverse(i*30,5,"---- ");
@@ -21,8 +47,9 @@ void LocoSelectDisplay::DisplayMenu(void)
 
 void LocoSelectDisplay::ProcessMenuKey(unsigned short key)
 {
-  //Two possibilities: If address = 0, the user didn't enter an address. Use the address already assigned to the menu key
-  //If address != 0 the user did enter an address. Assign that address to the selected menu key.
+  //Three possibilities: If address = 0, the user didn't enter an address. Use the address already assigned to the menu key
+  //If address > 0 the user did enter an address. Assign that address to the selected menu key.
+  //if address < 0 the user wants to release the specified loco only.
   unsigned short i = 0;
   if(key == 16)
     i = 0;
@@ -32,38 +59,57 @@ void LocoSelectDisplay::ProcessMenuKey(unsigned short key)
     i = 2;
   else //error!
     return;
-  if(_address && (_address < 10000)) //an address was entered
+  if((_address > 0) && (_address < 10000)) //an address was entered
   {
 //    Serial.print("Got a new address: ");
 //    Serial.println(_address,DEC);
     _locos[i].setAddress(_address);
+    _address = 0;
+    global_throttle = &_locos[i];
+    //go to main screen
+    global_lcd.clear();
+    global_state = DISP_MAIN;
   }
-  else //no address was entered
+  else if(_address == 0)//no address was entered
   {
 //    Serial.println("no address entered!");
-    if(!_locos[i].hasAddress()) //nothing is in this slot
+    if(!_locos[i].hasAddress() && !_locos[i].isAttaching()) //nothing is in this slot
     {
       return;
     }
+    _address = 0;
+    global_throttle = &_locos[i];
+    //go to main screen
+    global_lcd.clear();
+    global_state = DISP_MAIN;
   }
-  _address = 0;
-  global_throttle = &_locos[i];
-  //go to main screen
-  global_lcd.clear();
-  global_state = DISP_MAIN;
-  //clear screen
-  //Serial.clear();
+  else if(_address < 0) //release request
+  {
+    if(!_locos[i].hasAddress())
+    {
+       return;
+    }
+    _locos[i].release();
+    _address = 0;
+  }
+  
   delay(50);
 }
 
 void LocoSelectDisplay::Display(void)
 {
-//   Serial.setCursor(1, 1);
-   global_lcd.drawstring(6,1,"Address: ");
-//   Serial.setCursor(6, 2);
-   String add(_address, DEC);
-   global_lcd.drawstring(12,2,add);
-   global_lcd.drawstring(12+(6*add.length()), 2, "    ");
+  if(_address >= 0)
+  {
+     global_lcd.drawstring(6,1,"Address: ");
+     String add(_address, DEC);
+     global_lcd.drawstring(12,2,add);
+     global_lcd.drawstring(12+(6*add.length()), 2, "    ");
+  }
+  else //releasing
+  {
+      global_lcd.drawstring(6,1,"Release?");
+      global_lcd.drawstring(6,2,"         ");
+  }
 }
 
 void LocoSelectDisplay::ProcessKey(unsigned short key)
@@ -75,10 +121,8 @@ void LocoSelectDisplay::ProcessKey(unsigned short key)
       _address = (unsigned short)(_address / 10); //back it up! Does this do integer division correctly?
       //Serial.println(_address);
       break;
-    case 4: //cancel
-      _address = 0;
-      global_lcd.clear();
-      global_state = DISP_MAIN;
+    case 4: //release loco
+      _address = -99; //flag to release loco only.
       //Serial.clear();
       return;
     case 2:
@@ -119,8 +163,15 @@ void LocoSelectDisplay::ProcessKey(unsigned short key)
   //Figure out what to do with it.
   if((val != 99) && (_address*10 < 10000)) //if a numeric key was pressed
   {
-    _address *= 10;
-    _address += val;
+    if(_address == -99)
+    {
+       _address = val;
+    }
+    else
+    {
+      _address *= 10;
+      _address += val;
+    }
     //Serial.println(_address);
   }
 }

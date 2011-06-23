@@ -1,7 +1,26 @@
-#include "Throttle.h"
+/***************************************************************************************
+ThrottleX2011
+A demonstration of a very basic OpenLCB throttle.
+Copyright (C)2011 D.E. Goodman-Wilson
+
+This file is part of ThrottleX2011.
+
+    ThrottleX2011 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with ThrottleX2011.  If not, see <http://www.gnu.org/licenses/>.
+    
+***************************************************************************************/
 
 #include "Throttle.h"
-
 
 void Throttle::init(void)
 {
@@ -20,12 +39,12 @@ void Throttle::update(void)
   //to a loco. Give it another go.
   if(_new_address && !_attached && (_state==IDLE))
   {
-//    Serial.print("Attempting to attach to address ");
-//    Serial.println(_new_address,DEC);
+    Serial.print("Attempting to attach to address ");
+    Serial.println(_new_address,DEC);
     _dg.data[0] = DATAGRAM_MOTIVE;
     _dg.data[1] = DATAGRAM_MOTIVE_ATTACH; //attach
     _dg.length = 2;
-//    Serial.println("Making state ATTACHING in update()");
+    Serial.println("Making state ATTACHING in update()");
     _state = ATTACHING;
     sendDatagram(&_dg);
   }
@@ -130,7 +149,27 @@ void Throttle::datagramResult(bool accepted, uint16_t errorcode)
   {
     if(!accepted)
     {
-      _state = IDLE; //force another go. TODO make this more nuanced, so it will give up!
+      //reset
+      _state = IDLE;
+      _attached = false;
+      _address = 0; 
+      _new_address = 0;
+    }
+  }
+  
+  else if (_state == RELEASING)
+  {
+    if(accepted)
+    {
+      //reset
+      _state = IDLE;
+      //_attached = false;
+      _address = 0;
+    }
+    else
+    {
+      //keep trying!
+      release();
     }
   }
 }
@@ -143,7 +182,7 @@ bool Throttle::processDatagram(void)
 //    Serial.print(" from ");
 //    Serial.println(_rxDatagramBuffer->source.alias, DEC);
 //    Serial.println((_rxDatagramBuffer->source.val[4] << 8) & (_rxDatagramBuffer->source.val[4]), DEC);
-//    if(_new_address == (_rxDatagramBuffer->source.val[4] << 8) & (_rxDatagramBuffer->source.val[4])) //TODO WIll this cause problems?
+//    if(_new_address == (_rxDatagramBuffer->source.val[4] << 8) & (_rxDatagramBuffer->source.val[4])) //TODO WIll this cause problems? Ans: YES because source only contains an alias on CAN
 //    {
       _state = IDLE;
       _attached = true;
@@ -163,7 +202,18 @@ bool Throttle::processDatagram(void)
   {
 //    Serial.println("Recevied Datagram RELEASED");
     _state = IDLE;
+    _address = 0;
+    //don't touch _new_address, as it might have something important in it!!!
+    _attached = false;
     return true; //whatever, just ACK it.
+  }
+  
+  else if((_rxDatagramBuffer->data[0] == DATAGRAM_MOTIVE) && (_rxDatagramBuffer->data[1] == DATAGRAM_MOTIVE_ATTACH_DENIED))
+  {
+    _state = IDLE;
+    _address = _new_address = 0; 
+    _attached = false;
+    return true;
   }
 
 //  Serial.println("NAKing datagram:");
@@ -193,13 +243,7 @@ void Throttle::setAddress(unsigned int address)
   //first, if address!=0, release existing locomotive
   if(_address)
   {
-//    Serial.print("Releasing address ");
-//    Serial.println(_address,DEC);
-    _dg.data[0] = DATAGRAM_MOTIVE;
-    _dg.data[1] = DATAGRAM_MOTIVE_RELEASE; //set function
-    _dg.length = 2;
-    _state = RELEASING; //This is to force the throttle to wait for a "Released" datagram;
-    sendDatagram(&_dg);
+    release();
   }
   else
   {
@@ -211,6 +255,15 @@ void Throttle::setAddress(unsigned int address)
   _address = 0; //not yet!
     //now, set new address
 //    _state = IDLE; //not really, but this will do.
-  _attached = false;
   _dg.destination.set(6,1,0,0,(_new_address&0xFF00) >> 8,(_new_address&0x00FF)); //set the locomotive as the destination address for future comms...
+}
+
+void Throttle::release(void)
+{
+  _dg.data[0] = DATAGRAM_MOTIVE;
+  _dg.data[1] = DATAGRAM_MOTIVE_RELEASE; //set function
+  _dg.length = 2;
+  _state = RELEASING; //This is to force the throttle to wait for a "Released" datagram;
+  _attached = false;
+  sendDatagram(&_dg);
 }

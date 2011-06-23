@@ -1,3 +1,25 @@
+/***************************************************************************************
+ThrottleX2011
+A demonstration of a very basic OpenLCB throttle.
+Copyright (C)2011 D.E. Goodman-Wilson
+
+This file is part of ThrottleX2011.
+
+    ThrottleX2011 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with ThrottleX2011.  If not, see <http://www.gnu.org/licenses/>.
+    
+***************************************************************************************/
+
 #include "Globals.h"
 #include "MainDisplay.h"
 
@@ -25,20 +47,23 @@ void MainDisplay::Display(void)
   // Print the loco
 //  Serial.setCursor(0, 0);
   
-  if(!global_throttle->isAttached())
+  if(!global_throttle->isAttached()) //if the throttle has not attached to a loco, then it is either attaching, or has failed to attach.
   {
-    global_lcd.drawstring(0, 1, "Connecting...");
-    return;
-  }
-  else if(!global_throttle->hasAddress())
-  {
-    global_lcd.drawstring(0, 1, "No loco.");
+    global_lcd.clear();
+    if(global_throttle->isAttaching())
+    {
+      global_lcd.drawstring(0, 1, "Attaching...");
+    }
+    else
+    {
+      global_lcd.drawstring(0, 1, "Attach Failed");
+    }
     return;
   }
 
   // Print the address
-  global_lcd.drawstring(0, 0, "Loco ");
-  global_lcd.drawstring(30, 0, String(global_throttle->getAddress(), DEC));
+  global_lcd.drawstring(0, 0, "Train: ");
+  global_lcd.drawstring(40, 0, String(global_throttle->getAddress(), DEC));
   
   // Print the speed
   //Serial.setCursor(0, 1);
@@ -49,19 +74,19 @@ void MainDisplay::Display(void)
     dir = '<';
   if(speed == 100)
   {
-    global_lcd.drawstring(37,1," ");
-    global_lcd.drawchar(38,1,dir);
+    global_lcd.drawstring(30,1," ");
+    global_lcd.drawchar(36,1,dir);
     global_lcd.drawstring(42,1,String(speed, DEC));
   }
   else if(speed >= 10)
   {
-    global_lcd.drawstring(37,1,"  ");
+    global_lcd.drawstring(36,1,"  ");
     global_lcd.drawchar(42,1,dir);
     global_lcd.drawstring(48,1,String(speed, DEC));
   }
   else
   {
-    global_lcd.drawstring(37,1,"   ");
+    global_lcd.drawstring(36,1,"   ");
     global_lcd.drawchar(48,1,dir);
     global_lcd.drawstring(54,1,String(speed, DEC));
   }

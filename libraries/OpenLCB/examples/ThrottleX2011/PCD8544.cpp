@@ -1,27 +1,31 @@
-/*
-$Id:$
+/***************************************************************************************
+ThrottleX2011
+A demonstration of a very basic OpenLCB throttle.
+Copyright (C)2010 Limor Fried, Adafruit Industries, 2011 D.E. Goodman-Wilson
 
-PCD8544 LCD library!
+This file is part of ThrottleX2011.
 
-Copyright (C) 2010 Limor Fried, Adafruit Industries
+    ThrottleX2011 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with ThrottleX2011.  If not, see <http://www.gnu.org/licenses/>.
+    
+----------------
 
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+This file is based on the PCD8554 library by Limor Fried, available here:
+https://github.com/adafruit/PCD8544-Nokia-5110-LCD-library/
+    
+***************************************************************************************/
 
-*/
 
-//#include <Wire.h>
 #include <avr/pgmspace.h>
 #include <WProgram.h>
 #include <util/delay.h>
