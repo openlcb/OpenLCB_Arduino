@@ -209,12 +209,16 @@
     //nid->val[5] = data[5];
   }
   
-  bool OpenLcbCanBuffer::isVerifyNID() {
+  bool OpenLcbCanBuffer::isVerifyNIDglobal() {
       return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFY_NID);
   }
 
-  bool OpenLcbCanBuffer::isVerifyNIDglobal() {
-      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFY_NID_GLOBAL);
+  bool OpenLcbCanBuffer::isVerifyNID() {
+      if (nodeAlias =! getVariableField()) return false;
+      if (getOpenLcbFormat() != MTI_FORMAT_ADDRESSED_NON_DATAGRAM) return false;
+      if (length == 0) return false;
+      if (data[0] != MTI_VERIFY_NID_GLOBAL) return false;
+      return true;
   }
 
   void OpenLcbCanBuffer::setVerifiedNID(NodeID* nid) {
