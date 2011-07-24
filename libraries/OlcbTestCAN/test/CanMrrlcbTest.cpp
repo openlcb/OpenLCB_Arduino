@@ -149,15 +149,15 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue Verify Node addressed\n");
-	b.id = 0x180AF00F;
-	b.length = (uint8_t)6;
-	b.data[0]=2; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
+	b.id = 0x1E57300f;
+	b.length = (uint8_t)1;
+	b.data[0]=0x0A;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
 
 	printf("queue Verify Node global\n");
-	b.id = 0x180A000F;
+	b.id = 0x180A700F;
 	b.length = (uint8_t)0;
 	queueTestMessage(&b);
 	doLoop(100);
@@ -204,7 +204,7 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue Request Events, expect 4 replies\n");
-	b.id = 0x182BF00F;
+	b.id = 0x182B700F;
 	b.length = (uint8_t)6;
 	b.data[0]=2; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
 	queueTestMessage(&b);
@@ -212,7 +212,7 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue Request Events, no reply\n");
-	b.id = 0x182BF00F;
+	b.id = 0x182B700F;
 	b.length = (uint8_t)6;
 	b.data[0]=25; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
 	queueTestMessage(&b);
@@ -257,7 +257,7 @@ int main( int argc, const char* argv[] )
 	queueTestMessage(&b);
 	doLoop(20);
 	printf("queue Request Events, expect 2nd changed\n");
-	b.id = 0x182BF00F;
+	b.id = 0x182B700F;
 	b.length = (uint8_t)6;
 	b.data[0]=2; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
 	queueTestMessage(&b);
