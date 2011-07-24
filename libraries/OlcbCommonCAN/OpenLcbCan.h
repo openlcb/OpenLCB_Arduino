@@ -15,31 +15,41 @@
 
 
 /**
- * Basic header MTI definitions for OpenLCB on CAN.
+ * Basic 12-bit header MTI definitions for OpenLCB on CAN.
  * See the MtiAllocations.ods document for allocations.
+ *
+ * Note: This is just the low 12 bits, and does not include
+ * 0-7 format MTI format field just above this.
  */
  
-#define MTI_INITIALIZATION_COMPLETE     0x08F
+#define MTI_INITIALIZATION_COMPLETE     0x087
 
-#define MTI_VERIFY_NID                  0x0AF
-#define MTI_VERIFY_NID_GLOBAL           0x0A0
-#define MTI_VERIFIED_NID                0x0BF
+#define MTI_VERIFY_NID                  0x0A7
+#define MTI_VERIFIED_NID                0x0B7
 
 #define MTI_IDENTIFY_CONSUMERS          0x24F
 #define MTI_IDENTIFY_CONSUMERS_RANGE    0x25F
-#define MTI_CONSUMER_IDENTIFIED         0x26F
+#define MTI_CONSUMER_IDENTIFIED         0x26B
 
 #define MTI_IDENTIFY_PRODUCERS          0x28F
 #define MTI_IDENTIFY_PRODUCERS_RANGE    0x29F
-#define MTI_PRODUCER_IDENTIFIED         0x2AF
+#define MTI_PRODUCER_IDENTIFIED         0x2AB
 
-#define MTI_IDENTIFY_EVENTS             0x2BF
+#define MTI_IDENTIFY_EVENTS             0x2B7
 
 #define MTI_LEARN_EVENT                 0x2CF
 #define MTI_PC_EVENT_REPORT             0x2DF
 
-#define MTI_DATAGRAM_RCV_OK             0x4CF
-#define MTI_DATAGRAM_REJECTED           0x4DF
+/**
+ * baseic 8-bit Message Type byte values (from data[0])
+ * for addressed messages.
+ */
 
+#define MTI_VERIFY_NID_GLOBAL           0x0A
+
+#define MTI_IDENTIFY_EVENTS_GLOBAL      0x2B
+
+#define MTI_DATAGRAM_RCV_OK             0x4C
+#define MTI_DATAGRAM_REJECTED           0x4D
 
 #endif
