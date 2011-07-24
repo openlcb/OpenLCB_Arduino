@@ -18,12 +18,12 @@ all: clean compile lib bin
 
 # run all tests
 run: all
-	$(OBJDIR)/test/CanMrrlcbTest | diff - test/results/CanMrrlcbTest.out.txt || echo CanMrrlcbTest failed
-	$(OBJDIR)/test/StreamTest | diff - test/results/StreamTest.out.txt || echo StreamTest failed 
-	$(OBJDIR)/test/DatagramTest | diff - test/results/DatagramTest.out.txt || echo DatagramTest failed
-	$(OBJDIR)/test/NodeMemoryTest | diff - test/results/NodeMemoryTest.out.txt || echo NodeMemoryTest failed
-	$(OBJDIR)/test/ConfigurationTest | diff - test/results/ConfigurationTest.out.txt || echo ConfigurationTest failed
-	$(OBJDIR)/test/PrngTest | diff - test/results/PrngTest.out.txt || echo PrngTest failed
+	$(OBJDIR)/test/CanMrrlcbTest | diff - test/results/CanMrrlcbTest.out.txt || echo CanMrrlcbTest failed 1>&2
+	$(OBJDIR)/test/StreamTest | diff - test/results/StreamTest.out.txt || echo StreamTest failed  1>&2
+	$(OBJDIR)/test/DatagramTest | diff - test/results/DatagramTest.out.txt || echo DatagramTest failed 1>&2
+	$(OBJDIR)/test/NodeMemoryTest | diff - test/results/NodeMemoryTest.out.txt || echo NodeMemoryTest failed 1>&2
+	$(OBJDIR)/test/ConfigurationTest | diff - test/results/ConfigurationTest.out.txt || echo ConfigurationTest failed 1>&2
+	$(OBJDIR)/test/PrngTest | diff - test/results/PrngTest.out.txt || echo PrngTest failed 1>&2
 
 # reset the comparison files. Use only if sure new results correct! Commented out to avoid mistakes
 #reset: 
