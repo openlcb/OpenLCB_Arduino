@@ -147,17 +147,12 @@ void LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
      }
    }
    // see if this is a Verify request to us; first check type
-   if (rcv->isVerifyNID()) {
-     // check address
-     NodeID n;
-     rcv->getNodeID(&n);
-     if (n.equals(nid)) {
-       // reply; should be threaded, but isn't
-       txBuffer->setVerifiedNID(nid);
-       OpenLcb_can_queue_xmt_wait(txBuffer);
-     }
-   } else if (rcv->isVerifyNIDglobal()) {
-     // reply to global request
+   if (rcv->isVerifyNIDglobal()) {
+     // reply; should be threaded, but isn't
+     txBuffer->setVerifiedNID(nid);
+     OpenLcb_can_queue_xmt_wait(txBuffer);
+   } else if (rcv->isVerifyNID()) {
+     // This was addressed to you.
      // ToDo: This should be threaded
      txBuffer->setVerifiedNID(nid);
      OpenLcb_can_queue_xmt_wait(txBuffer);
