@@ -115,6 +115,7 @@ int Configuration::decodeSpace(uint8_t* data) {
     return val;
 }
 
+// length is the datagram data length
 void Configuration::processRead(uint8_t* data, int length) {
     // see if we can get datagram buffer to reply
     uint8_t* d = dg->getTransmitBuffer();
@@ -135,12 +136,13 @@ void Configuration::processRead(uint8_t* data, int length) {
     dg->sendTransmitBuffer(6+len, from);
 }
 
+// length is the datagram data length
 void Configuration::processWrite(uint8_t* data, int length) {
     // will reply, mark as done.
     request = false;
     uint32_t address = getAddress(data);
     int space = decodeSpace(data);
-    for (int i=0; i<length; i++) {
+    for (int i=0; i<length-6; i++) {
         getWrite(address+i, space, data[i+6]);
     }
 }
