@@ -167,7 +167,7 @@ void Configuration::processCmd(uint8_t* data, int length) {
             // will handle, mark as done.
             request = false;
             // will reply, mark as done.
-            d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_CONFIG_REPLY;
+            d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_ADD_SPACE_INFO_REPLY;
             d[2]=0x03;d[3]=0x01;d[4]=0x38;d[5]=0x00;d[6]=0x00;
             dg->sendTransmitBuffer(7, from);
             break;
