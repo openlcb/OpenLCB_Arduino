@@ -4,12 +4,12 @@
 #include <can.h>
 #include <stdint.h>
 #include "OLCB_Event.h"
-#include "OLCB_Handler.h"
+#include "OLCB_Virtual_Node.h"
 #include "OLCB_Datagram.h"
 #include "OLCB_Stream.h"
 #include "OLCB_NodeID.h"
 
-class OLCB_Handler;
+class OLCB_Virtual_Node;
 
 /* An abstract base class representing a physical link to the outside world */
 
@@ -21,8 +21,8 @@ class OLCB_Link
   virtual bool initialize(void) {return false;} //called once, returns true if init succeeded.
     
   virtual void update(void); //called repeatedly  
-  void addHandler(OLCB_Handler *handler);
-  void removeHandler(OLCB_Handler *handler);
+  void addHandler(OLCB_Virtual_Node *handler);
+  void removeHandler(OLCB_Virtual_Node *handler);
   
   virtual bool addVNode(OLCB_NodeID *NID) {return true;}
   
@@ -39,7 +39,7 @@ class OLCB_Link
   OLCB_NodeID* getNodeID(void) {return _nodeID;}
   
  protected:
-  OLCB_Handler* _handlers;
+  OLCB_Virtual_Node* _handlers;
   OLCB_NodeID* _nodeID;
 };
 

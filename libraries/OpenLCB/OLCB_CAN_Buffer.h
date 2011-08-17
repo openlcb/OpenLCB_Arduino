@@ -45,7 +45,7 @@
 #define MTI_DATAGRAM_RCV_OK             0x4CF
 #define MTI_DATAGRAM_REJECTED           0x4DF
 
-#define RIM_VAR_FIELD 0x0700
+#define RID_VAR_FIELD 0x0700
 #define AMR_VAR_FIELD 0x0703
 
 // for definiton, see
@@ -70,7 +70,7 @@
 #define SHIFT_OPENLCB_FORMAT 12
 
 
-//TODO: REFACTOR INTO BASE CLASS OLCB_Buffer AND DERIVED CLASS OLCB_Buffer!!!
+//TODO: REFACTOR INTO BASE CLASS OLCB_CAN_Buffer AND DERIVED CLASS OLCB_CAN_Buffer!!!
 
 /**
  * Originally OpenLcbCanBuffer, name changed to reflect fork of original codebase.
@@ -80,7 +80,7 @@
  * We're trying to localize the formating of frames to/from the node here,
  * so that only this class needs to change when/if the wire protocol changes.
  */
- class OLCB_Buffer : public tCAN {
+ class OLCB_CAN_Buffer : public tCAN {
   public: 
   
   // Initialize a buffer for transmission
@@ -106,11 +106,11 @@
   
   // start of CAN-level messages
   
-  void setCIM(int i, uint16_t testval, uint16_t alias);
-  bool isCIM();
+  void setCID(int i, uint16_t testval, uint16_t alias);
+  bool isCID();
   
-  void setRIM(uint16_t alias);
-  bool isRIM();
+  void setRID(uint16_t alias);
+  bool isRID();
   
   void setAMR(uint16_t alias);
   bool isAMR(void);
@@ -134,7 +134,7 @@
   
   // start of OpenLCB messages
   
-  void setInitializationComplete(uint16_t alias, OLCB_NodeID* nid);
+  void setInitializationComplete(OLCB_NodeID* nid);
   bool isInitializationComplete();
 
   void setPCEventReport(OLCB_EventID* eid);
@@ -185,7 +185,7 @@
   // service routine to copy content (0-7) to a previously-allocated Eid
   void loadFromEid(OLCB_EventID* eid);
   
-  //TO BE MADE USE OF LATER. belong in OLCB_Buffer.
+  //TO BE MADE USE OF LATER. belong in OLCB_CAN_Buffer.
   OLCB_NodeID _source;
   OLCB_NodeID _destination;
 };

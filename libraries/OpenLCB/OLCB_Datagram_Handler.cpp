@@ -3,7 +3,7 @@
 
 void OLCB_Datagram_Handler::setLink(OLCB_Link *newLink)
 {
-  OLCB_Handler::setLink(newLink);
+  OLCB_Virtual_Node::setLink(newLink);
   _rxDatagramBuffer->destination.copy(NID);
   _txDatagramBuffer->source.copy(NID);
   _initialized = true;
@@ -11,7 +11,7 @@ void OLCB_Datagram_Handler::setLink(OLCB_Link *newLink)
   
 void OLCB_Datagram_Handler::setNID(OLCB_NodeID *newNID)
 {
-  OLCB_Handler::setNID(newNID);
+  OLCB_Virtual_Node::setNID(newNID);
   _rxDatagramBuffer->destination.copy(NID);
   _txDatagramBuffer->source.copy(NID);
   _initialized = _link->addVNode(NID);
@@ -189,7 +189,7 @@ bool OLCB_Datagram_Handler::handleFrame(OLCB_Buffer *frame)
 
 void OLCB_Datagram_Handler::update(void)
 {
-//  OLCB_Handler::update();
+//  OLCB_Virtual_Node::update();
   if(_link && !_initialized) //we haven't successfully registered a vnode yet!
   {
     _initialized = _link->addVNode(NID);

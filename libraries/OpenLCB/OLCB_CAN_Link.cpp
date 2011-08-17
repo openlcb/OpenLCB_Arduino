@@ -8,124 +8,64 @@
 // Based on check(), etc
 bool OLCB_CAN_Link::initialize(void)
 {
-	if(!can_init(BITRATE_125_KBPS))
-	{
-		return false;
-	}
-	
-	//Negotiate the alias for this Node's real ID.
-	if(!negotiateAlias(_nodeID))
-	{
-//	  Serial.println("Couldn't initiate alias negotiation!");
-	  return false;
-	}
-	while(!negotiateAlias(0))
-	{
-	  //check to see if any new messages require handling
-    if(can_get_message(&rxBuffer))
+    if(!can_init(BITRATE_125_KBPS))
     {
-  	  handleTransportLevel();
-  	}
-  }
+        return false;
+    }
+    
+    _aliasHelper.initialize(this);
+    _translationCache.initialize(10);
+    
+    //Negotiate the alias for this Node's real ID.
+    if(!_aliasHelper.allocateAlias(_nodeID))
+    {
+//      Serial.println("Couldn't initiate alias negotiation!");
+      return false;
+    }
+
+    //check to see if any new messages require handling
+//    if(can_get_message(&rxBuffer))
+//    {
+//        handleTransportLevel();
+//      }
+//  }
   return true;
 }
 
-bool OLCB_CAN_Link::negotiateAlias(OLCB_NodeID *nid)
-{
-//  Serial.println("In negotiateAlias");
-  if(nid != NULL) //this is a request to start working on this NID's alias
-  {
-    if(_NIDtoNegotiate != NULL) //but we're busy with another one just now
-      return false;
-      
-    _NIDtoNegotiate = nid;
 
-//    Serial.println("New alias to negotiate");
-//    _NIDtoNegotiate->print();
-          
-    //else
-    // initialize sequence from node ID
-    lfsr1 = (((uint32_t)nid->val[0]) << 16) | (((uint32_t)nid->val[1]) << 8) | ((uint32_t)nid->val[2]);
-    lfsr2 = (((uint32_t)nid->val[3]) << 16) | (((uint32_t)nid->val[4]) << 8) | ((uint32_t)nid->val[5]);
-//    Serial.println(lfsr1,HEX);
-//    Serial.println(lfsr2,HEX);
-    state = STATE_INITIAL;
-    return true;
-  }
-  //otherwise this is a request to continue working on the current NID
-  if(state == STATE_INITIALIZED) //nothing to work on
-    return true;
-//  else
-//    Serial.println("Working with existing alias");
-    
-
-//  Serial.print("state = ");
-//  Serial.println(state,HEX);
-	switch (state) {
-		case STATE_INITIAL+0:
-		case STATE_INITIAL+1:
-		case STATE_INITIAL+2:
-		case STATE_INITIAL+3:
-			// send next CIM message if possible
-			if (sendCIM(state-STATE_INITIAL)) 
-				state++;
-			break;
-		case STATE_INITIAL+4:
-			// last CIM, sent, wait for delay
-			_aliasTimer = millis();
-			state = STATE_WAIT_CONFIRM; 
-			break;
-		case STATE_WAIT_CONFIRM:
-			if ( (millis() > _aliasTimer+CONFIRM_WAIT_TIME) && sendRIM()) {
-				state = STATE_ALIAS_ASSIGNED;
-			}
-			break;
-		case STATE_ALIAS_ASSIGNED:
-			// send init
-			if (sendInitializationComplete()) {
-				state = STATE_INITIALIZED;
-				_NIDtoNegotiate = NULL;
-				_aliasTimer = -1;
-				return true;
-			}
-			break;
-	}
-	return false;
-}
-
-// send the next CIM message.  "i" is the 0-3 ordinal number of the message, which
-// becomes F-C in the CIM itself. Returns true if successfully sent.
-bool OLCB_CAN_Link::sendCIM(uint8_t i) {
+// send the next CID message.  "i" is the 0-3 ordinal number of the message, which
+// becomes F-C in the CID itself. Returns true if successfully sent.
+bool OLCB_CAN_Link::sendCID(OLCB_NodeID *nodeID, uint8_t i) {
   if (!can_check_free_buffer()) return false;  // couldn't send just now
   uint16_t fragment;
   switch (i) {
-    case 0:  fragment = ( (_NIDtoNegotiate->val[0]<<4)&0xFF0) | ( (_NIDtoNegotiate->val[1] >> 4) &0xF);
+    case 0:  fragment = ( (nodeID->val[0]<<4)&0xFF0) | ( (nodeID->val[1] >> 4) &0xF);
              break;
-    case 1:  fragment = ( (_NIDtoNegotiate->val[1]<<8)&0xF00) | ( _NIDtoNegotiate->val[2] &0xF);
+    case 1:  fragment = ( (nodeID->val[1]<<8)&0xF00) | ( nodeID->val[2] &0xF);
              break;
-    case 2:  fragment = ( (_NIDtoNegotiate->val[3]<<4)&0xFF0) | ( (_NIDtoNegotiate->val[4] >> 4) &0xF);
+    case 2:  fragment = ( (nodeID->val[3]<<4)&0xFF0) | ( (nodeID->val[4] >> 4) &0xF);
              break;
     default:
-    case 3:  fragment = ( (_NIDtoNegotiate->val[4]<<8)&0xF00) | ( _NIDtoNegotiate->val[5] &0xF);
+    case 3:  fragment = ( (nodeID->val[4]<<8)&0xF00) | ( nodeID->val[5] &0xF);
              break;
   }
-  txBuffer.setCIM(i,fragment,getAlias());
-//  Serial.println("Sending CIM");
+  txBuffer.setCID(i,fragment,nodeID->alias);
+//  Serial.println("Sending CID");
   while(!can_send_message(&txBuffer));  // wait for queue, but earlier check says will succeed
   return true;
 }
 
-bool OLCB_CAN_Link::sendRIM() {
+bool OLCB_CAN_Link::sendRID(OLCB_NodeID* nodeID) {
   if (!can_check_free_buffer()) return false;  // couldn't send just now  if (!isTxBufferFree()) return false;  // couldn't send just now
-  txBuffer.setRIM(getAlias());
+  txBuffer.setRID(nodeID->alias);
 //  Serial.println("Sending RIM");
   while(!can_send_message(&txBuffer));  // wait for queue, but earlier check says will succeed
   return true;
 }
 
-bool OLCB_CAN_Link::sendInitializationComplete() {
+bool OLCB_CAN_Link::sendInitializationComplete(OLCB_NodeID* nodeID) {
   if (!can_check_free_buffer()) return false;  // couldn't send just now  if (!isTxBufferFree()) return false;  // couldn't send just now
-  txBuffer.setInitializationComplete(getAlias(), _NIDtoNegotiate);
+  txBuffer.setInitializationComplete(nodeID);
 //  Serial.print("Assigning alias ");
 //  Serial.print(getAlias(), DEC);
 //  Serial.println(" to");
@@ -136,57 +76,26 @@ bool OLCB_CAN_Link::sendInitializationComplete() {
   return true;
 }
 
-void OLCB_CAN_Link::restart() {
-  state = STATE_INITIAL;
-  // take the 1st from the sequence
-  nextAlias();
-}
-
-uint16_t OLCB_CAN_Link::getAlias() {
-  return (lfsr1 ^ lfsr2 ^ (lfsr1>>12) ^ (lfsr2>>12) )&0xFFF;
-}
-
-void OLCB_CAN_Link::nextAlias() {
-   // step the PRNG
-   // First, form 2^9*val
-   uint32_t temp1 = ((lfsr1<<9) | ((lfsr2>>15)&0x1FF)) & 0xFFFFFF;
-   uint32_t temp2 = (lfsr2<<9) & 0xFFFFFF;
-   
-   // add
-   lfsr2 = lfsr2 + temp2 + 0x7A4BA9l;
-   lfsr1 = lfsr1 + temp1 + 0x1B0CA3l;
-   
-   // carry
-   lfsr1 = (lfsr1 & 0xFFFFFF) | ((lfsr2&0xFF000000) >> 24);
-   lfsr2 = lfsr2 & 0xFFFFFF;
-}
-
-
 /////// Methods for sending and receiving OLCB packets over CAN
 
 bool OLCB_CAN_Link::handleTransportLevel()
 {
-    // see if this is a frame with our alias
-    // Notice that we only care during negotiation. Really, we should care more generally about this.
-    // TODO needs to be re-written to be more sensitive about vNodes, etc.
-    if (_NIDtoNegotiate != NULL && _NIDtoNegotiate->alias == rxBuffer.getSourceAlias()) {
-//      Serial.println("Someone's using the alias we want!");
-      // somebody else trying to use this one, see to what extent
-      if (rxBuffer.isCIM()) {
-//            Serial.println("Someone's sent a CIM!");
+    
+    if (rxBuffer.isCID())
+    {
+        //Serial.println("Someone's sent a CIM!");
         // somebody else trying to allocate, tell them
-        while (!sendRIM()) {}  // insist on sending it now.
-      } else if (rxBuffer.isRIM()) {
-        // RIM frame is an error, restart
-//        Serial.println("Someone's sent a RIM!");
-        restart();
-      } else {
-//        Serial.println("This is a problem!");
-        // some other frame; this is an error! Restart
-        restart();
-      }
-      return true;
+        _aliasHelper.handleCID(&rxBuffer);
     }
+    else if (rxBuffer.isRID())
+    {
+        _aliasHelper.handleRID(&rxBuffer);
+    }
+//    else
+//    {
+//        Serial.println("This is a problem!");
+//    }
+    
     // see if this is a Verify request to us; first check type
     if (rxBuffer.isVerifyNID()) {
       // check address
@@ -207,7 +116,7 @@ bool OLCB_CAN_Link::handleTransportLevel()
       {
         bool flag = false;
         //check all handlers, not just datagram handlers
-        OLCB_Handler *iter = _handlers;
+        OLCB_Virtual_Node *iter = _handlers;
         while(iter)
         {
 //          Serial.println("checking iter to see if it will verify the ID");
@@ -235,7 +144,7 @@ bool OLCB_CAN_Link::handleTransportLevel()
       // ToDo: This should be threaded
       sendVerifiedNID(_nodeID);
       //and again for all virtual nodes
-      OLCB_Handler *iter = _handlers;
+      OLCB_Virtual_Node *iter = _handlers;
       while(iter != NULL)
       {
         if(iter->verifyNID(iter->NID))
@@ -280,8 +189,6 @@ bool OLCB_CAN_Link::handleTransportLevel()
 
 void OLCB_CAN_Link::update(void)
 {
-  //see if there's any step to take while initializing an alias
-  negotiateAlias(0);
   //check to see if any new messages require handling
   if(can_get_message(&rxBuffer))
   {
@@ -311,7 +218,7 @@ void OLCB_CAN_Link::update(void)
       if(_translationCache.getNIDByAlias(&n))
         rxBuffer.setDestinationNID(&n);
     }
-    OLCB_Handler *iter = _handlers;
+    OLCB_Virtual_Node *iter = _handlers;
     while(iter)
     {
 //      Serial.println("Trying a handler...");
@@ -325,10 +232,13 @@ void OLCB_CAN_Link::update(void)
       iter = iter->next;
     }
   }
-    
-  //OLCB_Handler::update();
+
+  //update alias allocation
+  _aliasHelper.update();
+
+  //OLCB_Virtual_Node::update();
   //call all our handler's update functions
-  OLCB_Handler *iter = _handlers;
+  OLCB_Virtual_Node *iter = _handlers;
   while(iter)
   {
     iter->update();
@@ -452,16 +362,22 @@ bool OLCB_CAN_Link::nakDatagram(OLCB_NodeID *source, OLCB_NodeID *dest, int reas
   return true;
 }
 
-void OLCB_CAN_Link::sendVerifiedNID(OLCB_NodeID *nid)
+bool OLCB_CAN_Link::sendVerifiedNID(OLCB_NodeID *nid)
 {
+  if(!can_check_free_buffer())
+    return false;
   txBuffer.init(nid);
   txBuffer.setVerifiedNID(nid);
   while(!can_send_message(&txBuffer));
+  return true;
 }
 
 bool OLCB_CAN_Link::sendAMR(OLCB_NodeID *nid)
 {
+  if(!can_check_free_buffer())
+    return false;
   txBuffer.init(nid);
   txBuffer.setAMR(nid->alias);
   while(!can_send_message(&txBuffer));
+  return true;
 }

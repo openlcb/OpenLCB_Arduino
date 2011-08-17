@@ -1,7 +1,9 @@
 #ifndef __OLCB_DATAGRAM_HANDLER__
 #define __OLCB_DATAGRAM_HANDLER__
 
-#include "OLCB_Handler.h"
+#include "OLCB_Link.h"
+#include "OLCB_Virtual_Node.h"
+#include "OLCB_Datagram.h"
 
 #define DATAGRAM_ACK_TIMEOUT 5000
 #define DATAGRAM_ERROR_ABORTED 0x1001
@@ -9,10 +11,10 @@
 
 // A mix-in class for handling the datagram protocol.
 
-class OLCB_Datagram_Handler : public OLCB_Handler
+class OLCB_Datagram_Handler : public OLCB_Virtual_Node
 {
  public:
-  OLCB_Datagram_Handler() : OLCB_Handler(), _rxDatagramBufferFree(true), _txDatagramBufferFree(true), _initialized(false), _sentTime(0), _txFlag(false), _loc(0)
+  OLCB_Datagram_Handler() : OLCB_Virtual_Node(), _rxDatagramBufferFree(true), _txDatagramBufferFree(true), _initialized(false), _sentTime(0), _txFlag(false), _loc(0)
   {
     _rxDatagramBuffer = (OLCB_Datagram*)malloc(sizeof(OLCB_Datagram));
     _txDatagramBuffer = (OLCB_Datagram*)malloc(sizeof(OLCB_Datagram));

@@ -3,7 +3,7 @@
 void OLCB_Link::update(void)//called repeatedly
 {
   //call all our handler's update functions
-  OLCB_Handler *iter = _handlers;
+  OLCB_Virtual_Node *iter = _handlers;
   while(iter)
   {
     iter->update();
@@ -11,14 +11,14 @@ void OLCB_Link::update(void)//called repeatedly
   }
 }
   
-void OLCB_Link::addHandler(OLCB_Handler *handler)
+void OLCB_Link::addHandler(OLCB_Virtual_Node *handler)
 {
 //  Serial.print("OLCB_Link::addHandler: registering handler ");
 //  Serial.println((uint16_t)handler, HEX);
   handler->next = _handlers;
   _handlers = handler;
 //  Serial.println("====");
-//  OLCB_Handler *iter = _handlers;
+//  OLCB_Virtual_Node *iter = _handlers;
 //  while(iter != NULL)
 //  {
 //    Serial.println((uint16_t)iter, HEX);
@@ -27,7 +27,7 @@ void OLCB_Link::addHandler(OLCB_Handler *handler)
 //  Serial.println("====");
 }
 
-void OLCB_Link::removeHandler(OLCB_Handler *handler)
+void OLCB_Link::removeHandler(OLCB_Virtual_Node *handler)
 {
 //  Serial.println("Removing Handler ");
   if(!_handlers) //nothing to remove!
@@ -37,7 +37,7 @@ void OLCB_Link::removeHandler(OLCB_Handler *handler)
 //  Serial.println((uint16_t)handler, HEX);
   
 //  Serial.println("====");
-  OLCB_Handler *iter = _handlers;
+  OLCB_Virtual_Node *iter = _handlers;
 //  while(iter != NULL)
 //  {
 //    Serial.println((uint16_t)iter, HEX);

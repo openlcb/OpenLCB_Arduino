@@ -1,19 +1,21 @@
-#ifndef __OLCB_ALIASCACHE_H__
-#define __OLCB_ALIASCACHE_H__
+#ifndef __OLCB_ALIAS_CACHE_H__
+#define __OLCB_ALIAS_CACHE_H__
+
+class OLCB_Alias_Cache;
 
 #include <stdlib.h>
 #include <string.h>
 #include "WProgram.h"
 #include "OLCB_NodeID.h"
 
-class OLCB_AliasCache
+class OLCB_Alias_Cache
 {
  public:
-  OLCB_AliasCache() : _size(0)
+  OLCB_Alias_Cache() : _size(0)
   {
   }
   
-  void init(uint8_t newSize)
+  void initialize(uint8_t newSize)
   {
     if(_size)
     {
