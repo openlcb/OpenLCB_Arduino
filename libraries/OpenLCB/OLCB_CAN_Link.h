@@ -12,7 +12,7 @@
 #include "OLCB_Alias_Cache.h"
 #include "OLCB_CAN_Alias_Helper.h"
 
-// state machine definitions
+// state machine definitions NOT USED apparently!?
 #define STATE_INITIAL 0
 #define STATE_WAIT_CONFIRM 10
 #define STATE_ALIAS_ASSIGNED 20
@@ -20,9 +20,10 @@
 
 #define NODE_ID_STATE_INACTIVE	0
 #define NODE_ID_STATE_CID1		1
-#define NODE_ID_STATE_CID1		2
-#define NODE_ID_STATE_CID1		3
-#define NODE_ID_STATE_RID		4
+#define NODE_ID_STATE_CID2		2
+#define NODE_ID_STATE_CID3		3
+#define NODE_ID_STATE_CID4		4
+#define NODE_ID_STATE_RID		5
 
 class OLCB_CAN_Link_Helper;
 

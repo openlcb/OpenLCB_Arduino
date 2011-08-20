@@ -44,6 +44,7 @@ void OLCB_CAN_Alias_Helper::update(void)
 				return; //just quit for now.
 			}
 			Serial.println("RID SENT!");
+			//TODO send AMD and InitializationComplete
 		}
 	}
 
