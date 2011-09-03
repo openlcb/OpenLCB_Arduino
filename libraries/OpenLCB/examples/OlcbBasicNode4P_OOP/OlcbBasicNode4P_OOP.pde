@@ -1,6 +1,20 @@
-#include <can.h>
+#include "ButtonLedDON.h"
+
+#include <OLCB_Alias_Cache.h>
+#include <OLCB_Buffer.h>
+#include <OLCB_CAN_Buffer.h>
+#include <OLCB_CAN_Link.h>
+#include <OLCB_Datagram.h>
+#include <OLCB_Datagram_Handler.h>
+#include <OLCB_Event.h>
+#include <OLCB_Event_Handler.h>
+#include <OLCB_Link.h>
+#include <OLCB_NodeID.h>
+#include <OLCB_Stream.h>
+#include <OLCB_Virtual_Node.h>
 #include <OpenLCB.h>
-#include "ButtonLed.h"
+
+#include <can.h>
 
 //==============================================================
 // OlcbBasicNode_OOP
@@ -33,10 +47,10 @@ OLCB_Event events[] = {
 int eventNum = 8;
 
 // Define the input buttons
-ButtonLed p14(14, LOW); // button on pin 14
-ButtonLed p15(15, LOW); // button on pin 15
-ButtonLed p16(16, LOW); // button on pin 16
-ButtonLed p17(17, LOW); // button on pin 17
+ButtonLed p14(12, LOW); // button on pin 14
+ButtonLed p15(13, LOW); // button on pin 15
+ButtonLed p16(14, LOW); // button on pin 16
+ButtonLed p17(15, LOW); // button on pin 17
 // and group them to match the events, two events per button
 
 
