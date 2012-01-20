@@ -69,6 +69,11 @@ class OLCB_Event {
       return -1;
   }
   
+  bool isEmpty(void)
+  {
+  	return(!(val[0]|val[1]|val[2]|val[3]|val[4]|val[5]|val[6]|val[7]);
+  }
+  
   void print(void)
   {
 #if defined(__AVR__) & defined(OLCB_DEBUG)
