@@ -1,8 +1,6 @@
 /*
  * $Id$ 
  */
-#include <WProgram.h>
-
 #include <ctype.h>
 #include <can.h>
 #include <stdarg.h>
@@ -133,12 +131,17 @@ void loop()
       Serial.print('N');
       for( uint8_t i = 0; i < rxCAN.length; i++)
       {
-        printHexChar(rxCAN.data[i]);
+        if(rxCAN.data[i] < 0x10)
+          Serial.print('0');
+        Serial.print(rxCAN.data[i], HEX);
       }
     }
     Serial.println(';');
 
     memset(&rxCAN, 0, sizeof(tCAN));
+#if defined(ARDUINO) && ARDUINO >= 100
+    Serial.flush();
+#endif
   }
 }
 
