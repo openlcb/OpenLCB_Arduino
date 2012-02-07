@@ -7,13 +7,22 @@
  * This is not a full OpenLCB node, but rather a Ethernet-based
  * CAN adapter; it has no OpenLCB-specific processing.
  * 
- * Frames are sent and received in this format:
+ * Frames are sent and received in the GridConnect format:
  *   :X182DF285N0203040506080082;
  * where the extended header is between X and N,
  * and the payload follows the N. Messages to Ethernet are
- * followed by "\n". Inbound messages are parsed between
+ * followed by "\n". 
+ * 
+ * For information on the format, see:
+ *   http://www.gridconnect.com/canboandto.html
+ * 
+ * Inbound messages are parsed between
  * the ":" and ";" with characters outside that ignored.
  * Frame validity is not checked.
+ *
+ * Works with an Ethernet shield based on the WIZnet chip.
+ * See below for inclusion is a modified library to avoid
+ * a pin conflict with some CAN interfaces.
  */
 #include <WProgram.h>
 
