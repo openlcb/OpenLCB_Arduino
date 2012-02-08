@@ -11,12 +11,12 @@
 //==============================================================
 #include <WProgram.h>
 
-#define PL(x) Serial.println(x)
-#define P(x) Serial.print(x)
-#define PD(x) Serial.print(x,DEC)
-//#define PL(x) 
-//#define P(x) 
-//#define PD(x)
+//#define PL(x) Serial.println(x)
+//#define P(x) Serial.print(x)
+//#define PD(x) Serial.print(x,DEC)
+#define PL(x) 
+#define P(x) 
+#define PD(x)
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -213,7 +213,7 @@ void processTime() {
        sendTime(rate, hours, minutes);
        
        Event clockEvent = Event(0x1,0x1,0x99,0x1,0x1,0x1, hours, minutes);
-       txBuffer.setProducerIdentified(&clockEvent);
+       txBuffer.setPCEventReport(&clockEvent);
        OpenLcb_can_queue_xmt_wait(&txBuffer);  // wait until buffer queued, but OK due to earlier check
 
      }
@@ -405,7 +405,7 @@ void processControls() {
 void setup()
 {
   // set up serial comm; may not be space for this!
-  delay(250);Serial.begin(9600);logstr("\nOlcbClockGenerator\n");
+  //delay(250);Serial.begin(9600);logstr("\nOlcbClockGenerator\n");
  
   // read OpenLCB from EEPROM
   //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
