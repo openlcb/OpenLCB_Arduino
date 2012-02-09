@@ -1,22 +1,36 @@
 /*
- * $Id$ 
+ * $Id: CAN2EtherNetServer.pde 1199 2011-04-03 01:19:01Z jacobsen $ 
  * 
  * CAN2EtherNetServer provides an Ethernet adapter for CAN frames
- * forming the "server" end of a client-server connection.
+ * forming the "server" end of a client-server connection. Generally,
+ * this is the connection for e.g. PC or iPhone programs.
  * 
  * This is not a full OpenLCB node, but rather a Ethernet-based
  * CAN adapter; it has no OpenLCB-specific processing.
  * 
- * Frames are sent and received in this format:
+ * Frames are sent and received in the GridConnect format:
  *   :X182DF285N0203040506080082;
  * where the extended header is between X and N,
  * and the payload follows the N. Messages to Ethernet are
- * followed by "\n". Inbound messages are parsed between
+ * followed by "\n". 
+ * 
+ * For information on the format, see:
+ *   http://www.gridconnect.com/canboandto.html
+ * 
+ * Inbound messages are parsed between
  * the ":" and ";" with characters outside that ignored.
  * Frame validity is not checked.
+ *
+ * Works with an Ethernet shield based on the WIZnet chip.
+ * See below for inclusion is a modified library to avoid
+ * a pin conflict with some CAN interfaces.
+ * 
+ * Up to four Telnet connections are supported automatically
+ * by the Ethernet library
  */
-#include <WProgram.h>
 
+#include "Arduino.h"
+  
 // Addressing information for this node.
 // Used for IP address and MAC address
 #define ADDR_BYTE_1 10
@@ -41,7 +55,7 @@ char    	strBuf[10] ;	// String Buffer
 
 
 char    	rxBuff[RX_BUF_SIZE];    // :lddddddddldddddddddddddddd:0
-uint8_t		rxIndex;
+int		rxIndex;
 uint16_t	rxChar;
 
 // -----------------------------------------------------------------------------
@@ -66,7 +80,12 @@ void  debugf(const char *__fmt,...)
 }
 }
 
-// Alternate Ethernet library for modified CAN-compatible shield
+// Ethernet requires SPI library since Arduino 19
+#if defined(ARDUINO) && ARDUINO > 18
+#include <SPI.h>
+#endif
+
+// Ethernet2.h for pin 9 CS, Ethernet.h for default pin 10
 #include <Ethernet2.h>
 
 // network configuration.  gateway and subnet are optional.
@@ -76,14 +95,15 @@ byte gateway[] = { ADDR_BYTE_1, ADDR_BYTE_2, ADDR_BYTE_3, 1 };
 byte subnet[] = { 255, 255, 255, 0 };
 
 // telnet defaults to port 23
-Server server(23);
-
+EthernetServer server(23);
 
 void setup()
 {
+#ifdef ENABLE_DEBUG_MESSAGES
   Serial.begin(BAUD_RATE);
   Serial.println();
-  Serial.println(":I LEDuino CAN-EtherNet Adaptor Version: 1;");
+  Serial.println(":I LEDuino CAN-EtherNet Server Version: 1;");
+#endif
 
   // Initialize MCP2515
   can_init(BITRATE_125_KBPS);
@@ -97,9 +117,13 @@ void setup()
 
   // Ethernet, from WebClient demo
   Ethernet.begin(mac, ip);
+
   // start listening for clients
   server.begin();
+#ifdef ENABLE_DEBUG_MESSAGES
   Serial.println("Server begun");
+#endif
+
 }
 
 bool isTxBufferFree(void)
@@ -122,13 +146,13 @@ void storeInOutBuff(char c) {
 
 void loop()
 {
-  Client client = server.available();
+  EthernetClient client = server.available();
     
   if(!ptxCAN)
   {  
-    int rxChar = client.read();
-    if(rxChar >= 0)
+    if(client == true)
     {
+      int rxChar = client.read();
       switch(rxChar)
       {
       case ':':
@@ -143,18 +167,23 @@ void loop()
           rxBuff[rxIndex] = '\0';	// Null Terminate the string
 
           ptxCAN = parseCANStr(rxBuff, &txCAN, rxIndex);
+          
+          // and echo back, in case there's more than one connection
+          rxBuff[rxIndex] = '\n';
+          server.write((const uint8_t*)rxBuff, rxIndex+1);
+          
         }
         rxIndex = 0;
         break;
 
-      default:			// Everything else must be a 
+      default:	// Everything else must be a character to store
         if( rxIndex < RX_BUF_SIZE )
           rxBuff[rxIndex++] = rxChar & 0x00FF;
         break;
       }
     }
   }
-
+  
   if(ptxCAN && isTxBufferFree())
   {
     if(can_send_message(ptxCAN)) {
