@@ -1,6 +1,3 @@
-// makes this an Arduino file
-#include "WConstants.h"
-
 
 /**
  * Specific implementation for CAN MP2515
