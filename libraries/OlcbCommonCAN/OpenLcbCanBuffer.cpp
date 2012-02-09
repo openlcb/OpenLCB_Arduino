@@ -223,7 +223,7 @@
 
   void OpenLcbCanBuffer::setVerifiedNID(NodeID* nid) {
     init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_VERIFIED_NID);
+    setOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI,MTI_VERIFIED_NID);
     length=6;
     memcpy(data, nid->val, 6);
     //data[0] = nid->val[0];
@@ -236,7 +236,7 @@
 
   bool OpenLcbCanBuffer::isVerifiedNID()
   {
-    return isOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI, MTI_VERIFIED_NID);
+    return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFIED_NID);
   }
 
   bool OpenLcbCanBuffer::isIdentifyConsumers() {
