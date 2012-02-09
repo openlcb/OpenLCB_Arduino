@@ -7,6 +7,7 @@
 #include "NodeID.h"
 #include "EventID.h"
 #include "Event.h"
+#include "LinkControl.h"
 #include "OpenLcbCanBuffer.h"
 
 #include "logging.h"
@@ -23,13 +24,14 @@
 #define TEACH_FLAG 0x10
 
 
-PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(int i), void (*st)()) {
+PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(int i), void (*st)(), LinkControl* li) {
       events = evts;
       nEvents = nEvt;
       buffer = b;
       nid = node;
       callback = cb;
       store = st;
+      link = li;
        
       // mark as needing transmit of IDs, otherwise not interesting
       // ToDo: Is this needed if requiring newEvent?
@@ -137,18 +139,13 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
         }
         // ToDo: add identify flags so that events that are both produced and consumed
         // have only one form sent in response to a specific request.
-    } else if (rcv->isIdentifyEvents()) {
-        // See if addressed to us
-       NodeID n;
-       rcv->getNodeID(&n);
-       if (n.equals(nid)) {
-          // if so, send _all_ ProducerIndentfied, ConsumerIdentified
-          // via the "check" periodic call
-          for (int i = 0; i < nEvents; i++) {
-            events[i].flags |= IDENT_FLAG;
-          }
-          sendEvent = 0;  
-       }     
+    } else if (rcv->isIdentifyEventsGlobal() || rcv->isIdentifyEvents(link->getAlias())) {
+        // if so, send _all_ ProducerIdentified, ConsumerIdentified
+        // via the "check" periodic call
+        for (int i = 0; i < nEvents; i++) {
+          events[i].flags |= IDENT_FLAG;
+        }
+        sendEvent = 0;  
     } else if (rcv->isPCEventReport()) {
         // found a PC Event Report, see if we consume it
         handlePCEventReport(rcv);

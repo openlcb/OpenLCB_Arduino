@@ -16,11 +16,12 @@
 
 class NodeID;
 class OpenLcbCanBuffer;
+class LinkControl;
 
 class PCE {
   public:
 
-  PCE(Event* events, int nEvents, OpenLcbCanBuffer* b, NodeID* nid, void (*callback)(int i), void (*store)());
+  PCE(Event* events, int nEvents, OpenLcbCanBuffer* b, NodeID* nid, void (*callback)(int i), void (*store)(), LinkControl* link);
   
   /**
    * Produce the ith event
@@ -77,6 +78,7 @@ class PCE {
   private:
   Event* events;  // array
   int nEvents;
+  LinkControl* link;
   OpenLcbCanBuffer* buffer;
   NodeID* nid;
   void (*callback)(int i);   // void callback(int index) pointer
