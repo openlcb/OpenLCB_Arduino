@@ -170,7 +170,7 @@ void loop()
           
           // and echo back, in case there's more than one connection
           rxBuff[rxIndex] = '\n';
-          server.write((const uint8_t*)rxBuff, rxIndex+1);
+          //server.write((const uint8_t*)rxBuff, rxIndex+1);
           
         }
         rxIndex = 0;
