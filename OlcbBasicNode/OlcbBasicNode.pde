@@ -156,7 +156,7 @@ void pceCallback(int index){
 NodeMemory nm(0);  // allocate from start of EEPROM
 void store() { nm.store(&nodeid, events, eventNum); }
 
-PCE pce(events, eventNum, &txBuffer, &nodeid, pceCallback, store);
+PCE pce(events, eventNum, &txBuffer, &nodeid, pceCallback, store, &link);
 
 // Set up Blue/Gold configuration
 
