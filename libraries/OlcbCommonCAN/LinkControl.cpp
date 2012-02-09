@@ -151,7 +151,7 @@ void LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
      // reply; should be threaded, but isn't
      txBuffer->setVerifiedNID(nid);
      OpenLcb_can_queue_xmt_wait(txBuffer);
-   } else if (rcv->isVerifyNID()) {
+   } else if (rcv->isVerifyNID(getAlias()) ) {
      // This was addressed to you.
      // ToDo: This should be threaded
      txBuffer->setVerifiedNID(nid);
