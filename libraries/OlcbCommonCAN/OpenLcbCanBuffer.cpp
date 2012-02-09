@@ -142,7 +142,7 @@
                 && ( getOpenLcbFormat() == fmt )
                 && ( (getVariableField()&~MASK_OPENLCB_FORMAT) == mtiHeaderByte );
   }
-
+  
   // end of OpenLCB format and decode support
   
   // start of OpenLCB messages
@@ -210,14 +210,14 @@
   }
   
   bool OpenLcbCanBuffer::isVerifyNIDglobal() {
-      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFY_NID);
+      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFY_NID_GLOBAL);
   }
 
-  bool OpenLcbCanBuffer::isVerifyNID() {
-      if (nodeAlias =! getVariableField()) return false;
+  bool OpenLcbCanBuffer::isVerifyNID(int nida) {
+      if (nida != (getVariableField()&0xFFF) ) return false;
       if (getOpenLcbFormat() != MTI_FORMAT_ADDRESSED_NON_DATAGRAM) return false;
       if (length == 0) return false;
-      if (data[0] != MTI_VERIFY_NID_GLOBAL) return false;
+      if (data[0] != MTI_VERIFY_NID) return false;
       return true;
   }
 
@@ -277,8 +277,16 @@
     loadFromEid(eid);
   }
 
-  bool OpenLcbCanBuffer::isIdentifyEvents() {
-      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_IDENTIFY_EVENTS);
+  bool OpenLcbCanBuffer::isIdentifyEventsGlobal() {
+      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_IDENTIFY_EVENTS_GLOBAL);
+  }
+
+  bool OpenLcbCanBuffer::isIdentifyEvents(int nida) {
+      if (nida != (getVariableField()&0xFFF) ) return false;
+      if (getOpenLcbFormat() != MTI_FORMAT_ADDRESSED_NON_DATAGRAM) return false;
+      if (length == 0) return false;
+      if (data[0] != MTI_IDENTIFY_EVENTS) return false;
+      return true;
   }
 
   void OpenLcbCanBuffer::loadFromEid(EventID* eid) {
@@ -298,7 +306,7 @@
       return isFrameTypeOpenLcb() 
                 && ( (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM)
                         || (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_LAST))
-                && (nodeAlias == getVariableField() );
+                && (nodeAlias == (getVariableField()&0xFFF) );
   }
   // just checks 1st, assumes datagram already checked.
   bool OpenLcbCanBuffer::isLastDatagram() {

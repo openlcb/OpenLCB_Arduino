@@ -71,7 +71,7 @@ class EventID;
   void getEventID(EventID* evt);
   void getNodeID(NodeID* nid);
   
-  bool isVerifyNID();
+  bool isVerifyNID(int nida);
   bool isVerifyNIDglobal();
   void setVerifiedNID(NodeID* nid);
   bool isVerifiedNID();
@@ -90,7 +90,8 @@ class EventID;
   // Mask uses an EventID data structure; 1 bit means mask out when routing
   void setProducerIdentifyRange(EventID* eid, EventID* mask);
 
-  bool isIdentifyEvents();
+  bool isIdentifyEvents(int nida);
+  bool isIdentifyEventsGlobal();
 
   bool isDatagram();
   bool isLastDatagram();
