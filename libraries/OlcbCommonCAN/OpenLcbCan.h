@@ -24,7 +24,7 @@
  
 #define MTI_INITIALIZATION_COMPLETE     0x087
 
-#define MTI_VERIFY_NID                  0x0A7
+#define MTI_VERIFY_NID_GLOBAL           0x0A7
 #define MTI_VERIFIED_NID                0x0B7
 
 #define MTI_IDENTIFY_CONSUMERS          0x24F
@@ -35,7 +35,7 @@
 #define MTI_IDENTIFY_PRODUCERS_RANGE    0x29F
 #define MTI_PRODUCER_IDENTIFIED         0x2AB
 
-#define MTI_IDENTIFY_EVENTS             0x2B7
+#define MTI_IDENTIFY_EVENTS_GLOBAL      0x2B7
 
 #define MTI_LEARN_EVENT                 0x2CF
 #define MTI_PC_EVENT_REPORT             0x2DF
@@ -45,9 +45,9 @@
  * for addressed messages.
  */
 
-#define MTI_VERIFY_NID_GLOBAL           0x0A
+#define MTI_VERIFY_NID                  0x0A
 
-#define MTI_IDENTIFY_EVENTS_GLOBAL      0x2B
+#define MTI_IDENTIFY_EVENTS             0x2B
 
 #define MTI_DATAGRAM_RCV_OK             0x4C
 #define MTI_DATAGRAM_REJECTED           0x4D
