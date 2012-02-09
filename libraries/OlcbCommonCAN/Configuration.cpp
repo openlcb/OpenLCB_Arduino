@@ -125,7 +125,7 @@ void Configuration::processRead(uint8_t* data, int length) {
     // copy front matter
     for (int i=0; i<6; i++)
         d[i]=data[i];
-    d[0] = CFG_CMD_READ_REPLY | d[0]&0x0F;
+    d[1] = CFG_CMD_READ_REPLY | d[1]&0x0F;
     // get length, space
     int len = decodeLen(data);
     uint32_t address = getAddress(data);
