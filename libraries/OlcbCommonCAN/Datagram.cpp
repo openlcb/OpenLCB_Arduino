@@ -102,12 +102,12 @@ void Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
                 // send OK; done immediately with wait
                 // TODO: Need a more robust method here
                 // load buffer
-                buffer->data[0] = MTI_DATAGRAM_RCV_OK>>4;
+                buffer->data[0] = MTI_DATAGRAM_RCV_OK;
                 buffer->length = 1;
             } else {
                 // not OK, send reject; done immediately with wait
                 // TODO: Need a more robust method here
-                buffer->data[0] = MTI_DATAGRAM_REJECTED>>4;
+                buffer->data[0] = MTI_DATAGRAM_REJECTED;
                 buffer->data[1] = (result>>8)&0xFF;
                 buffer->data[2] = result&0xFF;
                 buffer->length = 3;
