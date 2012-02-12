@@ -43,7 +43,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-tCAN 		rxCAN;	// CAN receive buffer
+#define         RXCAN_BUF_COUNT   32
+tCAN 		rxCAN[RXCAN_BUF_COUNT]; // CAN receive buffers
+int             rxCanBuffCounter;
+bool            rxCANflag[RXCAN_BUF_COUNT];
+int             rxCanFlagCounter;
+
 tCAN 		txCAN;	// CAN send buffer
 tCAN		* ptxCAN;
 
@@ -107,7 +112,10 @@ void setup()
 
   // Initialize MCP2515
   can_init(BITRATE_125_KBPS);
-	
+
+  rxCanBuffCounter = 0;
+  rxCanFlagCounter = 0;
+
   // Dump out the CAN Controller Registers
   //Serial.println(":I Before regdump ;");
   //can_regdump();
@@ -191,34 +199,46 @@ void loop()
     }
   }
   
-  if(can_get_message(&rxCAN))
+  while (can_get_message(&rxCAN[rxCanBuffCounter]))  // as many as needed
   {
+    // handle message from CAN by marking and moving to next
+    rxCANflag[rxCanBuffCounter] = true;
+    rxCanBuffCounter++;
+    if (rxCanBuffCounter >= RXCAN_BUF_COUNT) rxCanBuffCounter = 0;
+  }
+  if (rxCANflag[rxCanFlagCounter])
+  {
+     rxCANflag[rxCanFlagCounter] = false;
+     
     outBuffIndex = 0;
     storeInOutBuff(':');
-    storeInOutBuff(rxCAN.flags.extended ? 'X' : 'S');
+    storeInOutBuff(rxCAN[rxCanFlagCounter].flags.extended ? 'X' : 'S');
 
-    char* substring = strupr(ultoa(rxCAN.id, strBuf, 16));
+    char* substring = strupr(ultoa(rxCAN[rxCanFlagCounter].id, strBuf, 16));
     int i = 0;
     char c;
     while ( (c = substring[i++]) != 0 ) storeInOutBuff(c);
 
-    if(rxCAN.flags.rtr)
+    if(rxCAN[rxCanFlagCounter].flags.rtr)
     {
       storeInOutBuff('R');
-      storeInOutBuff('0' + rxCAN.length);
+      storeInOutBuff('0' + rxCAN[rxCanFlagCounter].length);
     }
     else
     {
       storeInOutBuff('N');
-      for( uint8_t i = 0; i < rxCAN.length; i++)
+      for( uint8_t i = 0; i < rxCAN[rxCanFlagCounter].length; i++)
       {
-        printHexChar(rxCAN.data[i]);
+        printHexChar(rxCAN[rxCanFlagCounter].data[i]);
       }
     }
     storeInOutBuff(';');
     storeInOutBuff('\n');
     server.write(outBuff, outBuffIndex);
-    memset(&rxCAN, 0, sizeof(tCAN));
+    memset(&rxCAN[rxCanFlagCounter], 0, sizeof(tCAN));
+    // increment to next
+    rxCanFlagCounter++;
+    if (rxCanFlagCounter >= RXCAN_BUF_COUNT) rxCanFlagCounter = 0;
   }
 }
 
