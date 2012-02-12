@@ -1,3 +1,4 @@
+
 /*
  * $Id$ 
  */
@@ -6,7 +7,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-tCAN 		rxCAN;	// CAN receive buffer
+#define         RXCAN_BUF_COUNT   32
+tCAN 		rxCAN[RXCAN_BUF_COUNT]; // CAN receive buffers
+int             rxCanBuffCounter;
+bool            rxCANflag[RXCAN_BUF_COUNT];
+int             rxCanFlagCounter;
+
 tCAN 		txCAN;	// CAN send buffer
 tCAN		* ptxCAN;
 
@@ -16,6 +22,7 @@ char    	strBuf[10] ;	// String Buffer
 #define         RX_CTS_PIN      9
 #define         RX_BUF_LOW      32 
 #define         RX_BUF_HIGH     96
+
 #define         BAUD_RATE       115200
 //#define         BAUD_RATE       333333
 
@@ -58,6 +65,8 @@ void setup()
 
   // Initialize MCP2515
   can_init(BITRATE_125_KBPS);
+  rxCanBuffCounter = 0;
+  rxCanFlagCounter = 0;
 	
   // Dump out the CAN Controller Registers
   //Serial.println(":I Before regdump ;");
@@ -69,6 +78,7 @@ void setup()
 
 void loop()
 {
+  // check for RTS flow control to PC on USB side
   int charWaiting = Serial.available();
   
   if( charWaiting < RX_BUF_LOW )
@@ -79,6 +89,7 @@ void loop()
   
   if(!ptxCAN)
   {  
+    // handle characters from USB to CAN
     int rxChar = Serial.read();
     if(rxChar >= 0)
     {
@@ -100,7 +111,7 @@ void loop()
         rxIndex = 0;
         break;
 
-      default:			// Everything else must be a 
+      default:			// Everything else must be a byte to send
         if( rxIndex < RX_BUF_SIZE )
           rxBuff[rxIndex++] = rxChar & 0x00FF;
         break;
@@ -108,40 +119,51 @@ void loop()
     }
   }
 
+  // send buffer to CAN asap once full
   if(ptxCAN && can_check_free_buffer())
   {
     if(can_send_message(ptxCAN))
       ptxCAN = NULL; 
   }
   
-  if(can_get_message(&rxCAN))
+  while (can_get_message(&rxCAN[rxCanBuffCounter]))  // as many as needed
   {
+    // handle message from CAN by marking and moving to next
+    rxCANflag[rxCanBuffCounter] = true;
+    rxCanBuffCounter++;
+    if (rxCanBuffCounter >= RXCAN_BUF_COUNT) rxCanBuffCounter = 0;
+  }
+  if (rxCANflag[rxCanFlagCounter])
+  {
+     rxCANflag[rxCanFlagCounter] = false;
+    
     Serial.print(':');
-    Serial.print(rxCAN.flags.extended ? 'X' : 'S');
+    Serial.print(rxCAN[rxCanFlagCounter].flags.extended ? 'X' : 'S');
 
-    Serial.print(strupr(ultoa(rxCAN.id, strBuf, 16)));
-
-    if(rxCAN.flags.rtr)
+    //Serial.print(strupr(ultoa(rxCAN.id, strBuf, 16)));
+    Serial.print(rxCAN[rxCanFlagCounter].id, 16);
+    
+    if(rxCAN[rxCanFlagCounter].flags.rtr)
     {
       Serial.print('R');
-      Serial.print('0' + rxCAN.length);
+      Serial.print('0' + rxCAN[rxCanFlagCounter].length);
     }
     else
     {
       Serial.print('N');
-      for( uint8_t i = 0; i < rxCAN.length; i++)
+      for( uint8_t i = 0; i < rxCAN[rxCanFlagCounter].length; i++)
       {
-        if(rxCAN.data[i] < 0x10)
+        if(rxCAN[rxCanFlagCounter].data[i] < 0x10)
           Serial.print('0');
-        Serial.print(rxCAN.data[i], HEX);
+        Serial.print(rxCAN[rxCanFlagCounter].data[i], HEX);
       }
     }
     Serial.println(';');
 
-    memset(&rxCAN, 0, sizeof(tCAN));
-#if defined(ARDUINO) && ARDUINO >= 100
-    Serial.flush();
-#endif
+    memset(&rxCAN[rxCanFlagCounter], 0, sizeof(tCAN));
+    // increment to next
+    rxCanFlagCounter++;
+    if (rxCanFlagCounter >= RXCAN_BUF_COUNT) rxCanFlagCounter = 0;
   }
 }
 
