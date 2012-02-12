@@ -63,27 +63,29 @@ void Datagram::check() {
   }
 }
 
-void Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
+bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
     // check for datagram reply, which can free buffer
     if ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )
          && (dest == rcv->getSourceAlias()) 
          && (rcv->length == 1) ) {
         // for this node, check meaning
-        if (rcv->data[0] == (MTI_DATAGRAM_RCV_OK>>4)&0xFF ) { // datagram ACK
+        if (rcv->data[0] == (MTI_DATAGRAM_RCV_OK)&0xFF ) { // datagram ACK
             // this is to us, check data
             // release reserve
             reserved = false;
-        } else if (rcv->data[0] == (MTI_DATAGRAM_REJECTED>>4)&0xFF ) { // datagram NAK
+            return true;
+        } else if (rcv->data[0] == (MTI_DATAGRAM_REJECTED)&0xFF ) { // datagram NAK
             // set up for resend
             sendcount = resendcount;
             tptr = tbuf;
-            first = true;         
+            first = true;    
+            return true;     
         }
+        return false;
     }
     // check for datagram fragment received
     // TODO: Check for correct source (prevent overlapping reception)
-    if ( (true)   // saved for address check
-          && ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM, link->getAlias()) )
+    if ( ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM, link->getAlias()) )
                 || (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, link->getAlias()) ) ) ) {
          // this is a datagram fragment, store into the buffer
          for (int i=0; i<rcv->length; i++) {
@@ -115,5 +117,7 @@ void Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
             }
             OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
          }
+         return true;
     }
+    return false;
 }

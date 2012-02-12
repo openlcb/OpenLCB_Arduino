@@ -54,7 +54,7 @@ class Datagram {
    * be transferred to the PCER object via this method
    * so that it can handle the verification protocol.
    */
-  void receivedFrame(OpenLcbCanBuffer* rcv);
+  bool receivedFrame(OpenLcbCanBuffer* rcv);
   
   Datagram(OpenLcbCanBuffer* b, unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from), LinkControl* link);
   
