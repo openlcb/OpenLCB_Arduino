@@ -54,6 +54,7 @@ void Datagram::check() {
       if (sendcount == 0) {
           sendcount = -1;
           buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST);
+          reserved = false;
       }
       // and send it
       OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
