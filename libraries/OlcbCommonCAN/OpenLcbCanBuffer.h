@@ -30,6 +30,7 @@ class EventID;
   
   void setSourceAlias(uint16_t a);
   uint16_t getSourceAlias();
+  uint16_t getDestAlias();
   
   // end of basic message structure
   
@@ -55,6 +56,9 @@ class EventID;
   void setOpenLcbMTI(uint16_t fmt, uint16_t mti);
   bool isOpenLcbMTI(uint16_t fmt, uint16_t mti);
   
+  bool isMsgForHere(uint16_t alias);
+  bool isAddressedMessage();
+
   // end of OpenLCB format support
   
   // start of OpenLCB messages
@@ -76,6 +80,8 @@ class EventID;
   void setVerifiedNID(NodeID* nid);
   bool isVerifiedNID();
 
+  void setOptionalIntRejected(OpenLcbCanBuffer* rcv);
+  
   bool isIdentifyConsumers();
   
   void setConsumerIdentified(EventID* eid);

@@ -60,7 +60,18 @@ class LinkControl {
    * When a CAN frame is received, it should
    * be transferred to the LinkControl object via this method.
    */
-  void receivedFrame(OpenLcbCanBuffer* rcv);
+  bool receivedFrame(OpenLcbCanBuffer* rcv);
+
+  /**
+   * True if this is a message frame for here;
+   * either global or address to here
+   */
+  bool isMsgForHere(OpenLcbCanBuffer* rcv);
+
+  /**
+   * Send an Optional Interaction Rejected frame
+   */
+  void rejectMessage(OpenLcbCanBuffer* rcv);
 
   /**
    * Check if the link startup procedure has completed OK.

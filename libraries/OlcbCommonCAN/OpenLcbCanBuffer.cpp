@@ -26,6 +26,8 @@
 // bit 17-28
 #define MASK_SRC_ALIAS 0x00000FFFL
 
+#define MASK_DST_ALIAS 0x000FFF000L
+
 // bit 2-16
 #define MASK_VARIABLE_FIELD 0x07FFF000L
 #define SHIFT_VARIABLE_FIELD 12
@@ -50,6 +52,9 @@
   
   uint16_t OpenLcbCanBuffer::getSourceAlias() {
       return id & MASK_SRC_ALIAS;
+  }
+  uint16_t OpenLcbCanBuffer::getDestAlias() {
+      return (id & MASK_DST_ALIAS ) >>12;
   }
 
   void OpenLcbCanBuffer::setFrameTypeCAN() {
@@ -131,6 +136,39 @@
       return ( getOpenLcbFormat() == MTI_FORMAT_STREAM_CODE);
   }
   
+  bool OpenLcbCanBuffer::isMsgForHere(uint16_t alias) {
+    if (! isFrameTypeOpenLcb() ) return false;
+    uint16_t format = getOpenLcbFormat();
+    switch (format) {
+        case MTI_FORMAT_SIMPLE_MTI:
+        case MTI_FORMAT_COMPLEX_MTI:
+            return true;
+        case MTI_FORMAT_ADDRESSED_DATAGRAM:
+        case MTI_FORMAT_ADDRESSED_DATAGRAM_LAST:
+        case MTI_FORMAT_ADDRESSED_NON_DATAGRAM:
+        case MTI_FORMAT_STREAM_CODE:
+            return alias == getDestAlias();
+        default:
+            return false;
+    }
+  }
+  
+  bool OpenLcbCanBuffer::isAddressedMessage() {
+    uint16_t format = getOpenLcbFormat();
+    switch (format) {
+        case MTI_FORMAT_SIMPLE_MTI:
+        case MTI_FORMAT_COMPLEX_MTI:
+            return false;
+        case MTI_FORMAT_ADDRESSED_DATAGRAM:
+        case MTI_FORMAT_ADDRESSED_DATAGRAM_LAST:
+        case MTI_FORMAT_ADDRESSED_NON_DATAGRAM:
+        case MTI_FORMAT_STREAM_CODE:
+            return true;
+        default:
+            return false;
+    }
+  }
+
   void OpenLcbCanBuffer::setOpenLcbMTI(uint16_t fmt, uint16_t mtiHeaderByte) {
         setFrameTypeOpenLcb();
         setVariableField(mtiHeaderByte);
@@ -237,6 +275,13 @@
   bool OpenLcbCanBuffer::isVerifiedNID()
   {
     return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFIED_NID);
+  }
+
+  void OpenLcbCanBuffer::setOptionalIntRejected(OpenLcbCanBuffer* rcv) {
+    init(nodeAlias);
+    setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
+    length=1;
+    data[0] = MTI_OPTION_INT_REJECTED;
   }
 
   bool OpenLcbCanBuffer::isIdentifyConsumers() {

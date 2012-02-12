@@ -130,7 +130,17 @@ uint16_t LinkControl::getAlias() {
   return (lfsr1 ^ lfsr2 ^ (lfsr1>>12) ^ (lfsr2>>12) )&0xFFF;
 }
 
-void LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
+void LinkControl::rejectMessage(OpenLcbCanBuffer* rcv) {
+     // send OptionalInterationRejected; should be threaded, but isn't
+     txBuffer->setOptionalIntRejected(rcv);
+     OpenLcb_can_queue_xmt_wait(txBuffer);
+}
+
+bool LinkControl::isMsgForHere(OpenLcbCanBuffer* rcv) {
+    return rcv->isMsgForHere(getAlias());
+}
+
+bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
    // check received message
    // see if this is a frame with our alias
    if (getAlias() == rcv->getSourceAlias()) {
@@ -153,15 +163,18 @@ void LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
         // check field & end if not match
         NodeID n;
         rcv->getNodeID(&n);
-        if (! n.equals(nid)) return;
+        if (! n.equals(nid)) return false;
      }
      // reply; should be threaded, but isn't
      txBuffer->setVerifiedNID(nid);
      OpenLcb_can_queue_xmt_wait(txBuffer);
+     return true;
    } else if (rcv->isVerifyNID(getAlias()) ) {
      // This was addressed to you.
      // ToDo: This should be threaded
      txBuffer->setVerifiedNID(nid);
      OpenLcb_can_queue_xmt_wait(txBuffer);
+     return true;
    }
+   return false;
 }

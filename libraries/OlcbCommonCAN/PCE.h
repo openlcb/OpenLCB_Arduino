@@ -43,7 +43,7 @@ class PCE {
    * be transferred to the PCER object via this method
    * so that it can handle the verification protocol.
    */
-  void receivedFrame(OpenLcbCanBuffer* rcv);
+  bool receivedFrame(OpenLcbCanBuffer* rcv);
   
   /**
    * A new event has been defined, and we should

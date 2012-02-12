@@ -49,6 +49,8 @@
 
 #define MTI_IDENTIFY_EVENTS             0x2B
 
+#define MTI_OPTION_INT_REJECTED         0x0C
+
 #define MTI_DATAGRAM_RCV_OK             0x4C
 #define MTI_DATAGRAM_REJECTED           0x4D
 

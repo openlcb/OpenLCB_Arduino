@@ -106,7 +106,7 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
     sendEvent = min(sendEvent, index);
   }
   
-  void PCE::receivedFrame(OpenLcbCanBuffer* rcv) {
+  bool PCE::receivedFrame(OpenLcbCanBuffer* rcv) {
     if (rcv->isIdentifyConsumers()) {
         // see if we consume the listed event
         Event event;
@@ -152,7 +152,8 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
     } else if (rcv->isLearnEvent()) {
         // found a teaching frame, apply to selected
         handleLearnEvent(rcv);
-    }
+    } else return false;
+    return true;
   }
 
   void PCE::handlePCEventReport(OpenLcbCanBuffer* rcv) {

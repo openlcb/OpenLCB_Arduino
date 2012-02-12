@@ -23,7 +23,7 @@ class OlcbStream {
   OlcbStream(OpenLcbCanBuffer* b, unsigned int (*rcvData)(uint8_t *tbuf, unsigned int length), LinkControl* link);
   
   void check(); 
-  void receivedFrame(OpenLcbCanBuffer* rcv);
+  bool receivedFrame(OpenLcbCanBuffer* rcv);
   
   private:
   OpenLcbCanBuffer* buffer;
