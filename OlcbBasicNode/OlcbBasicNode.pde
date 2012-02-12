@@ -215,20 +215,23 @@ void loop() {
   
   // process link control first
   link.check();
+  bool handled = false;
   if (rcvFramePresent) {
     // blink blue to show that the frame was received
     blue.blink(0x1);
     // see if recieved frame changes link state
-    link.receivedFrame(&rxBuffer);
+    handled |= link.receivedFrame(&rxBuffer);
   }
 
   // if link is initialized, higher-level operations possible
   if (link.linkInitialized()) {
      // if frame present, pass to handlers
-     if (rcvFramePresent) {
-        pce.receivedFrame(&rxBuffer);
-        dg.receivedFrame(&rxBuffer);
-        str.receivedFrame(&rxBuffer);
+     if (rcvFramePresent && link.isMsgForHere(&rxBuffer)) {
+        bool handled = false;
+        handled |= pce.receivedFrame(&rxBuffer);
+        handled |= dg.receivedFrame(&rxBuffer);
+        handled |= str.receivedFrame(&rxBuffer);
+        if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer);
      }
      // periodic processing of any state changes
      pce.check();
