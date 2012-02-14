@@ -54,7 +54,7 @@
  * 
  *****************************************************************************/
 
-#include "WProgram.h"
+#include "arduino.h"
 
 #include "utility/ln_buf.h"
 
