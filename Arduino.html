@@ -3,16 +3,19 @@
 <HEAD>
 	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
 	<TITLE>OpenLCB Arduino Support</TITLE>
-	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.2  (Unix)">
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.3  (Unix)">
 	<META NAME="AUTHOR" CONTENT="Bob Jacobsen">
 	<META NAME="CREATED" CONTENT="20090816;10132800">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGED" CONTENT="20100913;20444600">
+	<META NAME="CHANGED" CONTENT="20120214;7085000">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="David Harris">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<STYLE TYPE="text/css">
 	<!--
+		H2.cjk { font-family: "SimSun" }
 		H2.ctl { font-family: "Arial Unicode MS" }
+		H3.cjk { font-family: "SimSun" }
 		H3.ctl { font-family: "Arial Unicode MS" }
 	-->
 	</STYLE>
@@ -20,28 +23,32 @@
 <BODY LANG="en-US" BGCOLOR="#e6e6ff" DIR="LTR">
 <H1><FONT COLOR="#000000"><IMG SRC="../../web/logo-ajs-dph.png" NAME="OpenLCB" ALIGN=RIGHT WIDTH=337 HEIGHT=135 BORDER=2></FONT>OpenLCB
 Arduino Support</H1>
-<P>This page describes the OpenLCB Arduino software.  See also the
-<a href="../Hobbyists.html">Hobbyists</a> page.</P>
-
+<P>This page describes the OpenLCB Arduino software. See also the
+<A HREF="../Hobbyists.html">Hobbyists</A> page.</P>
+<P>The OpenLCB software requires Arduino version 1.0 or later.</P>
 <H2 CLASS="western">Hardware</H2>
-
-There are several versions of CAN hardware available
-or under development for the Arduino. All of these use the 
-Microchip MCP2515/MCP2551 chip set, so are compatible
-with the standard CAN library.
-<p>
-<ul>
-<li><a href=""http://siliconrailway.com/products.html>LEDuino</a> - an Arduino form-factor board that contains
-built-in CAN, DCC and LocoNet interfaces.
-(Requires setting the CS setting in the CAN library to B,2)
-<li><a href="http://www.spcoast.com/wiki/index.php/Railroad_Shield">RailroadShield</a> - an Arduino shield that carries CAN,
-DCC, RS-485 (NCE, XPressNet, C/MRI) and LocoNet interfaces.
-(Requires setting the CS setting in the CAN library to B,1)
-<li><a href="http://www.sparkfun.com/products/10039">SparkFun CAN shield</a> - separate
-shield with a CAN interface, uSD card holder, serial LCD connector and connector for an EM406 GPS module.
-(Requires setting the CS setting in the CAN library to B,1)
-</ul>
-
+<P>There are several versions of CAN hardware available or under
+development for the Arduino. All of these use the Microchip
+MCP2515/MCP2551 chip set, so are compatible with the standard CAN
+library. 
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0cm"><A HREF="../C">LEDuino</A> - an
+	Arduino form-factor board that contains built-in CAN, DCC and
+	LocoNet interfaces. (Requires setting the CS setting in the CAN
+	library to B,2) 
+	</P>
+	<LI><P STYLE="margin-bottom: 0cm"><A HREF="http://www.spcoast.com/wiki/index.php/Railroad_Shield">RailroadShield</A>
+	- an Arduino shield that carries CAN, DCC, RS-485 (NCE, XPressNet,
+	C/MRI) and LocoNet interfaces. (Requires setting the CS setting in
+	the CAN library to B,1) 
+	</P>
+	<LI><P><A HREF="http://www.sparkfun.com/products/10039">SparkFun CAN
+	shield</A> - separate shield with a CAN interface, uSD card holder,
+	serial LCD connector and connector for an EM406 GPS module.
+	(Requires setting the CS setting in the CAN library to B,1) 
+	</P>
+</UL>
 <H2 CLASS="western">Arduino Sketches</H2>
 <P>Version 18 or later of the <A HREF="http://Arduino.cc/">Arduino
 IDE</A> allows you to set the location of the “sketch book” in
@@ -62,7 +69,7 @@ like to build and run.</P>
 			</TD>
 			<TD WIDTH=563 BGCOLOR="#9999cc">
 				<P>Two consumer, two producer sample node with configuration and
-				blue/gold programming support.
+				blue/gold programming support. 
 				</P>
 			</TD>
 		</TR>
@@ -82,15 +89,17 @@ like to build and run.</P>
 			</TD>
 			<TD WIDTH=563 BGCOLOR="#9999cc">
 				<P>One consumer, one producer sample node with configuration and
-				blue/gold programming support. Uses the first of the built-in green
-				buttons for input and output.  <p>
-				<p>Note 1: You need to set the CS selection to B,1 in the 
-				CAN/utility/config.h file of the CAN library.
-				<p>Note 2:  The 2nd built-in button
-				is on Arduino pin 10, which is the CS bit on other CAN interfaces.
-				If this sketch is updated to use that bit, it ceases to 
-				function after a little while, so there's probably another reference
-				to the CS bit in the CAN library that we haven't found yet.
+				blue/gold programming support. Uses the first of the built-in
+				green buttons for input and output. 
+				</P>
+				<P>Note 1: You need to set the CS selection to B,1 in the
+				CAN/utility/config.h file of the CAN library. 
+				</P>
+				<P>Note 2: The 2nd built-in button is on Arduino pin 10, which is
+				the CS bit on other CAN interfaces. If this sketch is updated to
+				use that bit, it ceases to function after a little while, so
+				there's probably another reference to the CS bit in the CAN
+				library that we haven't found yet. 
 				</P>
 			</TD>
 		</TR>
