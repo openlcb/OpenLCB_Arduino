@@ -1,7 +1,26 @@
 
 /*
  * $Id$ 
+ *
+ * This sketch allows an Arduino with USB and CAN interfaces to
+ * be used as an adapter between them.  The frames are sent in
+ * what's commonly called the "GridConnect" protocol.
+ *
+ * Note that a serial speed of 333333 or above is needed to 
+ * be certain of keeping up with a full CAN bus.  Not all
+ * computers will connect at that speed.  In particular, 
+ * Mac computers with standard FTDI drivers might only have
+ * 230,400 or even 115,200 available as a standard rate.
+ *
+ * For data directed from USB -> CAN, the sketch provides flow
+ * control using the (virtual) CTS signal.
  */
+
+#define         BAUD_RATE       230400
+//#define         BAUD_RATE       333333
+
+#include <arduino.h>
+
 #include <ctype.h>
 #include <can.h>
 #include <stdarg.h>
@@ -10,22 +29,16 @@
 #define         RXCAN_BUF_COUNT   32
 tCAN 		rxCAN[RXCAN_BUF_COUNT]; // CAN receive buffers
 int             rxCanBuffCounter;
-bool            rxCANflag[RXCAN_BUF_COUNT];
+bool            rxCANflag[RXCAN_BUF_COUNT]; // true is contains data
 int             rxCanFlagCounter;
 
 tCAN 		txCAN;	// CAN send buffer
 tCAN		* ptxCAN;
 
-char    	strBuf[10] ;	// String Buffer
-
 #define 	RX_BUF_SIZE	32
 #define         RX_CTS_PIN      9
 #define         RX_BUF_LOW      32 
 #define         RX_BUF_HIGH     96
-
-#define         BAUD_RATE       115200
-//#define         BAUD_RATE       333333
-
 
 char    	rxBuff[RX_BUF_SIZE];    // :lddddddddldddddddddddddddd:0
 uint8_t		rxIndex;
@@ -68,11 +81,6 @@ void setup()
   rxCanBuffCounter = 0;
   rxCanFlagCounter = 0;
 	
-  // Dump out the CAN Controller Registers
-  //Serial.println(":I Before regdump ;");
-  //can_regdump();
-  //Serial.println(":I After regdump ;");
-  
   ptxCAN = NULL;
 }
 
@@ -126,13 +134,17 @@ void loop()
       ptxCAN = NULL; 
   }
   
-  while (can_get_message(&rxCAN[rxCanBuffCounter]))  // as many as needed
+  // capture as many input frames as possible
+  while (can_get_message(&rxCAN[rxCanBuffCounter])) 
   {
     // handle message from CAN by marking and moving to next
     rxCANflag[rxCanBuffCounter] = true;
     rxCanBuffCounter++;
     if (rxCanBuffCounter >= RXCAN_BUF_COUNT) rxCanBuffCounter = 0;
   }
+  
+  // process one frame from CAN if possible
+  // note that print calls are blocking, so we rely on buffering
   if (rxCANflag[rxCanFlagCounter])
   {
      rxCANflag[rxCanFlagCounter] = false;
@@ -140,7 +152,6 @@ void loop()
     Serial.print(':');
     Serial.print(rxCAN[rxCanFlagCounter].flags.extended ? 'X' : 'S');
 
-    //Serial.print(strupr(ultoa(rxCAN.id, strBuf, 16)));
     Serial.print(rxCAN[rxCanFlagCounter].id, 16);
     
     if(rxCAN[rxCanFlagCounter].flags.rtr)

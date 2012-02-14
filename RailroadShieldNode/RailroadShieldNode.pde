@@ -18,7 +18,7 @@
 //==============================================================
 
 // next line for stand-alone compile
-#include <WProgram.h>
+#include <arduino.h>
 
 #include <ctype.h>
 #include <stdarg.h>
