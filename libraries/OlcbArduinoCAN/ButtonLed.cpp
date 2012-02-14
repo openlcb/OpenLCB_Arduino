@@ -1,5 +1,6 @@
-#include "WConstants.h"
-#include "ButtonLed.h"
+#include <ButtonLED.h>
+
+//#include <Arduino.h>
 
 void ButtonLed::init(uint8_t s) {
   sense = s;
@@ -11,7 +12,7 @@ void ButtonLed::init(uint8_t s) {
 }
 
 
-ButtonLed::ButtonLed(const uint8_t p,uint8_t s) : pin(p), sense(s) {      // define Button with pin and sense, 
+ButtonLed::ButtonLed(const uint8_t p,uint8_t s) : sense(s), pin(p) {      // define Button with pin and sense, 
 //                                        // Arduino pin the button/LED is attached
 //                                        // sense: HIGH=active high, LOW=active low. 
   init(s);
@@ -20,6 +21,14 @@ ButtonLed::ButtonLed(const uint8_t p,uint8_t s) : pin(p), sense(s) {      // def
 ButtonLed::ButtonLed(uint8_t p) : pin(p) {            // default to sense=HIGH
   init(HIGH);
 }
+
+ButtonLed::ButtonLed() {
+}
+
+void ButtonLed::setPinSense(uint8_t p, uint8_t s) {
+  pin = p;
+  init(s);
+}  
 
 void ButtonLed::on(long mask) {
       pattern = mask;
@@ -31,45 +40,60 @@ void ButtonLed::blink(uint8_t mask) {
 }
 
 void ButtonLed::process() {
-  if(bnext && (millis()&0x1f)==0) {             // check button state every 32 ms
-	bnext=false;                                // only want to check once per 
-	pinMode(pin, INPUT);                        // need to change the pin to input..
-	digitalWrite(pin,HIGH);                     // .. and activate pull up
-	newState=(sense==digitalRead(pin));         // is the button up or down
-	pinMode(pin,OUTPUT);                        // return pin to output mode
-	digitalWrite(pin,ledState);                 // and make sure its showing its state
-	if(newState != lastState) {                 // if button changed then..
-	  lastState = newState;                     // ..remember button state
-	  // now debounced
-	} else {                                    // else button position is unchanged..
-	  if(state!=newState) {                     // Debounced, but is it a new state?..
-	    state = newState;                       // ..yes, so update
-	    lastDuration = duration + 32;           //    and remember the duration of the last state
-	    lastTime = millis();                    // ..so we can calc duration
-	    duration = 0;                           // ..start timing ne state
-	  } else {                                  // else same state continuing, so
-	    duration = millis() - lastTime;         // .. calculate its duration
-	  } 
-	}
-  } else {
-	if((millis()&0x1f) != 0) bnext = true;      // partial through this 32ms period, so can trigger next period
+  long now = millis();
+  int period = now & 0xFFE0;                    // each period is 32 ms
+  if(period != lastButtonPeriod) {              // If we are in a new period
+    lastButtonPeriod = period;                  // .. remember it
+    pinMode(pin, INPUT);                        // .. change the pin to input..
+    digitalWrite(pin, HIGH);                    // .. and activate pull up
+    newState = (sense == digitalRead(pin));     // .. and read it, is the button up or down
+    pinMode(pin, OUTPUT);                       // .. return pin to output mode
+    digitalWrite(pin, ledState);                // .. and make sure its showing its state
+    if(newState != lastState) {                 // ..if button changed then..
+      lastState = newState;                     // ....remember the button state
+    } else {                                    // ..else its position is stable and so debounced
+      if(state != newState) {                   // ....But is it a new state?..
+        state = newState;                       // .....yes, so update
+        lastDuration = duration + 32;           //       and remember the duration of the last state
+        timeOfLastChange = now;                 //       so we can calc duration
+        duration = 0;                           //       start timing new state
+      } else {                                  // .....no, the same state is continuing, so
+        duration = millis() - timeOfLastChange; // ......calculate its duration
+      } 
+    }
   }
   // process LED
-  if ( next && (millis()&0x3F) == 0) {          // trigger every 64ms, but only once
-    if ((pattern & 0x1) !=0) {                  // if low bit 1 then ..
-	  ledState = sense;                         // .. update LED and 
-	  pattern = 0x80000000 | (pattern>>1);      // ..mimic roll with 1 in
-	} else {                                    // else low bit is 0, so ..
-	  ledState = !sense;                        // .. update LED and
-	  pattern = 0x7FFFFFFF & (pattern>>1);      // .. mimic a roll with a 0 in
-	}
-	if ((once & 0x1) != 0) ledState = LOW;      // handle once-through pattern
-	once = once>>1;
-	digitalWrite(pin,ledState);                 // set the pin
-	next = false;                               // we are complete for this 64ms period
-  } else {
-	if ( (millis()&0x3F) != 0) next = true;     // set-up to do the next period
+  period = now & 0xC0;                          // Each period is 64 ms 
+  if( period != lastLEDPeriod ) {               // if we are in a new period
+    lastLEDPeriod = period;                     // .. remember it
+    if ((pattern & 0x1) !=0) {                  // ..if low bit 1 then ..
+      ledState = sense;                         // .... update LED and 
+      pattern = 0x80000000 | (pattern>>1);      //      mimic roll with 1 in
+    } else {                                    // ..else low bit is 0, so ..
+      ledState = !sense;                        // ....update LED and
+      pattern = 0x7FFFFFFF & (pattern>>1);      //     mimic a roll with a 0 in
+    }
+    if ((once & 0x1) != 0) ledState = LOW;      // handle once-through pattern
+    once = once>>1;                             // ..once shifts out
+    digitalWrite(pin,ledState);                 // ..set the pin
   } 
   return;
 }
 
+/* Test sketch     
+
+ButtonLed b[64];
+
+void setup() {
+  DDRG |= 0x03;
+  for(int i=0; i<50; i++) {
+    b[i].setPinSense(i, LOW);
+    b[i].pattern = 0x0F0F0F0FL;
+  }
+}
+int p;
+void loop() {
+  if(p>=50) p=0;
+  b[p++].process();
+}
+*/
