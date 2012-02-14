@@ -120,4 +120,6 @@ class LinkControl {
   uint8_t state; // internal state counter, starts at zero
 };
 
+unsigned long millis(void);
+
 #endif

@@ -1,5 +1,6 @@
-// makes this an Arduino file
-#include "WConstants.h"
+// The timing here is done in an Arduino-specific way via the 
+// "millis" function, here advance defined
+extern "C"{ unsigned long millis();  }
 
 #include "LinkControl.h"
 
