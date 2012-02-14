@@ -1,5 +1,3 @@
-// makes this an Arduino file
-#include "WConstants.h"
 #include <string.h>
 
 #include "BG.h"
