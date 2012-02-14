@@ -6,7 +6,7 @@
 //   Bob Jacobsen 2010
 //      based on examples by Alex Shepherd and David Harris
 //===========================================================
-#include <WProgram.h>
+#include <arduino.h>
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -142,7 +142,7 @@ ButtonLed gold(19);
 NodeMemory nm(0);  // allocate from start of EEPROM
 void store() { nm.store(&nodeid, cEvents, cEventNum); }
 
-PCE p(cEvents, cEventNum, &txBuffer, &nodeid, pceCallback, store);
+PCE p(cEvents, cEventNum, &txBuffer, &nodeid, pceCallback, store, &link);
 
 /**
  * This setup is just for testing
