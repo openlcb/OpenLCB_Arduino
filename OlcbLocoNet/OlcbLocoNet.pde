@@ -1,4 +1,4 @@
-#include "WProgram.h"
+#include "arduino.h"
 
 #include <LocoNet.h>
 #include <can.h>

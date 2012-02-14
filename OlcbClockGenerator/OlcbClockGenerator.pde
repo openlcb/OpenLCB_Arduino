@@ -9,7 +9,7 @@
 //   David Harris
 //      based on examples by Alex Shepherd 
 //==============================================================
-#include <WProgram.h>
+#include <arduino.h>
 
 //#define PL(x) Serial.println(x)
 //#define P(x) Serial.print(x)

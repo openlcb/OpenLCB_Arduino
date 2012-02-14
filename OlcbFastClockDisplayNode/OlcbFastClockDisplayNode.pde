@@ -8,7 +8,7 @@
 //   Bob Jacobsen 2010
 //      based on examples by Alex Shepherd and David Harris
 //==============================================================
-#include <WProgram.h>
+#include <arduino.h>
 
 #include <ctype.h>
 #include <stdarg.h>

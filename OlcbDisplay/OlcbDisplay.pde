@@ -4,7 +4,7 @@
 // 
 //   Bob Jacobsen 2010
 //==============================================================
-#include <WProgram.h>
+#include <arduino.h>
 
 #include <ctype.h>
 #include <stdarg.h>
