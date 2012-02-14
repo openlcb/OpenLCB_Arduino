@@ -10,7 +10,7 @@
 //==============================================================
 
 // next line for stand-alone compile
-#include <WProgram.h>
+#include <Arduino.h>
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -66,8 +66,11 @@ OlcbStream str(&txBuffer, streamRcvCallback, &link);
  * Get and put routines that 
  * use a test memory space.
  */
-prog_char configDefInfo[] PROGMEM = "OlcbBasicNode"; // null terminated string
 
+// next line gets "warning: only initialized variables can be placed into program memory area" due to GCC bug
+const prog_char configDefInfo[] PROGMEM = "OlcbBasicNode"; // null terminated string
+
+ 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {
     // Configuration definition information
@@ -220,14 +223,13 @@ void loop() {
     // blink blue to show that the frame was received
     blue.blink(0x1);
     // see if recieved frame changes link state
-    handled |= link.receivedFrame(&rxBuffer);
+    handled = link.receivedFrame(&rxBuffer);
   }
 
   // if link is initialized, higher-level operations possible
   if (link.linkInitialized()) {
      // if frame present, pass to handlers
      if (rcvFramePresent && link.isMsgForHere(&rxBuffer)) {
-        bool handled = false;
         handled |= pce.receivedFrame(&rxBuffer);
         handled |= dg.receivedFrame(&rxBuffer);
         handled |= str.receivedFrame(&rxBuffer);
