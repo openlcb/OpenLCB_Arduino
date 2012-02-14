@@ -130,22 +130,32 @@ int main( int argc, const char* argv[] )
 	printf("one second done\n\n");
 	printf("--------------\n");
 
+    printf("send a first datagram \n");
+    dg.getTransmitBuffer();
+	dg.sendTransmitBuffer(23, 0xBFF);
+	doLoop(4);
+
+	if (dg.getTransmitBuffer() == 0) {
+	    printf("1st still in use, OK\n");
+	} else {
+	    printf("1st error: should be still in use\n");
+    }	
 
 	printf("datagram reply for another, expect it doesn't clear buffer\n");
-	b.id = 0x19111BFD;
+	b.id = 0x1E111BFD;
 	b.length = (uint8_t)1;
     b.data[0]=0x4c;
     queueTestMessage(&b);
 	doLoop(10);
 	if (dg.getTransmitBuffer() == 0) {
-	    printf("OK\n");
+	    printf("2nd still in use, OK\n");
 	} else {
-	    printf("Error: should be still in use\n");
+	    printf("2nd error: should be still in use\n");
     }	
     printf("\n");
 
 	printf("datagram reply for this, expect it clears buffer\n");
-	b.id = 0x1E6baBFD;
+	b.id = 0x1E573BFD;
 	b.length = (uint8_t)1;
     b.data[0]=0x4c;
     queueTestMessage(&b);
@@ -155,7 +165,7 @@ int main( int argc, const char* argv[] )
 	    dg.sendTransmitBuffer(0, 0xBFF);
 	    loop();
         printf("handle datagram ack reply\n");
-        b.id = 0x1E6baBFF;
+        b.id = 0x1E573BFF;
         b.length = (uint8_t)1;
         b.data[0]=0x4c;
         queueTestMessage(&b);
@@ -187,19 +197,19 @@ int main( int argc, const char* argv[] )
     queueTestMessage(&b);
     doLoop(10);
     printf("handle datagram nak reply by resending\n");
-    b.id = 0x1E6baBFF;
+    b.id = 0x1E573BFF;
     b.length = (uint8_t)1;
     b.data[0]=0x4d;
     queueTestMessage(&b);
     doLoop(10);
     printf("handle 2nd datagram nak reply by resending again\n");
-    b.id = 0x1E6baBFF;
+    b.id = 0x1E573BFF;
     b.length = (uint8_t)1;
     b.data[0]=0x4d;
     queueTestMessage(&b);
     doLoop(10);
 	printf("final positive reply clears buffer\n");
-	b.id = 0x1E6baBFF;
+	b.id = 0x1E573BFF;
 	b.length = (uint8_t)1;
     b.data[0]=0x4c;
     queueTestMessage(&b);
@@ -212,7 +222,7 @@ int main( int argc, const char* argv[] )
 	
 	printf("Receive single fragment datagram OK\n");
 	resultcode = 0;
-	b.id = 0x1D6baBFD;
+	b.id = 0x1D573BFD;
 	b.length = (uint8_t)4;
     b.data[0]=0x40;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
     queueTestMessage(&b);
@@ -221,26 +231,26 @@ int main( int argc, const char* argv[] )
 
 	printf("Receive three fragment datagram OK\n");
 	resultcode = 0;
-	b.id = 0x1C6baBFD;
+	b.id = 0x1C573BFD;
 	b.length = (uint8_t)4;
     b.data[0]=0x50;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
     queueTestMessage(&b);
 	doLoop(10);
-	b.id = 0x1C6baBFD;
+	b.id = 0x1C573BFD;
 	b.length = (uint8_t)4;
     b.data[0]=0x60;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
     queueTestMessage(&b);
 	doLoop(10);
-	b.id = 0x1D6baBFD;
+	b.id = 0x1D573BFD;
 	b.length = (uint8_t)4;
     b.data[0]=0x70;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
     queueTestMessage(&b);
 	doLoop(10);
 	printf("\n");
 
-	printf("Receive single fragment datagram fail\n");
+	printf("Receive single fragment datagram, return fail\n");
 	resultcode = 0x1234;
-	b.id = 0x1D6baBFD;
+	b.id = 0x1D573BFD;
 	b.length = (uint8_t)4;
     b.data[0]=0x40;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
     queueTestMessage(&b);

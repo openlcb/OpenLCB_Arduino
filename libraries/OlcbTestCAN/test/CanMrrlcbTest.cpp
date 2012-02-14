@@ -56,7 +56,7 @@ void pceCallback(int index){
   printf("consume %d\n",index);
 }
 void store(){}
-PCE pce(events, evtNum, &txBuffer, &nodeid, pceCallback, store);
+PCE pce(events, evtNum, &txBuffer, &nodeid, pceCallback, store, &link);
 
 /**
  * This setup is just for testing
@@ -163,7 +163,7 @@ int main( int argc, const char* argv[] )
 	doLoop(100);
 	printf("\n");
 
-	printf("queue Request Consumers, expect 1 reply\n");
+	printf("queue Identify Consumers, expect 1 reply\n");
 	b.id = 0x1824F00F;
 	b.length = (uint8_t)8;
 	b.data[0]=65;b.data[1]=66;b.data[2]=67;b.data[3]=68;b.data[4]=69;b.data[5]=70;b.data[6]=71;b.data[7]=72;
@@ -171,7 +171,7 @@ int main( int argc, const char* argv[] )
 	doLoop(100);
 	printf("\n");
 
-	printf("queue Request Consumers, expect no reply when matching producer event\n");
+	printf("queue Identify Consumers, expect no reply when matching producer event\n");
 	b.id = 0x1824F00F;
 	b.length = (uint8_t)8;
 	b.data[0]=17;b.data[1]=18;b.data[2]=19;b.data[3]=20;b.data[4]=21;b.data[5]=22;b.data[6]=23;b.data[7]=24;
@@ -179,7 +179,7 @@ int main( int argc, const char* argv[] )
 	doLoop(100);
 	printf("\n");
 
-	printf("queue Request Consumers, no reply due to not match\n");
+	printf("queue Identify Consumers, no reply due to not match\n");
 	b.id = 0x1824F00F;
 	b.length = (uint8_t)8;
 	b.data[0]=1;b.data[1]=12;b.data[2]=3;b.data[3]=4;b.data[4]=5;b.data[5]=6;b.data[6]=7;b.data[7]=8;
@@ -187,7 +187,7 @@ int main( int argc, const char* argv[] )
 	doLoop(100);
 	printf("\n");
 
-	printf("queue Request Producers, expect 1 reply\n");
+	printf("queue Identify Producers, expect 1 reply\n");
 	b.id = 0x1828F00F;
 	b.length = (uint8_t)8;
 	b.data[0]=17;b.data[1]=18;b.data[2]=19;b.data[3]=20;b.data[4]=21;b.data[5]=22;b.data[6]=23;b.data[7]=24;
@@ -195,7 +195,7 @@ int main( int argc, const char* argv[] )
 	doLoop(100);
 	printf("\n");
 
-	printf("queue Request Producers, no reply\n");
+	printf("queue Identify Producers, no reply\n");
 	b.id = 0x1828F00F;
 	b.length = (uint8_t)8;
 	b.data[0]=8;b.data[1]=12;b.data[2]=6;b.data[3]=5;b.data[4]=4;b.data[5]=3;b.data[6]=2;b.data[7]=1;
@@ -203,18 +203,25 @@ int main( int argc, const char* argv[] )
 	doLoop(100);
 	printf("\n");
 
-	printf("queue Request Events, expect 4 replies\n");
+	printf("queue Identify Events Global, expect 4 replies\n");
 	b.id = 0x182B700F;
-	b.length = (uint8_t)6;
-	b.data[0]=2; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
+	b.length = (uint8_t)0;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
 
-	printf("queue Request Events, no reply\n");
-	b.id = 0x182B700F;
-	b.length = (uint8_t)6;
-	b.data[0]=25; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
+	printf("queue Identify Events Addressed to non-existant node, expect no reply\n");
+	b.id = 0x1E00F00F;
+	b.length = (uint8_t)1;
+	b.data[0]=0x2B;
+	queueTestMessage(&b);
+	doLoop(100);
+	printf("\n");
+
+	printf("queue Identify Events Addressed to correct node, expect 4 replies\n");
+	b.id = 0x1E57300F;
+	b.length = (uint8_t)1;
+	b.data[0]=0x2B;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
