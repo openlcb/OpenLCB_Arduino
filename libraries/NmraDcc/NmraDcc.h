@@ -28,7 +28,7 @@
 //#define NMRA_DCC_PROCESS_MULTIFUNCTION
 
 #ifndef Wiring_h
-#include <WProgram.h>
+#include <arduino.h>
 #endif
 
 #ifndef NMRADCC_IS_IN
