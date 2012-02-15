@@ -98,6 +98,18 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
     else
         events[index].flags &= ~LEARN_FLAG;
   }
+
+
+bool PCE::isMarkedToLearn(int index) {
+	return events[index].flags==LEARN_FLAG;
+}
+
+void PCE::sendTeach(Event e) {   /// DPH added for Clock
+	buffer->setLearnEvent(&e);
+	handleLearnEvent(buffer);
+	OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
+}	
+
   
   void PCE::sendTeach(int index) {
     events[index].flags |= TEACH_FLAG;
