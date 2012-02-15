@@ -39,6 +39,7 @@ class ButtonLed {
     bool newState;            // state of button this scan
     //bool next, bnext;         // wait-next-timeslot flag in output loop
     void init(uint8_t s);     // init
+	bool lastUState;
   public:
     uint16_t sense;            // active sense of button/LED 
     long pattern;             // current output drive pattern (rotates)
@@ -56,6 +57,7 @@ class ButtonLed {
     void on(long pattern);                  // set the output repeating pattern
     void blink(uint8_t pattern);            // set the output one-time blink pattern
     void process();                         // call periodically
+	bool unique();
 };
 
 #endif 

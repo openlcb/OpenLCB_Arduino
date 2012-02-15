@@ -39,6 +39,19 @@ void ButtonLed::blink(uint8_t mask) {
   // wait for next time step to display
 }
 
+bool ButtonLed::unique() {
+	process();
+	if(state==true && lastUState==false) {
+		lastUState = true;
+		return true;
+	} 
+	lastUState=state;
+	return false;	
+}
+//     state: F T T F
+// lastState: F T T F
+//   returns: F T F Fbool
+
 void ButtonLed::process() {
   long now = millis();
   int period = now & 0xFFE0;                    // each period is 32 ms
@@ -63,7 +76,7 @@ void ButtonLed::process() {
     }
   }
   // process LED
-  period = now & 0xC0;                          // Each period is 64 ms 
+  period = now & 0xFFC0;                          // Each period is 64 ms 
   if( period != lastLEDPeriod ) {               // if we are in a new period
     lastLEDPeriod = period;                     // .. remember it
     if ((pattern & 0x1) !=0) {                  // ..if low bit 1 then ..
