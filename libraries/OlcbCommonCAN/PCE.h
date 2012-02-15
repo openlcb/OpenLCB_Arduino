@@ -74,8 +74,10 @@ class PCE {
    * event in the array provided to the ctor earlier.
    */
   void sendTeach(int index);
-  
-  private:
+  void sendTeach(Event e);
+  bool isMarkedToLearn(int index);
+
+private:
   Event* events;  // array
   int nEvents;
   LinkControl* link;
