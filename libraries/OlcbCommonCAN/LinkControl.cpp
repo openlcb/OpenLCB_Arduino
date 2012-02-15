@@ -15,7 +15,7 @@ extern "C"{ unsigned long millis();  }
 #define STATE_INITIALIZED 30
 
 // time to wait between last CIM and RIM
-#define CONFIRM_WAIT_TIME 500
+#define CONFIRM_WAIT_TIME 200
 
 #include "logging.h"
 
@@ -50,7 +50,7 @@ void LinkControl::reset() {
 
 void LinkControl::restart() {
   state = STATE_INITIAL;
-  // take the 1st from the sequence
+  // advance the sequence
   nextAlias();
 }
 
@@ -152,11 +152,17 @@ bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
      } else if (rcv->isRIM()) {
        // RIM frame is an error, restart
        restart();
+       return true; // don't process further
      } else {
        // some other frame; this is an error! Restart
        restart();
+       return true; // don't process further
      }
    }
+   // check for aliasMapEnquiry
+   // check for aliasMapDefinition
+   // check for aliasMapReset
+
    // see if this is a Verify request to us; first check type
    if (rcv->isVerifyNIDglobal()) {
      // check if carries address

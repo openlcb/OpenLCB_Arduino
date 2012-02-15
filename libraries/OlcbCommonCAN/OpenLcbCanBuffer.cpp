@@ -1,6 +1,3 @@
-// makes this an Arduino file
-#include "WConstants.h"
-
 #include <string.h>
 
 // The following line is needed because the Arduino environment 
@@ -251,7 +248,7 @@
       return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFY_NID_GLOBAL);
   }
 
-  bool OpenLcbCanBuffer::isVerifyNID(int nida) {
+  bool OpenLcbCanBuffer::isVerifyNID(uint16_t nida) {
       if (nida != (getVariableField()&0xFFF) ) return false;
       if (getOpenLcbFormat() != MTI_FORMAT_ADDRESSED_NON_DATAGRAM) return false;
       if (length == 0) return false;
@@ -326,7 +323,7 @@
       return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_IDENTIFY_EVENTS_GLOBAL);
   }
 
-  bool OpenLcbCanBuffer::isIdentifyEvents(int nida) {
+  bool OpenLcbCanBuffer::isIdentifyEvents(uint16_t nida) {
       if (nida != (getVariableField()&0xFFF) ) return false;
       if (getOpenLcbFormat() != MTI_FORMAT_ADDRESSED_NON_DATAGRAM) return false;
       if (length == 0) return false;

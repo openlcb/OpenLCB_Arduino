@@ -1,5 +1,3 @@
-#include "WConstants.h"
-
 #include "Configuration.h"
 #include "Datagram.h"
 #include "OlcbStream.h"
@@ -84,10 +82,13 @@ int Configuration::receivedDatagram(uint8_t* data, int ln, unsigned int f) {
 
 uint32_t Configuration::getAddress(uint8_t* data) {
     uint32_t val = 0;
-    val |= (data[2]<<24);
-    val |= (data[3]<<16);
-    val |= (data[4]<<8);
-    val |= (data[5]);
+    val =  data[2];
+    val = val << 8;
+    val |= data[3];
+    val = val << 8;
+    val |= data[4];
+    val = val << 8;
+    val |= data[5];
     return val;
 }
 
@@ -97,7 +98,7 @@ int Configuration::decodeLen(uint8_t* data) {
     return data[6];
 }
 int Configuration::decodeSpace(uint8_t* data) {
-    int val;
+    int val = 0xFF;  // default
     switch (data[1]&0x03) {
         case 0x03:
             val = 0xFF;
@@ -125,7 +126,7 @@ void Configuration::processRead(uint8_t* data, int length) {
     // copy front matter
     for (int i=0; i<6; i++)
         d[i]=data[i];
-    d[1] = CFG_CMD_READ_REPLY | d[1]&0x0F;
+    d[1] = CFG_CMD_READ_REPLY | (d[1]&0x0F);
     // get length, space
     int len = decodeLen(data);
     uint32_t address = getAddress(data);

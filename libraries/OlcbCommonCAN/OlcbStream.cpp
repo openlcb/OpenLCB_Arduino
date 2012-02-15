@@ -1,6 +1,3 @@
-// makes this an Arduino file
-#include "WConstants.h"
-
 #include "OpenLcbCan.h"
 #include "OpenLcbCanBuffer.h"
 #include "LinkControl.h"

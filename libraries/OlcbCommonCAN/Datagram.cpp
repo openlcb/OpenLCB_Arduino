@@ -1,5 +1,3 @@
-// makes this an Arduino file
-#include "WConstants.h"
 #include <string.h>
 
 #include "OpenLcbCan.h"
@@ -46,7 +44,7 @@ void Datagram::check() {
       buffer->setVariableField(dest);
       buffer->setFrameTypeOpenLcb();
       buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_DATAGRAM);
-      buffer->length = min(sendcount,8);
+      buffer->length = sendcount<8 ? sendcount : 8;
       for (int i = 0; i<buffer->length; i++)
           buffer->data[i] = *(tptr++);
       sendcount = sendcount - buffer->length;
@@ -54,7 +52,6 @@ void Datagram::check() {
       if (sendcount == 0) {
           sendcount = -1;
           buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST);
-          reserved = false;
       }
       // and send it
       OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
@@ -65,16 +62,16 @@ void Datagram::check() {
 
 bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
     // check for datagram reply, which can free buffer
-    if ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )
-         && (dest == rcv->getSourceAlias()) 
+    if ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  // addressed to here
+         // need to check that this is _from_ the node that's sending the datagram
          && (rcv->length == 1) ) {
         // for this node, check meaning
-        if (rcv->data[0] == (MTI_DATAGRAM_RCV_OK)&0xFF ) { // datagram ACK
+        if (rcv->data[0] == (MTI_DATAGRAM_RCV_OK & 0xFF) ) { // datagram ACK
             // this is to us, check data
             // release reserve
             reserved = false;
             return true;
-        } else if (rcv->data[0] == (MTI_DATAGRAM_REJECTED)&0xFF ) { // datagram NAK
+        } else if (rcv->data[0] == (MTI_DATAGRAM_REJECTED & 0xFF) ) { // datagram NAK
             // set up for resend
             sendcount = resendcount;
             tptr = tbuf;

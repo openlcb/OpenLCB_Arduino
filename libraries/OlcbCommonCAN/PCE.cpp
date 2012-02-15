@@ -1,5 +1,3 @@
-// makes this an Arduino file
-#include "WConstants.h"
 #include <string.h>
 
 #include "PCE.h"
@@ -50,7 +48,7 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
     if ((events[i].flags & Event::CAN_PRODUCE_FLAG) == 0) return;
     // mark for production
     events[i].flags |= PRODUCE_FLAG;
-    sendEvent = min(sendEvent, i);
+    sendEvent = sendEvent<i ? sendEvent : i;
   }
   
   void PCE::check() {
@@ -89,7 +87,7 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
   
   void PCE::newEvent(int index, bool p, bool c) {
     events[index].flags |= IDENT_FLAG;
-    sendEvent = min(sendEvent, index);
+    sendEvent = sendEvent < index ? sendEvent : index;
     if (p) events[index].flags |= Event::CAN_PRODUCE_FLAG;
     if (c) events[index].flags |= Event::CAN_CONSUME_FLAG;
   }
@@ -103,7 +101,7 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
   
   void PCE::sendTeach(int index) {
     events[index].flags |= TEACH_FLAG;
-    sendEvent = min(sendEvent, index);
+    sendEvent = sendEvent < index ? sendEvent : index;
   }
   
   bool PCE::receivedFrame(OpenLcbCanBuffer* rcv) {
@@ -117,7 +115,7 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
            // yes, we have to reply with ConsumerIdentified
            if (events[index].flags & Event::CAN_CONSUME_FLAG) {
                events[index].flags |= IDENT_FLAG;
-               sendEvent = min(sendEvent, index);
+               sendEvent = sendEvent < index ? sendEvent : index;
            }
            index++;
            if (index>=nEvents) break;
@@ -132,7 +130,7 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
            // yes, we have to reply with ProducerIdentified
            if (events[index].flags & Event::CAN_PRODUCE_FLAG) {
                events[index].flags |= IDENT_FLAG;
-               sendEvent = min(sendEvent, index);
+               sendEvent = sendEvent < index ? sendEvent : index;
            }
            index++;
            if (index>=nEvents) break;
@@ -177,7 +175,7 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
                 rcv->getEventID(events+i);
                 events[i].flags |= IDENT_FLAG; // notify new eventID
                 events[i].flags &= ~LEARN_FLAG; // enough learning
-                sendEvent = min(sendEvent, i);
+                sendEvent = sendEvent < i ? sendEvent : i;
                 save = true;
             }
         }
