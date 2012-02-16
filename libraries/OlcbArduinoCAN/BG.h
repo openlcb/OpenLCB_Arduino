@@ -34,7 +34,7 @@ class ButtonLed;
 class BG {
   public:
 
-  BG(PCE* pce, ButtonLed** buttons, long* patterns, int nEvents, ButtonLed* blue, ButtonLed* gold);
+  BG(PCE* pce, ButtonLed** buttons, long* patterns, uint8_t nEvents, ButtonLed* blue, ButtonLed* gold);
   
   void check();
   
@@ -43,11 +43,11 @@ class BG {
   PCE* pce;
   ButtonLed** buttons;
   long* patterns;
-  int nEvents;
+  uint8_t nEvents;
   ButtonLed* blue;
   ButtonLed* gold;
 
-  int index;
+  uint8_t index;
   bool lastBlue;
   bool lastGold;
   bool started;
