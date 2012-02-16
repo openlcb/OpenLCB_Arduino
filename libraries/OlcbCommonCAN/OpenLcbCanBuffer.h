@@ -53,6 +53,10 @@ class EventID;
   bool isOpenLcDestIdFormat();
   bool isOpenLcbStreamIdFormat();
 
+  /*
+   * First argument is format, e.g. MTI_FORMAT_ADDRESSED_NON_DATAGRAM
+   * Second is variable field
+   */
   void setOpenLcbMTI(uint16_t fmt, uint16_t mti);
   bool isOpenLcbMTI(uint16_t fmt, uint16_t mti);
   

@@ -41,9 +41,7 @@ void Datagram::check() {
     // check if can send now
     if (OpenLcb_can_xmt_ready(buffer)) {
       // load buffer
-      buffer->setVariableField(dest);
-      buffer->setFrameTypeOpenLcb();
-      buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_DATAGRAM);
+      buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM, dest);
       buffer->length = sendcount<8 ? sendcount : 8;
       for (int i = 0; i<buffer->length; i++)
           buffer->data[i] = *(tptr++);
@@ -95,9 +93,7 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
             // callback; result is error code or zero
             int result = (*callback)(rbuf, length, rcv->getSourceAlias());
             rptr = rbuf;
-            buffer->setVariableField(rcv->getSourceAlias());
-            buffer->setFrameTypeOpenLcb();
-            buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_NON_DATAGRAM);
+            buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
             if (result == 0) {
                 // send OK; done immediately with wait
                 // TODO: Need a more robust method here
