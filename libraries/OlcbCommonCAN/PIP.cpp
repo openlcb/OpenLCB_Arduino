@@ -6,29 +6,26 @@
 #include "OpenLcbCanBuffer.h"
 #include "OpenLcbCan.h"
 
-#include "logging.h"
+static LinkControl* link;
+static OpenLcbCanBuffer* buffer;
+static uint8_t* bytes;
+static uint16_t dest;
+static bool queued;
 
 
-PIP::PIP(uint8_t* by, OpenLcbCanBuffer* b, LinkControl* li) {
+void PIP_setup(uint8_t* by, OpenLcbCanBuffer* b, LinkControl* li) {
       bytes = by;
       buffer = b;
       link = li;
       queued = false;
   }
   
-  void PIP::check() {
+  void PIP_check() {
     if (queued) {
         if (OpenLcb_can_xmt_ready(buffer)) {
-            buffer->setVariableField(dest);
-            buffer->setFrameTypeOpenLcb();
-            buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_NON_DATAGRAM);
+            buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, dest);
             buffer->data[0] = 0x2F;
-            buffer->data[1] = bytes[0];
-            buffer->data[2] = bytes[1];
-            buffer->data[3] = bytes[2];
-            buffer->data[4] = bytes[3];
-            buffer->data[5] = bytes[4];
-            buffer->data[6] = bytes[5];
+            memcpy( bytes, (buffer->data)+1, 6); 
             buffer->length = 7;
             OpenLcb_can_queue_xmt_immediate(buffer);  // checked previously
             queued = false;
@@ -37,10 +34,10 @@ PIP::PIP(uint8_t* by, OpenLcbCanBuffer* b, LinkControl* li) {
     return;
   }
     
-  bool PIP::receivedFrame(OpenLcbCanBuffer* rcv) {
+  bool PIP_receivedFrame(OpenLcbCanBuffer* rcv) {
     if ( rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  { 
         // for this node, check meaning
-        if (rcv->data[0] == (0x2E & 0xFF) ) { // PIP request
+         if (rcv->data[0] == (0x2E & 0xFF) ) { // PIP request
             queued = true;
             dest = rcv->getSourceAlias();
         }
