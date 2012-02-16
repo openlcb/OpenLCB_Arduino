@@ -45,6 +45,8 @@ class foo{};
 #include "Configuration.h"
 #include "NodeMemory.h"
 #include "PCE.h"
+#include "PIP.h"
+#include "SNII.h"
 #include "BG.h"
 #include "ButtonLed.h"
 
@@ -67,10 +69,12 @@ OlcbStream str(&txBuffer, streamRcvCallback, &link);
  * use a test memory space.
  */
 
-// next line gets "warning: only initialized variables can be placed into program memory area" due to GCC bug
-const prog_char configDefInfo[] PROGMEM = "OlcbBasicNode"; // null terminated string
+// next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
+extern "C" {
+const prog_char configDefInfo[] PROGMEM = "<some><xml><goes><here>"; // null terminated string
+const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0000.4";
+}
 
- 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {
     // Configuration definition information
@@ -80,6 +84,12 @@ const uint8_t getRead(uint32_t address, int space) {
     return *(((uint8_t*)&rxBuffer)+address);
   } else if (space == 0xFD) {
     // Configuration space
+    return EEPROM.read(address);
+  } else if (space == 0xFC) { // 
+    // used by ADCDI for constant data
+    return pgm_read_byte(SNII_const_data+address);
+  } else if (space == 0xFB) { // 
+    // used by ADCDI for variable data
     return EEPROM.read(address);
   } else {
     // unknown space
@@ -96,6 +106,8 @@ void getWrite(uint32_t address, int space, uint8_t val) {
   } 
   // all other spaces not written
 }
+
+uint8_t protocolIdent[6] = {0xD1,0,0,0,0,0};
 
 Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);
 
@@ -204,6 +216,10 @@ void setup()
       pce.newEvent(i,false,true); // produce, consume
   }
   
+  // Init protocol blocks
+  PIP_setup(protocolIdent, &txBuffer, &link);
+  SNII_setup((uint8_t)sizeof(SNII_const_data), &txBuffer, &link);
+
   // Initialize OpenLCB CAN connection
   OpenLcb_can_init();
   
@@ -233,6 +249,8 @@ void loop() {
         handled |= pce.receivedFrame(&rxBuffer);
         handled |= dg.receivedFrame(&rxBuffer);
         handled |= str.receivedFrame(&rxBuffer);
+        handled |= PIP_receivedFrame(&rxBuffer);
+        handled |= SNII_receivedFrame(&rxBuffer);
         if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer);
      }
      // periodic processing of any state changes
@@ -241,6 +259,8 @@ void loop() {
      str.check();
      cfg.check();
      bg.check();
+     PIP_check();
+     SNII_check();
      produceFromPins();
   } else {
     // link not up, but continue to show indications on blue and gold
