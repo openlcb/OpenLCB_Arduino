@@ -27,7 +27,7 @@ void NodeMemory::forceInitEvents() {
     EEPROM.write(3,0xCC);
 }
 
-void NodeMemory::setup(NodeID* nid, Event* cE, int nC) {
+void NodeMemory::setup(NodeID* nid, Event* cE, uint8_t nC) {
     if (checkNidOK()) {
         // read NodeID from non-volative memory
         uint8_t* p;
@@ -37,8 +37,8 @@ void NodeMemory::setup(NodeID* nid, Event* cE, int nC) {
         *p++ = EEPROM.read(addr++);
 
         // load count
-        int part1 = EEPROM.read(startAddress+KEYSIZE);
-        int part2 = EEPROM.read(startAddress+KEYSIZE+1);
+        uint8_t part1 = EEPROM.read(startAddress+KEYSIZE);
+        uint8_t part2 = EEPROM.read(startAddress+KEYSIZE+1);
         count = (part1<<8)+part2;
 
         // handle the rest
@@ -55,34 +55,34 @@ void NodeMemory::setup(NodeID* nid, Event* cE, int nC) {
     uint8_t* p;
     int addr = startAddress+KEYSIZE+COUNTSIZE; // skip check word and count
     p = (uint8_t*)nid;
-    for (unsigned int i=0; i<sizeof(NodeID); i++) 
+    for (uint8_t i=0; i<sizeof(NodeID); i++) 
         *p++ = EEPROM.read(addr++);
 
     
     // read events
     p = (uint8_t*)cE;
-    for (int k=0; k<nC; k++)
+    for (uint8_t k=0; k<nC; k++)
         for (unsigned int i=0; i<sizeof(Event); i++) 
             *p++ = EEPROM.read(addr++);
     
 }
 
-void NodeMemory::setup(NodeID* nid, Event* cE, int nC, uint8_t* data, int extraBytes) {
+void NodeMemory::setup(NodeID* nid, Event* cE, uint8_t nC, uint8_t* data, int extraBytes) {
     setup(nid, cE, nC);
     // read extra data
     uint8_t* p = data;
     int addr = KEYSIZE+COUNTSIZE+sizeof(NodeID)+nC*(sizeof(Event));
-    for (int k=0; k<extraBytes; k++)
+    for (uint8_t k=0; k<extraBytes; k++)
         *p++ = EEPROM.read(addr++);
 }
 
-void NodeMemory::reset(NodeID* nid, Event* cE, int nC) {
+void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC) {
     // Do the in-memory update. Does not change
     // the total count, this is not an "initial config" for factory use.
 
     Event* c;
     c = cE;
-    for (int i = 0; i<nC; i++) {
+    for (uint8_t i = 0; i<nC; i++) {
         setToNewEventID(nid, c++);
     }
     
@@ -90,7 +90,7 @@ void NodeMemory::reset(NodeID* nid, Event* cE, int nC) {
     store(nid, cE, nC);
 }
 
-void NodeMemory::store(NodeID* nid, Event* cE, int nC) {
+void NodeMemory::store(NodeID* nid, Event* cE, uint8_t nC) {
     
     int addr = startAddress;
     // write tag
@@ -105,15 +105,15 @@ void NodeMemory::store(NodeID* nid, Event* cE, int nC) {
     // write NodeID
     uint8_t* p;
     p = (uint8_t*)nid;
-    for (unsigned int i=0; i<sizeof(NodeID); i++) 
+    for (uint8_t i=0; i<sizeof(NodeID); i++) 
         writeByte(addr++, *p++);
 
     // write events
     p = (uint8_t*)cE;
     for (int k=0; k<nC; k++) {
-        for (unsigned int i=0; i<sizeof(EventID); i++) 
+        for (uint8_t i=0; i<sizeof(EventID); i++) 
             writeByte(addr++, *p++);
-        for (unsigned int i=sizeof(EventID); i<sizeof(Event); i++) {
+        for (uint8_t i=sizeof(EventID); i<sizeof(Event); i++) {
             // skip over the flags
             writeByte(addr++, 0);
             p++;
@@ -121,7 +121,7 @@ void NodeMemory::store(NodeID* nid, Event* cE, int nC) {
     }
 }
 
-void NodeMemory::store(NodeID* nid, Event* cE, int nC, uint8_t* data, int extraBytes) {
+void NodeMemory::store(NodeID* nid, Event* cE, uint8_t nC, uint8_t* data, int extraBytes) {
     store(nid, cE, nC);
     // write extra data
     uint8_t* p = data;
@@ -133,7 +133,7 @@ void NodeMemory::store(NodeID* nid, Event* cE, int nC, uint8_t* data, int extraB
 void NodeMemory::setToNewEventID(NodeID* nid, EventID* eventID) {
     uint8_t* p = (uint8_t*)eventID;
     uint8_t* n = (uint8_t*)nid;
-    for (unsigned int k=0; k<sizeof(*nid); k++)
+    for (uint8_t k=0; k<sizeof(*nid); k++)
         *p++ = *n++;
     *p++ = (count++>>8)&0xFF;
     *p++ = count&0xFF;

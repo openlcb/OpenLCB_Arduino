@@ -45,20 +45,20 @@ class NodeMemory {
    * Make sure ready to go.  NodeID should have a default
    * value already in case this is the first time.
    */
-  void setup(NodeID* nid, Event* events, int nunEvents);
+  void setup(NodeID* nid, Event* events, uint8_t nunEvents);
   
   /**
    * Make sure ready to go.  NodeID should have a default
    * value already in case this is the first time.
    * Add extra bytes of memory at end.
    */
-  void setup(NodeID* nid, Event* events, int nunEvents, uint8_t* data, int extraBytes);
+  void setup(NodeID* nid, Event* events, uint8_t nunEvents, uint8_t* data, int extraBytes);
   
   /*
    * Move to a completely new set of values, e.g. a "default" reset
    * for OpenLCB. NodeID is not changed.
    */
-  void reset(NodeID* nid, Event* events, int nunEvents); 
+  void reset(NodeID* nid, Event* events, uint8_t nunEvents); 
 
   /** 
    * For debug and test, this forces the next
@@ -75,8 +75,8 @@ class NodeMemory {
   /*
    * Put modified contents back into memory.
    */
-  void store(NodeID* nid, Event* events, int nunEvents); 
-  void store(NodeID* nid, Event* events, int nunEvents, uint8_t* data, int extraBytes); 
+  void store(NodeID* nid, Event* events, uint8_t nunEvents); 
+  void store(NodeID* nid, Event* events, uint8_t nunEvents, uint8_t* data, int extraBytes); 
   
   /*
    * Get a new, forever unique EventID and put in 
@@ -92,7 +92,7 @@ class NodeMemory {
   void writeByte(int address, uint8_t value); // write only if needed
   
   int startAddress; // address of 1st byte in EEPROM
-  int count; // count of EventIDs provided to date
+  uint8_t count; // count of EventIDs provided to date
 };
 
 #endif
