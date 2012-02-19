@@ -24,8 +24,6 @@
 #include <EEPROM.h>
 #include <can.h>
 
-class foo{};
-
 // init for serial communications
 //#define         BAUD_RATE       115200
 #define         BAUD_RATE       57600
@@ -117,9 +115,7 @@ unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int f
   //for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
   //printf("\n");
   // pass to consumers
-  cfg.receivedDatagram(rbuf, length, from);
-  
-  return 0;  // return pre-ordained result
+  return cfg.receivedDatagram(rbuf, length, from);
 }
 
 unsigned int resultcode;
