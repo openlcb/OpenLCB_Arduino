@@ -37,11 +37,11 @@ void PIP_setup(uint8_t* by, OpenLcbCanBuffer* b, LinkControl* li) {
   bool PIP_receivedFrame(OpenLcbCanBuffer* rcv) {
     if ( rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  { 
         // for this node, check meaning
-         if (rcv->data[0] == (0x2E & 0xFF) ) { // PIP request
+         if (rcv->data[0] == 0x2E ) { // PIP request
             queued = true;
             dest = rcv->getSourceAlias();
+            return true;
         }
-        return true;
     }
     return false;
   }

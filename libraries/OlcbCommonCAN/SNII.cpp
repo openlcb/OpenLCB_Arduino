@@ -46,8 +46,8 @@ bool SNII_receivedFrame(OpenLcbCanBuffer* rcv) {
         if (rcv->data[0] == 0x52 ) { // SCIP request
             tptr = 0;
             dest = rcv->getSourceAlias();
+            return true;
         }
-        return true;
     }
     return false;
 }
