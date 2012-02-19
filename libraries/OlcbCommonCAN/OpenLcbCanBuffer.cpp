@@ -85,13 +85,24 @@
   // start of CAN-level messages
  
 #define RIM_VAR_FIELD 0x0700
+#define AMD_VAR_FIELD 0x0701
 
-  void OpenLcbCanBuffer::setCIM(int i, uint16_t testval, uint16_t alias) {
+  void OpenLcbCanBuffer::setFrameTypeCAN(uint16_t alias, uint16_t var) {
     init(alias);
     setFrameTypeCAN();
-    uint16_t var =  (( (0x7-i) & 7) << 12) | (testval & 0xFFF); 
     setVariableField(var);
     length=0;
+  }
+
+  void OpenLcbCanBuffer::setAMD(uint16_t alias,NodeID* nid) {
+    setFrameTypeCAN(alias, AMD_VAR_FIELD);
+    length=6;
+    memcpy(data, nid->val, 6);
+  }
+
+  void OpenLcbCanBuffer::setCIM(uint8_t i, uint16_t testval, uint16_t alias) {
+    uint16_t var =  (( (0x7-i) & 7) << 12) | (testval & 0xFFF); 
+    setFrameTypeCAN(alias, var);
   }
 
   bool OpenLcbCanBuffer::isCIM() {
@@ -99,10 +110,7 @@
   }
 
   void OpenLcbCanBuffer::setRIM(uint16_t alias) {
-    init(alias);
-    setFrameTypeCAN();
-    setVariableField(RIM_VAR_FIELD);
-    length=0;
+    setFrameTypeCAN(alias, RIM_VAR_FIELD);
   }
 
   bool OpenLcbCanBuffer::isRIM() {
@@ -244,6 +252,16 @@
     //nid->val[5] = data[5];
   }
   
+  bool OpenLcbCanBuffer::matchesNid(NodeID* nid) {
+        return 
+            nid->val[0] == data[0] &&
+            nid->val[1] == data[1] &&
+            nid->val[2] == data[2] &&
+            nid->val[3] == data[3] &&
+            nid->val[4] == data[4] &&
+            nid->val[5] == data[5];
+  }
+
   bool OpenLcbCanBuffer::isVerifyNIDglobal() {
       return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFY_NID_GLOBAL);
   }

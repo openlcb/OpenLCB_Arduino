@@ -63,12 +63,6 @@ class LinkControl {
   bool receivedFrame(OpenLcbCanBuffer* rcv);
 
   /**
-   * True if this is a message frame for here;
-   * either global or address to here
-   */
-  bool isMsgForHere(OpenLcbCanBuffer* rcv);
-
-  /**
    * Send an Optional Interaction Rejected frame
    */
   void rejectMessage(OpenLcbCanBuffer* rcv);
@@ -97,6 +91,12 @@ class LinkControl {
   bool sendRIM();
   
   /**
+   * Send an AMD message.  Return true it you can/did,
+   * false if you didn't.
+   */
+  bool sendAMD();
+  
+  /**
    * Send the InitializationComplete when everything is OK.
    *  Return true it you can/did,
    * false if you didn't.
@@ -118,6 +118,8 @@ class LinkControl {
   unsigned long timer; // used to wait for specific times (Arduino type definition)
   uint32_t lfsr1, lfsr2;  // PRNG sequence value: lfsr1 is upper 24 bits, lfsr2 lower
   uint8_t state; // internal state counter, starts at zero
+  
+  bool sendFrame();  // sends txBuffer if it can, returns whether it did
 };
 
 unsigned long millis(void);

@@ -35,8 +35,9 @@ class EventID;
   // end of basic message structure
   
   // start of CAN-level messages
-  
-  void setCIM(int i, uint16_t testval, uint16_t alias);
+  void setFrameTypeCAN(uint16_t alias, uint16_t varField);  
+  void setCIM(uint8_t i, uint16_t testval, uint16_t alias);
+  void setAMD(uint16_t alias,NodeID* nid);
   bool isCIM();
   
   void setRIM(uint16_t alias);
@@ -105,6 +106,8 @@ class EventID;
 
   bool isDatagram();
   bool isLastDatagram();
+  
+  bool matchesNid(NodeID* nid);
   
   private: 
   unsigned int nodeAlias;   // Initialization complete sets, all later use

@@ -12,6 +12,7 @@ extern "C"{ unsigned long millis();  }
 #define STATE_INITIAL 0
 #define STATE_WAIT_CONFIRM 10
 #define STATE_ALIAS_ASSIGNED 20
+#define STATE_PERMITTED 25
 #define STATE_INITIALIZED 30
 
 // time to wait between last CIM and RIM
@@ -57,7 +58,6 @@ void LinkControl::restart() {
 // send the next CIM message.  "i" is the 0-3 ordinal number of the message, which
 // becomes F-C in the CIM itself. Returns true if successfully sent.
 bool LinkControl::sendCIM(uint8_t i) {
-  if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now  if (!isTxBufferFree()) return false;  // couldn't send just now
   uint16_t fragment;
   switch (i) {
     case 0:  fragment = ( (nid->val[0]<<4)&0xFF0) | ( (nid->val[1] >> 4) &0xF);
@@ -71,20 +71,26 @@ bool LinkControl::sendCIM(uint8_t i) {
              break;
   }
   txBuffer->setCIM(i,fragment,getAlias());
-  OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
-  return true;
+  return sendFrame();
 }
 
 bool LinkControl::sendRIM() {
-  if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now  if (!isTxBufferFree()) return false;  // couldn't send just now
   txBuffer->setRIM(getAlias());
-  OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
-  return true;
+  return sendFrame();
 }
 
 bool LinkControl::sendInitializationComplete() {
-  if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now  if (!isTxBufferFree()) return false;  // couldn't send just now
   txBuffer->setInitializationComplete(getAlias(), nid);
+  return sendFrame();
+}
+
+bool LinkControl::sendAMD() {
+  txBuffer->setAMD(getAlias(), nid);
+  return sendFrame();
+}
+
+bool LinkControl::sendFrame() {
+  if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now
   OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
   return true;
 }
@@ -113,6 +119,11 @@ void LinkControl::check() {
     }
     return;
   case STATE_ALIAS_ASSIGNED:
+    // send AMD to go to Permitted
+    if (sendAMD()) {
+        state = STATE_PERMITTED;
+    }
+  case STATE_PERMITTED:
     // send init
     if (sendInitializationComplete()) {
       state = STATE_INITIALIZED;
@@ -137,51 +148,41 @@ void LinkControl::rejectMessage(OpenLcbCanBuffer* rcv) {
      OpenLcb_can_queue_xmt_wait(txBuffer);
 }
 
-bool LinkControl::isMsgForHere(OpenLcbCanBuffer* rcv) {
-    return rcv->isMsgForHere(getAlias());
-}
-
 bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
+    uint16_t alias = getAlias();
    // check received message
    // see if this is a frame with our alias
-   if (getAlias() == rcv->getSourceAlias()) {
+   if ( alias == rcv->getSourceAlias()) {
      // somebody else trying to use this one, see to what extent
      if (rcv->isCIM()) {
        // somebody else trying to allocate, tell them
        while (!sendRIM()) {}  // insist on sending it now.
-     } else if (rcv->isRIM()) {
-       // RIM frame is an error, restart
-       restart();
-       return true; // don't process further
      } else {
-       // some other frame; this is an error! Restart
+       // RIM frame or not RIM Frame, do same thing: Restart
        restart();
-       return true; // don't process further
      }
    }
    // check for aliasMapEnquiry
+   else if (rcv->isFrameTypeCAN() && (rcv->getVariableField() == 0x0702)) {
+      // check node ID matches
+      if (!rcv->matchesNid(nid)) return false;
+      // reply
+      txBuffer->setAMD(alias, nid);
+      OpenLcb_can_queue_xmt_wait(txBuffer);
+   }
    // check for aliasMapDefinition
    // check for aliasMapReset
 
    // see if this is a Verify request to us; first check type
-   if (rcv->isVerifyNIDglobal()) {
-     // check if carries address
-     if (rcv->length != 0) {
-        // check field & end if not match
-        NodeID n;
-        rcv->getNodeID(&n);
-        if (! n.equals(nid)) return false;
-     }
+   else if (  ( rcv->isVerifyNIDglobal() && (rcv->length == 0 || rcv->matchesNid(nid)) )
+        || rcv->isVerifyNID(alias)
+      ) {
      // reply; should be threaded, but isn't
      txBuffer->setVerifiedNID(nid);
      OpenLcb_can_queue_xmt_wait(txBuffer);
      return true;
-   } else if (rcv->isVerifyNID(getAlias()) ) {
-     // This was addressed to you.
-     // ToDo: This should be threaded
-     txBuffer->setVerifiedNID(nid);
-     OpenLcb_can_queue_xmt_wait(txBuffer);
-     return true;
    }
+   
    return false;
 }
+
