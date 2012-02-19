@@ -69,7 +69,7 @@ void Configuration::check() {
 
 int Configuration::receivedDatagram(uint8_t* data, int ln, unsigned int f) {
     // decode whether this is a configuration request
-    if (data[0] != CONFIGURATION_DATAGRAM_CODE) return 0;
+    if (data[0] != CONFIGURATION_DATAGRAM_CODE) return 1;  // 1 is error
     // yes, copy to our buffer
     length = ln;
     from = f;
