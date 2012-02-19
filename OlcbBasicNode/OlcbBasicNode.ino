@@ -245,7 +245,7 @@ void loop() {
   // if link is initialized, higher-level operations possible
   if (link.linkInitialized()) {
      // if frame present, pass to handlers
-     if (rcvFramePresent && link.isMsgForHere(&rxBuffer)) {
+     if (rcvFramePresent && rxBuffer.isMsgForHere(link.getAlias())) {
         handled |= pce.receivedFrame(&rxBuffer);
         handled |= dg.receivedFrame(&rxBuffer);
         handled |= str.receivedFrame(&rxBuffer);
