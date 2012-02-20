@@ -33,9 +33,13 @@
 
 #include "config.h"
 
+//DEG 2012 02 20
+#define CAN_RX_BUFFER_SIZE 3
+#define CAN_TX_BUFFER_SIZE 1
+#define CAN_FORCE_TX_ORDER 1
+
 #ifndef	CAN_FORCE_TX_ORDER
-	#define	CAN_FORCE_TX_ORDER		1
-//DEG 2012 02 20, was previously 0; this flag triggers code to ensure messages are broadcast in order
+	#define	CAN_FORCE_TX_ORDER		0
 #endif
 	
 // settings for buffered operation (only possible for the AT90CAN...)
