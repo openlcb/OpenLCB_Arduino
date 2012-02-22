@@ -105,7 +105,7 @@ void getWrite(uint32_t address, int space, uint8_t val) {
   // all other spaces not written
 }
 
-uint8_t protocolIdent[6] = {0xD1,0,0,0,0,0};
+uint8_t protocolIdent[6] = {0xD5,0x40,0,0,0,0};
 
 Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);
 
