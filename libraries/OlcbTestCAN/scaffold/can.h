@@ -71,6 +71,12 @@ typedef struct
 } tCAN;
 
 
+#define	BITRATE_125_KBPS	4
+extern bool can_init(uint8_t bitrate);
+extern uint8_t can_send_message(const tCAN *msg);
+extern uint8_t can_get_message(tCAN *msg);
+
+
 #if defined (__cplusplus)
 }
 #endif
