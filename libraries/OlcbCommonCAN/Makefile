@@ -1,4 +1,4 @@
-# Simple Makefile for scaffold directory
+# Simple Makefile for OlcbCommon directory
 
 LIB := libopenlcb.a
 
