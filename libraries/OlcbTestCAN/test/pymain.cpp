@@ -166,27 +166,25 @@ main()
     // call loop at few times
     while (1) {
         // run until boring
-        bool anyOutput = false;
         do {
             sentOutput = false;
-            for (int i = 0; i < 202; i++) loop(); // enough to get through 200msec timeout
-            anyOutput |= sentOutput;
+            for (int i = 0; i < 2; i++) loop();
         } while (sentOutput);
         
-        // tick(50); // extra ticks if needed
-        
-        // if nothing produced, say done
-        if (!anyOutput) {
-            printf("\n");
-            fflush(stdout);
-        } 
+        // say done
+        printf("\n");
+        fflush(stdout);
         
         // wait for input (don't know how to check for input available)
+        ptr[0] = 0;
         getline(&ptr, &len, stdin);
-        parseCANStr(ptr, &b, index(ptr, ';')-ptr+1);
-
-        // process
-        queueTestMessage(&b);
+        if (ptr[0] == ':') {
+            // process frame
+            parseCANStr(ptr, &b, index(ptr, ';')-ptr+1);
+            queueTestMessage(&b);
+        } else if (ptr[0] == 'T') {
+            tick(50);
+        }
     }
     
     exit(0);
