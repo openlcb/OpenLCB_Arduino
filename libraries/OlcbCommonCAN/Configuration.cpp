@@ -81,6 +81,7 @@ int Configuration::receivedDatagram(uint8_t* data, int ln, unsigned int f) {
 }
 
 uint32_t Configuration::getAddress(uint8_t* data) {
+    // AVR+GCC is byte little-endian, so can use cast method.
     uint32_t val = 0;
     val =  data[2];
     val = val << 8;
