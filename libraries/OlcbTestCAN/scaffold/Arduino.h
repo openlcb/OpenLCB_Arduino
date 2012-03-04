@@ -6,7 +6,8 @@ extern "C"{
 #endif
 
 // 1 tic per call as a temporary measure
-long millis();
+unsigned long millis();
+void tick(int count);
 
 #define OUTPUT 0x1
 #define INPUT 0x0
