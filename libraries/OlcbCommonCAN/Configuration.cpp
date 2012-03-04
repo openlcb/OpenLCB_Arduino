@@ -160,7 +160,7 @@ void Configuration::processCmd(uint8_t* data, int length) {
             // will handle, mark as done.
             request = false;
             d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_CONFIG_REPLY;
-            d[2]=0x03;d[3]=0x01;d[4]=0x38;d[5]=0xFF;d[6]=0xFC;
+            d[2]=0x6E;d[3]=0x00;d[4]=0xF2;d[5]=0xFF;d[6]=0xFB;
             dg->sendTransmitBuffer(7, from);
             break;
           }
@@ -172,7 +172,8 @@ void Configuration::processCmd(uint8_t* data, int length) {
             request = false;
             // will reply, mark as done.
             d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_ADD_SPACE_INFO_REPLY;
-            d[2]=data[2];d[3]=0x00;d[4]=0xFF;d[5]=0xFF;d[6]=0xFF;d[7]=0x0F;
+            d[2]=data[2];d[3]=0x00;d[4]=0xFF;d[5]=0xFF;d[6]=0xFF;d[7]=0x00;
+            if (data[2] >= 0xFB) d[1]|= 0x1;
             dg->sendTransmitBuffer(8, from);
             break;
           }
