@@ -7,6 +7,18 @@
 
 #include "logging.h"
 
+#define DATAGRAM_REJECTED                        0x000
+#define DATAGRAM_REJECTED_PERMANENT_ERROR        0x100
+#define DATAGRAM_REJECTED_INFORMATION_LOGGED     0x101
+#define DATAGRAM_REJECTED_SOURCE_NOT_PERMITTED   0x102
+#define DATAGRAM_REJECTED_DATAGRAMS_NOT_ACCEPTED 0x104
+#define DATAGRAM_REJECTED_BUFFER_FULL            0x200
+#define DATAGRAM_REJECTED_OUT_OF_ORDER           0x600
+#define DATAGRAM_REJECTED_NO_RESEND_MASK         0x100
+#define DATAGRAM_REJECTED_RESEND_MASK            0x200
+#define DATAGRAM_REJECTED_TRANSPORT_ERROR_MASK   0x400
+
+
 Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length,  unsigned int from), LinkControl* ln) {
       buffer = b;
       link = ln;
@@ -61,25 +73,32 @@ void Datagram::check() {
 bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
     // check for datagram reply, which can free buffer
     if ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  // addressed to here
-         // need to check that this is _from_ the node that's sending the datagram
-         && (rcv->length == 1) ) {
+         // TODO also need to check that this is _from_ the node that's sending the datagram
+         ) {
         // for this node, check meaning
-        if (rcv->data[0] == (MTI_DATAGRAM_RCV_OK & 0xFF) ) { // datagram ACK
-            // this is to us, check data
+        if (rcv->data[0] == MTI_DATAGRAM_RCV_OK ) { // datagram ACK
             // release reserve
             reserved = false;
             return true;
-        } else if (rcv->data[0] == (MTI_DATAGRAM_REJECTED & 0xFF) ) { // datagram NAK
-            // set up for resend
-            sendcount = resendcount;
-            tptr = tbuf;
-            first = true;    
-            return true;     
+        } else if (rcv->data[0] == MTI_DATAGRAM_REJECTED ) { // datagram NAK
+            // check permanent or temporary
+            if (rcv->length < 2 || rcv->data[1] & (DATAGRAM_REJECTED_RESEND_MASK >> 8)) {
+                // temporary, set up for resend
+                sendcount = resendcount;
+                tptr = tbuf;
+                first = true;    
+                return true;
+            } else {
+                // permanent, drop; nothing else to do?
+                // TODO signal permanent error somehow     
+                // release reserve
+                reserved = false;
+                return true;
+            }
         }
         return false;
     }
     // check for datagram fragment received
-    // TODO: Check for correct source (prevent overlapping reception)
     if ( ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM, link->getAlias()) )
                 || (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, link->getAlias()) ) ) ) {
          // this is a datagram fragment, store into the buffer
