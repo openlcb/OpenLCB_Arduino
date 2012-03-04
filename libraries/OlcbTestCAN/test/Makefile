@@ -1,6 +1,6 @@
 # Simple Makefile for tests directory
 
-BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest NodeMemoryTest PrngTest pymain
+BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest NodeMemoryTest PrngTest pyOlcbBasicNode
 
 include ../standard.mk
 
