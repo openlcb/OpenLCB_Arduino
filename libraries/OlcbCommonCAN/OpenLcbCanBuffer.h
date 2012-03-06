@@ -38,6 +38,7 @@ class EventID;
   void setFrameTypeCAN(uint16_t alias, uint16_t varField);  
   void setCIM(uint8_t i, uint16_t testval, uint16_t alias);
   void setAMD(uint16_t alias,NodeID* nid);
+  void setAMR(uint16_t alias,NodeID* nid);
   bool isCIM();
   
   void setRIM(uint16_t alias);
