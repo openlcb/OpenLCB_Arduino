@@ -34,9 +34,7 @@ PCE::PCE(Event* evts, int nEvt, OpenLcbCanBuffer* b, NodeID* node, void (*cb)(in
       // mark as needing transmit of IDs, otherwise not interesting
       // ToDo: Is this needed if requiring newEvent?
       for (int i = 0; i < nEvents; i++) {
-         if (events[i].flags & Event::CAN_PRODUCE_FLAG)
-            events[i].flags = IDENT_FLAG;
-         if (events[i].flags & Event::CAN_CONSUME_FLAG)
+         if (events[i].flags & ( Event::CAN_PRODUCE_FLAG | Event::CAN_CONSUME_FLAG ))
             events[i].flags = IDENT_FLAG;
       }
       sendEvent = 0;
