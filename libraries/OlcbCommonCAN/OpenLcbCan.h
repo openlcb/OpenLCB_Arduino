@@ -2,6 +2,15 @@
 #define OpenLcbCan_h
 
 /**
+ * OpenLCB CAN Frame Transport
+ */
+
+#define RIM_VAR_FIELD 0x0700
+#define AMD_VAR_FIELD 0x0701
+#define AME_VAR_FIELD 0x0702
+#define AMR_VAR_FIELD 0x0703
+
+/**
  * OpenLCB CAN MTI format (3 bits)
  */
 #define MTI_FORMAT_SIMPLE_MTI               0    
@@ -41,7 +50,7 @@
 #define MTI_PC_EVENT_REPORT             0x2DF
 
 /**
- * baseic 8-bit Message Type byte values (from data[0])
+ * basic 8-bit Message Type byte values (from data[0])
  * for addressed messages.
  */
 

@@ -84,10 +84,6 @@
   
   // start of CAN-level messages
  
-#define RIM_VAR_FIELD 0x0700
-#define AMD_VAR_FIELD 0x0701
-#define AMR_VAR_FIELD 0x0702
-
   void OpenLcbCanBuffer::setFrameTypeCAN(uint16_t alias, uint16_t var) {
     init(alias);
     setFrameTypeCAN();

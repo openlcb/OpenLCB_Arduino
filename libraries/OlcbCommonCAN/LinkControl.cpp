@@ -4,6 +4,7 @@ extern "C"{ unsigned long millis();  }
 
 #include "LinkControl.h"
 
+#include "OpenLcbCan.h"
 #include "OpenLcbCanBuffer.h"
 #include "OpenLcbCanInterface.h"
 #include "NodeID.h"
@@ -169,7 +170,7 @@ bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
      }
    }
    // check for aliasMapEnquiry
-   else if (rcv->isFrameTypeCAN() && (rcv->getVariableField() == 0x0702)) {
+   else if (rcv->isFrameTypeCAN() && (rcv->getVariableField() == AME_VAR_FIELD)) {
       // check node ID matches
       if (!rcv->matchesNid(nid)) return false;
       // reply
