@@ -11,7 +11,7 @@ class LinkControl;
 
 #include <stdint.h>
 
-void PIP_setup(uint8_t* bytes, OpenLcbCanBuffer* b, LinkControl* link);
+void PIP_setup(OpenLcbCanBuffer* b, LinkControl* link);
 
 /**
  * Handle any routine processing that needs to be done.
