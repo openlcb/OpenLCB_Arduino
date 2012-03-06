@@ -86,6 +86,7 @@
  
 #define RIM_VAR_FIELD 0x0700
 #define AMD_VAR_FIELD 0x0701
+#define AMR_VAR_FIELD 0x0702
 
   void OpenLcbCanBuffer::setFrameTypeCAN(uint16_t alias, uint16_t var) {
     init(alias);
@@ -96,6 +97,12 @@
 
   void OpenLcbCanBuffer::setAMD(uint16_t alias,NodeID* nid) {
     setFrameTypeCAN(alias, AMD_VAR_FIELD);
+    length=6;
+    memcpy(data, nid->val, 6);
+  }
+
+  void OpenLcbCanBuffer::setAMR(uint16_t alias,NodeID* nid) {
+    setFrameTypeCAN(alias, AMR_VAR_FIELD);
     length=6;
     memcpy(data, nid->val, 6);
   }
