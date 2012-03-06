@@ -11,7 +11,7 @@ extern "C"{
 static int time = 0;
 // 1 tic per call as a temporary measure
 long unsigned millis() {
-    usleep(1*1000);  // wait 1 msec
+    usleep(100);  // wait 0.1 msec
     return time++;
 }
 
