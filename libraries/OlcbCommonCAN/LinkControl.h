@@ -97,6 +97,12 @@ class LinkControl {
   bool sendAMD();
   
   /**
+   * Send an AMR message.  Return true it you can/did,
+   * false if you didn't.
+   */
+  bool sendAMR();
+  
+  /**
    * Send the InitializationComplete when everything is OK.
    *  Return true it you can/did,
    * false if you didn't.

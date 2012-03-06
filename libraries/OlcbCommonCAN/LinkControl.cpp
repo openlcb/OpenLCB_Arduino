@@ -89,6 +89,11 @@ bool LinkControl::sendAMD() {
   return sendFrame();
 }
 
+bool LinkControl::sendAMR() {
+  txBuffer->setAMR(getAlias(), nid);
+  return sendFrame();
+}
+
 bool LinkControl::sendFrame() {
   if (!OpenLcb_can_xmt_ready(txBuffer)) return false;  // couldn't send just now
   OpenLcb_can_queue_xmt_wait(txBuffer);  // wait for queue, but earlier check says will succeed
@@ -158,7 +163,8 @@ bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
        // somebody else trying to allocate, tell them
        while (!sendRIM()) {}  // insist on sending it now.
      } else {
-       // RIM frame or not RIM Frame, do same thing: Restart
+       // RIM frame or not RIM Frame, do same thing: Send AMR & restart
+       sendAMR();
        restart();
      }
    }
