@@ -39,7 +39,7 @@
 // specific OpenLCB implementations
 #include "LinkControl.h"
 #include "Datagram.h"
-#include "OlcbStream.h"
+//#include "OlcbStream.h"  // suppressed stream for space
 #include "Configuration.h"
 #include "NodeMemory.h"
 #include "PCE.h"
@@ -57,10 +57,10 @@ NodeID nodeid(2,3,4,5,6,7);    // This node's default ID
 LinkControl link(&txBuffer, &nodeid);
 
 unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from);
-unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length);
+//unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length);  // suppressed stream for space
 
 Datagram dg(&txBuffer, datagramCallback, &link);
-OlcbStream str(&txBuffer, streamRcvCallback, &link);
+//OlcbStream str(&txBuffer, streamRcvCallback, &link);   // suppressed stream for space
 
 /**
  * Get and put routines that 
@@ -69,8 +69,11 @@ OlcbStream str(&txBuffer, streamRcvCallback, &link);
 
 // next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
 extern "C" {
-const prog_char configDefInfo[] PROGMEM = "<some><xml><goes><here>"; // null terminated string
-const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0000.4";
+const prog_char configDefInfo[] PROGMEM = "A"; // null terminated string
+//const prog_char configDefInfo[] PROGMEM = "<some><xml><goes><here>"; // null terminated string
+
+const prog_char SNII_const_data[] PROGMEM = "\001A\000B\000C";
+//const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0000.4";
 }
 
 const uint8_t getRead(uint32_t address, int space) {
@@ -105,9 +108,12 @@ void getWrite(uint32_t address, int space, uint8_t val) {
   // all other spaces not written
 }
 
-uint8_t protocolIdent[6] = {0xD5,0x40,0,0,0,0};
+extern "C" {
+uint8_t protocolIdentValue[6] = {0xD5,0x40,0,0,0,0};
+}
 
-Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);
+Configuration cfg(&dg, 0, &getRead, &getWrite, (void (*)())0);
+//Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);   // suppressed stream for space
 
 unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from){
   // invoked when a datagram arrives
@@ -118,14 +124,15 @@ unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int f
   return cfg.receivedDatagram(rbuf, length, from);
 }
 
-unsigned int resultcode;
-unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
-  // invoked when a stream frame arrives
-  //printf("consume frame of length %d: ",length);
-  //for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
-  //printf("\n");
-  return resultcode;  // return pre-ordained result
-}
+// suppressed stream for space
+//unsigned int resultcode;
+//unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
+//  // invoked when a stream frame arrives
+//  //printf("consume frame of length %d: ",length);
+//  //for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
+//  //printf("\n");
+//  return resultcode;  // return pre-ordained result
+//}
 
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
 Event events[] = {
@@ -213,7 +220,7 @@ void setup()
   }
   
   // Init protocol blocks
-  PIP_setup(protocolIdent, &txBuffer, &link);
+  PIP_setup(&txBuffer, &link);
   SNII_setup((uint8_t)sizeof(SNII_const_data), &txBuffer, &link);
 
   // Initialize OpenLCB CAN connection
@@ -244,7 +251,7 @@ void loop() {
      if (rcvFramePresent && rxBuffer.isMsgForHere(link.getAlias())) {
         handled |= pce.receivedFrame(&rxBuffer);
         handled |= dg.receivedFrame(&rxBuffer);
-        handled |= str.receivedFrame(&rxBuffer);
+        //handled |= str.receivedFrame(&rxBuffer); // suppressed stream for space
         handled |= PIP_receivedFrame(&rxBuffer);
         handled |= SNII_receivedFrame(&rxBuffer);
         if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer);
@@ -252,7 +259,7 @@ void loop() {
      // periodic processing of any state changes
      pce.check();
      dg.check();
-     str.check();
+     //str.check();  // suppressed stream for space
      cfg.check();
      bg.check();
      PIP_check();
