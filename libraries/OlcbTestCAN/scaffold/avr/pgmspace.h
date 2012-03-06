@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-uint8_t pgm_read_byte(const char* addr) {return 0;}
+uint8_t pgm_read_byte(const char* addr) {return *addr;}
 
 
 #ifdef __cplusplus
