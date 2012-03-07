@@ -1,6 +1,6 @@
 # Simple Makefile for tests directory
 
-BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest NodeMemoryTest PrngTest pyOlcbBasicNode
+BINFILES := ConfigurationTest StreamTest DatagramTest CanMrrlcbTest NodeMemoryTest PrngTest pyOlcbBasicNode pyRIo
 
 include ../standard.mk
 
