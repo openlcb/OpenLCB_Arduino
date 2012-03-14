@@ -68,8 +68,11 @@ class Datagram {
   unsigned int dest;
   uint8_t* tptr;
   bool first;
-  bool reserved;
-
+  bool reservedXmt;  // buffer reserved for transmission
+  bool receiving; 
+  
+  unsigned int fromAlias;
+  
   uint8_t rbuf[DATAGRAM_LENGTH];
   uint8_t* rptr;
   unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from);   // void callback(int index) pointer
