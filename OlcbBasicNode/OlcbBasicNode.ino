@@ -133,8 +133,9 @@ const prog_char configDefInfo[] PROGMEM = "<?xml version=\"1.0\"?> \
  \
 </cdi> \
 ";
-const prog_char SNII_const_data[] PROGMEM = "\001A\000B\000C";
-//const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0000.4";
+
+const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0000.4";
+
 }
 
 const uint8_t getRead(uint32_t address, int space) {
