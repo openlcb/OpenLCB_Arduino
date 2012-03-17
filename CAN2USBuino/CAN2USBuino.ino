@@ -11,6 +11,8 @@
  * computers will connect at that speed.  In particular, 
  * Mac computers with standard FTDI drivers might only have
  * 230,400 or even 115,200 available as a standard rate.
+ * By setting 8E2 or even better 8N2, 230400 here can be used with
+ * a Mac at 230400 despite some internal baud issue in the Arduino baud generation.
  *
  * For data directed from USB -> CAN, the sketch provides flow
  * control using the (virtual) CTS signal.
@@ -35,10 +37,9 @@ int             rxCanFlagCounter;
 tCAN 		txCAN;	// CAN send buffer
 tCAN		* ptxCAN;
 
-#define 	RX_BUF_SIZE	32
-#define         RX_CTS_PIN      9
-#define         RX_BUF_LOW      32 
-#define         RX_BUF_HIGH     96
+#define 	RX_BUF_SIZE	128
+#define         RX_BUF_LOW      RXCAN_BUF_COUNT/4 
+#define         RX_BUF_HIGH     RXCAN_BUF_COUNT/2
 
 char    	rxBuff[RX_BUF_SIZE];    // :lddddddddldddddddddddddddd:0
 uint8_t		rxIndex;
@@ -51,30 +52,11 @@ uint8_t char_to_byte(char *s);
 tCAN *parseCANStr(char *pBuf, tCAN *pCAN, uint8_t len);
 
 
-#define ENABLE_DEBUG_MESSAGES
-extern "C" {
-void  debugf(const char *__fmt,...)
-{
-#ifdef ENABLE_DEBUG_MESSAGES
-  va_list ap;
-  char _str[32]; // 32 chars max!  increase if required to avoid overflow
-  
-  va_start(ap, __fmt);
-  vsnprintf(_str, 32,__fmt, ap);
-  Serial.print(_str);
-#endif
-}
-}
-
-
 void setup()
 {
-  pinMode(RX_CTS_PIN,OUTPUT);
-  digitalWrite(RX_CTS_PIN,LOW);
-
   Serial.begin(BAUD_RATE);
   Serial.println();
-  Serial.println(":I LEDuino CAN-USB Adaptor Version: 1;");
+  Serial.println(":I LEDuino CAN-USB Adaptor Version 2;");
 
   // Initialize MCP2515
   can_init(BITRATE_125_KBPS);
@@ -84,18 +66,35 @@ void setup()
   ptxCAN = NULL;
 }
 
+void saveCanFrames() {
+  // capture as many input frames as possible
+  while (can_get_message(&rxCAN[rxCanBuffCounter])) 
+  {
+    // handle message from CAN by marking and moving to next
+    rxCANflag[rxCanBuffCounter] = true;
+    rxCanBuffCounter++;
+    if (rxCanBuffCounter >= RXCAN_BUF_COUNT) rxCanBuffCounter = 0;
+  }
+}
+
+boolean setFlowStop = false;
+
 void loop()
 {
+  saveCanFrames();
   // check for RTS flow control to PC on USB side
   int charWaiting = Serial.available();
   
-  if( charWaiting < RX_BUF_LOW )
-    digitalWrite(RX_CTS_PIN,LOW);
-    
-  else if( charWaiting > RX_BUF_HIGH )
-    digitalWrite(RX_CTS_PIN,HIGH);
+  if( setFlowStopHigh && charWaiting < RX_BUF_LOW ) {
+    Serial.print((char)0x11);  // XON
+    setFlowStop = false;
+  }
+  else if( !setFlowStopHigh && charWaiting > RX_BUF_HIGH ) {
+    Serial.print((char)0x13);  // XOFF
+    setFlowStop = true;
+  }
   
-  if(!ptxCAN)
+  if(!ptxCAN) // if transmit buffer free, so we can load it
   {  
     // handle characters from USB to CAN
     int rxChar = Serial.read();
@@ -107,6 +106,10 @@ void loop()
         rxIndex = 0;
         rxBuff[rxIndex++] = rxChar & 0x00FF;
         break;
+      case '!':
+        rxIndex = 0;
+        rxBuff[rxIndex++] = rxChar & 0x00FF;
+        break;
 
       case ';':
         if( rxIndex < RX_BUF_SIZE )
@@ -114,11 +117,18 @@ void loop()
           rxBuff[rxIndex++] = rxChar & 0x00FF;
           rxBuff[rxIndex] = '\0';	// Null Terminate the string
 
+          Serial.print("!");Serial.println(rxBuff);
           ptxCAN = parseCANStr(rxBuff, &txCAN, rxIndex);
         }
         rxIndex = 0;
         break;
 
+      case '\n':
+      case '\r':
+        // ran off end of line, go back to start of buffer
+        rxIndex = 0;
+        break;
+        
       default:			// Everything else must be a byte to send
         if( rxIndex < RX_BUF_SIZE )
           rxBuff[rxIndex++] = rxChar & 0x00FF;
@@ -134,25 +144,23 @@ void loop()
       ptxCAN = NULL; 
   }
   
-  // capture as many input frames as possible
-  while (can_get_message(&rxCAN[rxCanBuffCounter])) 
-  {
-    // handle message from CAN by marking and moving to next
-    rxCANflag[rxCanBuffCounter] = true;
-    rxCanBuffCounter++;
-    if (rxCanBuffCounter >= RXCAN_BUF_COUNT) rxCanBuffCounter = 0;
-  }
   
-  // process one frame from CAN if possible
-  // note that print calls are blocking, so we rely on buffering
+  saveCanFrames();
+  // send one frame from CAN if possible
+  // note that print calls are blocking
   if (rxCANflag[rxCanFlagCounter])
   {
      rxCANflag[rxCanFlagCounter] = false;
     
     Serial.print(':');
     Serial.print(rxCAN[rxCanFlagCounter].flags.extended ? 'X' : 'S');
+    saveCanFrames();
 
-    Serial.print(rxCAN[rxCanFlagCounter].id, 16);
+    //Serial.print(rxCAN[rxCanFlagCounter].id, HEX);
+    printHexChar( (rxCAN[rxCanFlagCounter].id>>24)&0xFF);
+    printHexChar( (rxCAN[rxCanFlagCounter].id>>16)&0xFF);
+    printHexChar( (rxCAN[rxCanFlagCounter].id>>8)&0xFF);  
+    printHexChar( (rxCAN[rxCanFlagCounter].id)&0xFF); 
     
     if(rxCAN[rxCanFlagCounter].flags.rtr)
     {
@@ -162,11 +170,10 @@ void loop()
     else
     {
       Serial.print('N');
+      saveCanFrames();
       for( uint8_t i = 0; i < rxCAN[rxCanFlagCounter].length; i++)
       {
-        if(rxCAN[rxCanFlagCounter].data[i] < 0x10)
-          Serial.print('0');
-        Serial.print(rxCAN[rxCanFlagCounter].data[i], HEX);
+        printHexChar(rxCAN[rxCanFlagCounter].data[i]);
       }
     }
     Serial.println(';');
@@ -194,44 +201,60 @@ void loop()
 :X2FFFFFFFN1234567812345678; (Invalid)
 :S123N01;:S123N0002;:S123N000003;:S123N00000004;:S123N0000000005;:S123N000000000006;:X22N11;:X22N12;:X22N13;:X22N14;:X22N15;:X212N16;:X23312N17;:S123N18;
 -----------------------------------------------------------------------------*/
+boolean valid(char c) {
 
-tCAN *parseCANStr(char *pBuf, tCAN *pCAN, uint8_t len)
-{
-  if( (pBuf[0] == ':') && (pBuf[len-1] == ';') && (len >= 4) && ( (pBuf[1] == 'X') || (pBuf[1] == 'S') ) )
-  {
-    memset(pCAN, 0, sizeof(tCAN));
+   if (c>='0' && c <= '9') return true;
+   if (c>='A' && c <= 'Z') return true;
+   if (c>='a' && c <= 'f') return true; // just inc ase lower hex
 
-    pCAN->flags.extended = pBuf[1] == 'X';
+   return false;
+}
 
-    char *pEnd;
+tCAN *parseCANStr(char *pBuf, tCAN *pCAN, uint8_t len) {
+    if( len >= 4 )  {  // first, last char already known to be right
+        memset(pCAN, 0, sizeof(tCAN));
 
-    pCAN->id = strtoul(pBuf+2, &pEnd, 16);
+        if (pBuf[0] == '!') {
+            // this is a doubled buffer, convert
+            int to = 1;
+            int from = 1;
+            while (from < len) {
+               pBuf[to] = pBuf[from];
+               if (!valid(pBuf[from])) pBuf[to] = pBuf[from+1];
+               to++;
+               if (pBuf[from] == pBuf[from+1] || !valid(pBuf[from]) || !valid(pBuf[from+1]) ) from++;  // doubled char; if not, char has been lost
+               from++;
+            }
+            len = to;
+        }
+        
+        pCAN->flags.extended = pBuf[1] == 'X';
 
-    // If Standard Frame then check to see if Id is in the valid 11-bit range
-    if((pCAN->flags.extended && (pCAN->id > 0x1FFFFFFF)) || (!pCAN->flags.extended && (pCAN->id > 0x07FF)))
-      return NULL;
+        char *pEnd;
 
-    if(*pEnd == 'N')
-    {
-      pEnd++;
-      pCAN->length = 0;
-      while(isxdigit(*pEnd))
-      {
-        pCAN->data[pCAN->length] = hex_to_byte(pEnd);
-        pCAN->length++;
-        pEnd += 2;
-      }
+        pCAN->id = strtoul(pBuf+2, &pEnd, 16);
+
+        // If Standard Frame then check to see if Id is in the valid 11-bit range
+        if((pCAN->flags.extended && (pCAN->id > 0x1FFFFFFF)) || (!pCAN->flags.extended && (pCAN->id > 0x07FF)))
+            return NULL;
+
+        if(*pEnd == 'N') {
+            pEnd++;
+            pCAN->length = 0;
+            while(isxdigit(*pEnd)) {
+                pCAN->data[pCAN->length] = hex_to_byte(pEnd);
+                pCAN->length++;
+                pEnd += 2;
+            }
+        } else if(*pEnd == 'R') {  
+            pCAN->flags.rtr = 1;
+            char tChar = *(pEnd+1);
+            if(isdigit(tChar))
+                pCAN->length = *(pEnd+1) - '0';
+        }
+        return pCAN;
     }
-    else if(*pEnd == 'R')
-    {  
-      pCAN->flags.rtr = 1;
-      char tChar = *(pEnd+1);
-      if(isdigit(tChar))
-        pCAN->length = *(pEnd+1) - '0';
-    }
-    return pCAN;
-  }
-  return NULL;
+    return NULL;
 } 
 
 
@@ -244,7 +267,7 @@ void printHexChar(const uint8_t val)
     tmp += 'A' - 10;
   else 
     tmp += '0';
-  Serial.print(tmp);
+  Serial.print((char)tmp);
 
   tmp = val & 0x0f;
 
@@ -252,7 +275,7 @@ void printHexChar(const uint8_t val)
     tmp += 'A' - 10;
   else 
     tmp += '0';
-  Serial.print(tmp);
+  Serial.print((char)tmp);
 }
 // -----------------------------------------------------------------------------
 uint8_t char_to_byte(char *s)
