@@ -37,11 +37,12 @@ int             rxCanFlagCounter;
 tCAN 		txCAN;	// CAN send buffer
 tCAN		* ptxCAN;
 
-#define 	RX_BUF_SIZE	128
-#define         RX_BUF_LOW      RXCAN_BUF_COUNT/4 
-#define         RX_BUF_HIGH     RXCAN_BUF_COUNT/2
 
-char    	rxBuff[RX_BUF_SIZE];    // :lddddddddldddddddddddddddd:0
+#define         RX_WAIT_LOW      4 
+#define         RX_WAIT_HIGH     16
+
+#define 	RX_BUF_SIZE	64
+char    	rxBuff[RX_BUF_SIZE];    // :lddddddddldddddddddddddddd:0 times 2 for doubled protocol
 uint8_t		rxIndex;
 uint16_t	rxChar;
 
@@ -85,68 +86,19 @@ void loop()
   // check for RTS flow control to PC on USB side
   int charWaiting = Serial.available();
   
-  if( setFlowStopHigh && charWaiting < RX_BUF_LOW ) {
+  if( setFlowStop && charWaiting < RX_WAIT_LOW ) {
     Serial.print((char)0x11);  // XON
     setFlowStop = false;
   }
-  else if( !setFlowStopHigh && charWaiting > RX_BUF_HIGH ) {
+  else if( !setFlowStop && charWaiting > RX_WAIT_HIGH ) {
     Serial.print((char)0x13);  // XOFF
     setFlowStop = true;
   }
   
-  if(!ptxCAN) // if transmit buffer free, so we can load it
-  {  
-    // handle characters from USB to CAN
-    int rxChar = Serial.read();
-    if(rxChar >= 0)
-    {
-      switch(rxChar)
-      {
-      case ':':
-        rxIndex = 0;
-        rxBuff[rxIndex++] = rxChar & 0x00FF;
-        break;
-      case '!':
-        rxIndex = 0;
-        rxBuff[rxIndex++] = rxChar & 0x00FF;
-        break;
-
-      case ';':
-        if( rxIndex < RX_BUF_SIZE )
-        {
-          rxBuff[rxIndex++] = rxChar & 0x00FF;
-          rxBuff[rxIndex] = '\0';	// Null Terminate the string
-
-          Serial.print("!");Serial.println(rxBuff);
-          ptxCAN = parseCANStr(rxBuff, &txCAN, rxIndex);
-        }
-        rxIndex = 0;
-        break;
-
-      case '\n':
-      case '\r':
-        // ran off end of line, go back to start of buffer
-        rxIndex = 0;
-        break;
-        
-      default:			// Everything else must be a byte to send
-        if( rxIndex < RX_BUF_SIZE )
-          rxBuff[rxIndex++] = rxChar & 0x00FF;
-        break;
-      }
-    }
-  }
-
-  // send buffer to CAN asap once full
-  if(ptxCAN && can_check_free_buffer())
-  {
-    if(can_send_message(ptxCAN))
-      ptxCAN = NULL; 
-  }
-  
-  
+   
   saveCanFrames();
-  // send one frame from CAN if possible
+ 
+  // send one frame from CAN on serial link if possible
   // note that print calls are blocking
   if (rxCANflag[rxCanFlagCounter])
   {
@@ -182,7 +134,56 @@ void loop()
     // increment to next
     rxCanFlagCounter++;
     if (rxCanFlagCounter >= RXCAN_BUF_COUNT) rxCanFlagCounter = 0;
+  } else  if(!ptxCAN) { // character processing slow, only do if don't have anything to send
+   
+    // transmit buffer free, so we can load it if characters are available from USB
+    // handle characters from USB to CAN
+    int rxChar = Serial.read();
+    if(rxChar >= 0)
+    {
+      switch(rxChar)
+      {
+      case ':':
+        rxIndex = 0;
+        rxBuff[rxIndex++] = rxChar & 0x00FF;
+        break;
+      case '!':
+        rxIndex = 0;
+        rxBuff[rxIndex++] = rxChar & 0x00FF;
+        break;
+
+      case ';':
+        if( rxIndex < RX_BUF_SIZE )
+        {
+          rxBuff[rxIndex++] = rxChar & 0x00FF;
+          rxBuff[rxIndex] = '\0';	// Null Terminate the string
+
+          ptxCAN = parseCANStr(rxBuff, &txCAN, rxIndex);
+        }
+        rxIndex = 0;
+        break;
+
+      case '\n':
+      case '\r':
+        // ran off end of line, go back to start of buffer
+        rxIndex = 0;
+        break;
+        
+      default:			// Everything else must be a byte to send
+        if( rxIndex < RX_BUF_SIZE )
+          rxBuff[rxIndex++] = rxChar & 0x00FF;
+        break;
+      }
+    }
   }
+
+  // send buffer to CAN asap once full
+  if(ptxCAN && can_check_free_buffer())
+  {
+    if(can_send_message(ptxCAN))
+      ptxCAN = NULL; 
+  }
+
 }
 
 /* -----------------------------------------------------------------------------
