@@ -63,7 +63,7 @@ bool LinkControl::sendCIM(uint8_t i) {
   switch (i) {
     case 0:  fragment = ( (nid->val[0]<<4)&0xFF0) | ( (nid->val[1] >> 4) &0xF);
              break;
-    case 1:  fragment = ( (nid->val[1]<<8)&0xF00) | ( nid->val[2] &0xF);
+    case 1:  fragment = ( (nid->val[1]<<8)&0xF00) | ( nid->val[2] &0xFF);
              break;
     case 2:  fragment = ( (nid->val[3]<<4)&0xFF0) | ( (nid->val[4] >> 4) &0xF);
              break;
