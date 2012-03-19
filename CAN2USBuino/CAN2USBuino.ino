@@ -12,10 +12,14 @@
  * Mac computers with standard FTDI drivers might only have
  * 230,400 or even 115,200 available as a standard rate.
  * By setting 8E2 or even better 8N2, 230400 here can be used with
- * a Mac at 230400 despite some internal baud issue in the Arduino baud generation.
+ * a Mac at 230400 despite some internal baud issue in the
+ * Arduino baud generation.
  *
  * For data directed from USB -> CAN, the sketch provides flow
- * control using the (virtual) CTS signal.
+ * control using the Xon/Xoff codes.
+ * 
+ * One of three baud rates can be selected by grounding (causing LOW input)
+ * on one of two pins.
  */
 
 #define         BAUD_RATE_1       230400
