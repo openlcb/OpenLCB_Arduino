@@ -18,8 +18,11 @@
  * control using the (virtual) CTS signal.
  */
 
-#define         BAUD_RATE       230400
-//#define         BAUD_RATE       333333
+#define         BAUD_RATE_1       230400
+#define         BAUD_RATE_2       333333
+#define         BAUD_RATE_3       500000
+#define         BAUD_PIN_1        8
+#define         BAUD_PIN_2        9
 
 #include <arduino.h>
 
@@ -55,7 +58,21 @@ tCAN *parseCANStr(char *pBuf, tCAN *pCAN, uint8_t len);
 
 void setup()
 {
-  Serial.begin(BAUD_RATE);
+  // set pullups
+  pinMode(BAUD_PIN_1, OUTPUT);
+  digitalWrite(BAUD_PIN_1, HIGH);
+  pinMode(BAUD_PIN_1, INPUT);
+  pinMode(BAUD_PIN_2, OUTPUT);
+  digitalWrite(BAUD_PIN_2, HIGH);
+  pinMode(BAUD_PIN_2, INPUT);
+
+  if (digitalRead(BAUD_PIN_1) == LOW)
+    Serial.begin(BAUD_RATE_1);
+  else if (digitalRead(BAUD_PIN_2) == LOW)
+    Serial.begin(BAUD_RATE_2);
+  else 
+    Serial.begin(BAUD_RATE_3);
+  
   Serial.println();
   Serial.println(":I LEDuino CAN-USB Adaptor Version 2;");
 
