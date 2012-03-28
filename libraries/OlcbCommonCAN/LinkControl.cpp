@@ -27,19 +27,21 @@ LinkControl::LinkControl(OpenLcbCanBuffer* b, NodeID* n) {
 }
 
 void LinkControl::nextAlias() {
-   // step the PRNG
-   // First, form 2^9*val
-   uint32_t temp1 = ((lfsr1<<9) | ((lfsr2>>15)&0x1FF)) & 0xFFFFFF;
-   uint32_t temp2 = (lfsr2<<9) & 0xFFFFFF;
-   
-   // add
-   lfsr2 = lfsr2 + temp2 + 0x7A4BA9l;
-   lfsr1 = lfsr1 + temp1 + 0x1B0CA3l;
-   
-   // carry
-   lfsr1 = (lfsr1 & 0xFFFFFF) | ((lfsr2&0xFF000000) >> 24);
-   lfsr2 = lfsr2 & 0xFFFFFF;
+    do {
+       // step the PRNG
+       // First, form 2^9*val
+       uint32_t temp1 = ((lfsr1<<9) | ((lfsr2>>15)&0x1FF)) & 0xFFFFFF;
+       uint32_t temp2 = (lfsr2<<9) & 0xFFFFFF;
+       
+       // add
+       lfsr2 = lfsr2 + temp2 + 0x7A4BA9l;
+       lfsr1 = lfsr1 + temp1 + 0x1B0CA3l;
+       
+       // carry
+       lfsr1 = (lfsr1 & 0xFFFFFF) | ((lfsr2&0xFF000000) >> 24);
+       lfsr2 = lfsr2 & 0xFFFFFF;
 
+    } while (getAlias() == 0);  // force advance again if get zero alias
 }
 
 void LinkControl::reset() {
@@ -47,7 +49,7 @@ void LinkControl::reset() {
   lfsr1 = (((uint32_t)nid->val[0]) << 16) | (((uint32_t)nid->val[1]) << 8) | ((uint32_t)nid->val[2]);
   lfsr2 = (((uint32_t)nid->val[3]) << 16) | (((uint32_t)nid->val[4]) << 8) | ((uint32_t)nid->val[5]);
   
-  //restart(); // originally advancing one step here, no longer
+  if (getAlias() == 0) nextAlias(); // advancing one step here if get zero
 }
 
 void LinkControl::restart() {
