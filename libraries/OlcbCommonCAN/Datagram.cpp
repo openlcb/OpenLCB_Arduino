@@ -9,17 +9,6 @@
 
 #include "logging.h"
 
-#define DATAGRAM_REJECTED                        0x000
-#define DATAGRAM_REJECTED_PERMANENT_ERROR        0x100
-#define DATAGRAM_REJECTED_INFORMATION_LOGGED     0x101
-#define DATAGRAM_REJECTED_SOURCE_NOT_PERMITTED   0x102
-#define DATAGRAM_REJECTED_DATAGRAMS_NOT_ACCEPTED 0x104
-#define DATAGRAM_REJECTED_BUFFER_FULL            0x200
-#define DATAGRAM_REJECTED_OUT_OF_ORDER           0x600
-#define DATAGRAM_REJECTED_NO_RESEND_MASK         0x100
-#define DATAGRAM_REJECTED_RESEND_MASK            0x200
-#define DATAGRAM_REJECTED_TRANSPORT_ERROR_MASK   0x400
-
 
 Datagram::Datagram(OpenLcbCanBuffer* b, unsigned int (*cb)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length,  unsigned int from), LinkControl* ln) {
       buffer = b;
@@ -130,7 +119,7 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
             // 
             unsigned int length = rptr-rbuf;
             // callback; result is error code or zero
-            int result = (*callback)(rbuf, length, rcv->getSourceAlias());
+            unsigned int result = (*callback)(rbuf, length, rcv->getSourceAlias());
             rptr = rbuf;
             receiving = false;
             buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
@@ -144,6 +133,7 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
                 // not OK, send reject; done immediately with wait
                 // TODO: Need a more robust method here
                 buffer->data[0] = MTI_DATAGRAM_REJECTED;
+                if (result > 0) result = DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;
                 buffer->data[1] = (result>>8)&0xFF;
                 buffer->data[2] = result&0xFF;
                 buffer->length = 3;

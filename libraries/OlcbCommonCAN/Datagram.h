@@ -13,17 +13,19 @@
 #define DATAGRAM_LENGTH 70
 
 // some error messages for datagram rejected response messages
-#define DATAGRAM_REJECTED                        0x000
-#define DATAGRAM_REJECTED_PERMANENT_ERROR        0x100
-#define DATAGRAM_REJECTED_INFORMATION_LOGGED     0x101
-#define DATAGRAM_REJECTED_SOURCE_NOT_PERMITTED   0x102
-#define DATAGRAM_REJECTED_DATAGRAMS_NOT_ACCEPTED 0x104
-#define DATAGRAM_REJECTED_BUFFER_FULL            0x200
-#define DATAGRAM_REJECTED_OUT_OF_ORDER           0x600
+// These top 16 bits after the datagram-rejected MTI
+// The bottom are reserved, send as zero, ignore on receipt
 
-#define DATAGRAM_REJECTED_NO_RESEND_MASK         0x100
-#define DATAGRAM_REJECTED_RESEND_MASK            0x200
-#define DATAGRAM_REJECTED_TRANSPORT_ERROR_MASK   0x400
+#define DATAGRAM_REJECTED_PERMANENT_ERROR        0x1000
+#define DATAGRAM_REJECTED_INFORMATION_LOGGED     0x1010
+#define DATAGRAM_REJECTED_SOURCE_NOT_PERMITTED   0x1020
+#define DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED 0x1040
+#define DATAGRAM_REJECTED_BUFFER_FULL            0x2000
+#define DATAGRAM_REJECTED_OUT_OF_ORDER           0x6000
+
+#define DATAGRAM_REJECTED_NO_RESEND_MASK         0x1000
+#define DATAGRAM_REJECTED_RESEND_MASK            0x2000
+#define DATAGRAM_REJECTED_TRANSPORT_ERROR_MASK   0x4000
 
 class OpenLcbCanBuffer;
 class LinkControl;
@@ -75,6 +77,8 @@ class Datagram {
   
   uint8_t rbuf[DATAGRAM_LENGTH];
   uint8_t* rptr;
+  
+  // returns 0 for used, OK; > 0 for specific error message
   unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from);   // void callback(int index) pointer
 };
 

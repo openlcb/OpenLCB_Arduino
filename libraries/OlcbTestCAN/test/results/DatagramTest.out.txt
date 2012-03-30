@@ -70,6 +70,6 @@ queue_xmt_wait: [1ebfd573] 4c
 Receive single fragment datagram, return fail
 can_get_frame:  [1d573bfd] 40 41 42 43
 consume datagram of length 4: 40 41 42 43 
-queue_xmt_wait: [1ebfd573] 4d 12 34
+queue_xmt_wait: [1ebfd573] 4d 10 40
 
 test ends
