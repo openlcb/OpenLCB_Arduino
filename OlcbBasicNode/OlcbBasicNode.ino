@@ -134,9 +134,24 @@ const prog_char configDefInfo[] PROGMEM = "<?xml version=\"1.0\"?> \
 </cdi> \
 ";
 
-const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0000.4";
+const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0\0000.4";
 
 }
+
+/* *************************************************
+ * EEPROM memory layout
+ *     See NodeMemory.h for background info
+ *
+ * 0 - 3        Memory state flag
+ * 4 - 5        Cycle count
+ * 
+ * 6 - 12       Node ID
+ *
+ * 13 - 13+8*8  EventID storage
+ * 77 - 89      Node name (zero-term string)
+ * 90 - 110     User comment (zero-term string)
+ *
+ *************************************************** */
 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {
@@ -220,8 +235,8 @@ long patterns[] = {
 };
 ButtonLed* buttons[] = {&p14,&p14,&p15,&p15,&p16,&p16,&p17,&p17};
 
-ButtonLed blue(18, LOW);
-ButtonLed gold(19, LOW);
+ButtonLed blue(48, LOW);  // 18 LEDuino, 48 IO, 14 IOuino
+ButtonLed gold(49, LOW);  // 19 LEDuino, 49 IO, 15 IOuino
 
 void pceCallback(int index){
   // invoked when an event is consumed; drive pins as needed
