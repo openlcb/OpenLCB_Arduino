@@ -131,9 +131,10 @@ const prog_char configDefInfo[] PROGMEM = "<?xml version=\"1.0\"?> \
     </int> \
 </segment> \
  \
-</cdi> \
-";
-
+</cdi>";
+/* Well this is the most bizarre thing. These 3 lines keep the Arduino IDE parser happy - AJS 2012-04-01
+\
+*/
 const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0\0000.4";
 
 }
