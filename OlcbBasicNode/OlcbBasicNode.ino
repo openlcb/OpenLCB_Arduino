@@ -71,70 +71,9 @@ Datagram dg(&txBuffer, datagramCallback, &link);
 extern "C" {
 const prog_char configDefInfo[] PROGMEM = "<?xml version=\"1.0\"?> \
 <?xml-stylesheet type=\"text/xsl\" href=\"xslt/cdi.xsl\"?> \
-<cdi xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd\"> \
- \
-<identification> \
-    <manufacturer>Spacely Sprockets</manufacturer> \
-    <model>Model 123 Uniblab</model> \
-    <hardwareVersion>EC 415</hardwareVersion> \
-    <softwareVersion>1.2.3.4</softwareVersion> \
-    <map> \
-        <relation><property>Size</property><value>8 cm by 12 cm</value></relation> \
-    </map> \
-</identification> \
- \
-<segment origin=\"0\" space=\"0\"> \
-    <group offset=\"128\"> \
-        <name>User Identification</name> \
-        <description>Lets the user add his own description</description> \
-        <string size=\"32\"> \
-            <name>Node Name</name> \
-        </string> \
-        <string size=\"96\"> \
-            <name>Node Description</name> \
-        </string> \
-    </group> \
-    <group offset=\"128\" replication=\"2\"> \
-        <name>Produced Events</name> \
-        <description>The EventIDs for the producers</description> \
-        <eventid/> \
-        <eventid/> \
-    </group>\ 
-    <group replication=\"2\"> \
-        <name>Consumed Events</name> \
-        <description>The EventIDs for the consumers</description> \
-        <eventid/> \
-        <eventid/> \
-    </group> \
-    <bit> \
-        <name>Sample bit variable</name> \
-        <description>Doesn't do anything</description> \
-    </bit> \
-    <int size=\"2\"> \
-        <name>Sample integer variable</name> \
-        <description>Doesn't do anything</description> \
-        <min>1</min> \
-        <max>999</max> \
-        <default>12</default> \
-    </int> \
-</segment> \
- \
-<segment origin=\"128\" space=\"1\"> \
-    <int size=\"1\"> \
-        <name>Reset</name> \
-        <description>Controls reloading and clearing node memory. Board must be restarted for this to take effect.</description> \
-        <map> \
-            <relation><property>85</property><value>(No reset)</value></relation> \
-            <relation><property>0</property><value>Reset all to defaults</value></relation> \
-            <relation><property>170</property><value>Reset just EventIDs to defaults</value></relation> \
-        </map> \
-    </int> \
-</segment> \
- \
-</cdi>";
-/* Well this is the most bizarre thing. These 3 lines keep the Arduino IDE parser happy - AJS 2012-04-01
-\
-*/
+<cdi xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd\"><identification><manufacturer>OpenLCB</manufacturer><model>OlcbBasicNode</model><hardwareVersion>1.0</hardwareVersion><softwareVersion>0.4</softwareVersion></identification><segment origin=\"0\" space=\"0\"><group offset=\"77\"><name>User Identification</name><description>Lets the user add his own description</description><string size=\"12\"><name>Node Name</name></string><string size=\"20\"><name>Node Description</name></string></group><group offset=\"13\" replication=\"2\"><description>Input Pin</description><group><name>Activation Event</name><eventid/></group><group><name>Inactivation Event</name><eventid/></group></group><group replication=\"2\"><description>Output Pin</description><group><name>Set Event</name><eventid/></group><group><name>Reset Event</name><eventid/></group></group></segment><segment origin=\"0\" space=\"1\"><int size=\"4\"><name>Reset</name><description>Controls reloading and clearing node memory. Board must be restarted for this to take effect.</description><map><relation><property>0xEE555EE5</property><value>(No reset)</value></relation><relation><property>0</property><value>Reset all to defaults</value></relation><relation><property>0xEE5533CC</property><value>Reset EventIDs to new defaults</value></relation></map></int><int size=\"6\"><name>NodeID</name><description>This boards NodeID. Board must be restarted for this to take effect.</description></int></segment></cdi> \
+";
+
 const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0\0000.4";
 
 }
