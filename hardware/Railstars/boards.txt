@@ -38,7 +38,7 @@ Io-duino.build.variant=Io-duino
 
 ##############################################################
 
-OpenLCB.name=OpenLCB Development Board (AT90CAN ver.) (REV B)
+OpenLCB.name=Railstars OpenLCB Development Board (AT90CAN ver.) (REV B)
 OpenLCB.upload.protocol=stk500
 OpenLCB.upload.maximum_size=126976
 OpenLCB.upload.speed=57600
