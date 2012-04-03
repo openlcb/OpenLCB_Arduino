@@ -1,0 +1,8 @@
+test digital inputs
+test digital outputs
+test analog inputs
+test analog outputs
+test CAN
+test blue/gold
+
+test attachIntterupts

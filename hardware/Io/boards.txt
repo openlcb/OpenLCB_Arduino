@@ -1,0 +1,38 @@
+##############################################################
+
+Io.name=Railstars Io
+Io.upload.protocol=arduino
+Io.upload.maximum_size=126976
+Io.upload.speed=57600
+Io.bootloader.low_fuses=0xFF
+#Io.bootloader.high_fuses=0x18
+Io.bootloader.high_fuses=0x10
+#Io.bootloader.extended_fuses=0xF5
+Io.bootloader.extended_fuses=0xFD
+Io.bootloader.path=Io
+Io.bootloader.file=AT90CAN_boot_io.hex
+Io.bootloader.unlock_bits=0x3F
+# Io.bootloader.lock_bits=0x3F
+Io.bootloader.lock_bits=0x3F
+Io.build.mcu=at90can128
+Io.build.f_cpu=16000000L
+Io.build.core=Io
+Io.build.variant=Io
+
+##############################################################
+Io-duino.name=Railstars Io:duino
+Io-duino.upload.protocol=arduino
+Io-duino.upload.maximum_size=126976
+Io-duino.upload.speed=57600
+Io-duino.bootloader.low_fuses=0xFF
+Io-duino.bootloader.high_fuses=0x10
+Io-duino.bootloader.extended_fuses=0xFD
+Io-duino.bootloader.path=Io
+Io-duino.bootloader.file=AT90CAN_boot_io.hex
+Io-duino.bootloader.unlock_bits=0x3F
+Io-duino.bootloader.lock_bits=0x3F
+Io-duino.build.mcu=at90can128
+Io-duino.build.f_cpu=16000000L
+Io-duino.build.core=Io-duino
+Io-duino.build.variant=Io-duino
+
