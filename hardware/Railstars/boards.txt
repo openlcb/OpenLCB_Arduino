@@ -36,3 +36,27 @@ Io-duino.build.f_cpu=16000000L
 Io-duino.build.core=Io-duino
 Io-duino.build.variant=Io-duino
 
+##############################################################
+
+OpenLCB.name=OpenLCB Development Board (AT90CAN ver.) (REV B)
+OpenLCB.upload.protocol=stk500
+OpenLCB.upload.maximum_size=126976
+OpenLCB.upload.speed=57600
+
+# OpenLCB.bootloader.low_fuses=0xFF
+# OpenLCB.bootloader.high_fuses=0x9C
+# OpenLCB.bootloader.extended_fuses=0x05
+OpenLCB.bootloader.low_fuses=0xFF
+#OpenLCB.bootloader.high_fuses=0x18
+OpenLCB.bootloader.high_fuses=0x58
+OpenLCB.bootloader.extended_fuses=0xF5
+OpenLCB.bootloader.path=OpenLCB
+OpenLCB.bootloader.file=ATmegaBOOT_168_openlcb.hex
+OpenLCB.bootloader.unlock_bits=0x3F
+# OpenLCB.bootloader.lock_bits=0xCF
+OpenLCB.bootloader.lock_bits=0x3F
+
+OpenLCB.build.mcu=at90can128
+OpenLCB.build.f_cpu=16000000L
+OpenLCB.build.core=OpenLCB
+OpenLCB.build.variant=OpenLCB
