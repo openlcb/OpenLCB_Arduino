@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdi>
+	<identification>
+		<manufacturer>Railstars Limited</manufacturer>
+		<model>Io</model>
+		<hardwareVersion>1.0</hardwareVersion>
+		<softwareVersion>1.0</softwareVersion>
+	</identification>
+	<segment origin="0" space="0">
+		<group offset="0" replication="8">
+			<name>Produced Events</name>
+			<description>The EventIDs for the producers</description>
+			<eventid>
+				<name>Input On</name>
+				<description>Event produced when input goes high</description>
+			</eventid>
+			<eventid>
+				<name>Input Off</name>
+				<description>Event produced when input goes low</description>
+			</eventid>
+		</group>
+		<group replication="8">
+			<name>Consumed Events</name>
+			<description>The EventIDs for the consumers</description>
+			<eventid>
+				<name>Output On</name>
+				<description>When consumed, output is closed (grounded)</description>
+			</eventid>
+			<eventid>
+				<name>Output Off</name>
+				<description>When consumed, output is opened (high-impedance)</description>
+			</eventid>
+		</group>
+	</segment>
+</cdi>
