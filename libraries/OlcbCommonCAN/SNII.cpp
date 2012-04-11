@@ -9,29 +9,66 @@
 #include "logging.h"
 
 static OpenLcbCanBuffer* buffer;
-static uint8_t count;
+static uint8_t const_count;
+static uint8_t var_offset;
 static LinkControl* link;
 static uint16_t dest;
-static uint8_t tptr;
+static uint8_t ptr;
+
+static uint8_t state;
+#define STATE_CONST 1
+#define STATE_FLAG 2
+#define STATE_NAME 3
+#define STATE_COMMENT 4
+#define STATE_DONE 5
 
 const uint8_t getRead(uint32_t address, int space);
 
-void SNII_setup(uint8_t c, OpenLcbCanBuffer* b, LinkControl* li) {
-      count = c;
+void SNII_setup(uint8_t c, uint8_t offset, OpenLcbCanBuffer* b, LinkControl* li) {
+      const_count = c;
+      var_offset = offset;
       buffer = b;
       link = li;
-      tptr = count;
+      state = STATE_DONE;
   }
   
+const uint8_t SNII_nextByte() { 
+    uint8_t c;
+    switch (state) {
+    case STATE_CONST:
+        c = getRead(ptr++, 0xFC);
+        if (ptr >= const_count) state = STATE_FLAG;
+        return c;
+    case STATE_FLAG:
+        state = STATE_NAME;
+        ptr = 0;
+        return 1;
+    case STATE_NAME:
+        c = getRead(ptr++, 0xFB);
+        if (c==0) {
+            state = STATE_COMMENT;
+            ptr = var_offset;
+        }
+        return c;
+    case STATE_COMMENT:
+        c = getRead(ptr++, 0xFB);
+        if (c==0) state = STATE_DONE;
+        return c;
+    }
+}
+
 void SNII_check() {
-    if ( tptr < count ) {
+    if ( state != STATE_DONE ) {
         if (OpenLcb_can_xmt_ready(buffer)) {
             buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, dest);
             buffer->data[0] = 0x53;
             uint8_t i;
             for (i = 1; i<8; i++ ) {
-                if (tptr >= count) break;
-                buffer->data[i] = getRead(tptr++, 0xFC);
+                buffer->data[i] = SNII_nextByte();
+                if (state == STATE_DONE) {
+                    i++;
+                    break;
+                }
             }
             buffer->length = i;
             OpenLcb_can_queue_xmt_immediate(buffer);  // checked previously
@@ -39,13 +76,16 @@ void SNII_check() {
     }
     return;
 }
-    
+
+
 bool SNII_receivedFrame(OpenLcbCanBuffer* rcv) {
     if ( rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  { 
         // for this node, check meaning
         if (rcv->data[0] == 0x52 ) { // SCIP request
-            tptr = 0;
+            ptr = 0;
+            state = STATE_CONST;
             dest = rcv->getSourceAlias();
+            
             return true;
         }
     }

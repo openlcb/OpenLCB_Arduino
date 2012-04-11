@@ -22,9 +22,9 @@
  * on one of two pins.
  */
 
-#define         BAUD_RATE_1       230400
-#define         BAUD_RATE_2       333333
-#define         BAUD_RATE_3       500000
+#define         BAUD_RATE_1       333333
+#define         BAUD_RATE_2       500000
+#define         BAUD_RATE_3       230400
 #define         BAUD_PIN_1        8
 #define         BAUD_PIN_2        9
 
@@ -45,7 +45,7 @@ tCAN 		txCAN;	// CAN send buffer
 tCAN		* ptxCAN;
 
 
-#define         RX_WAIT_LOW      4 
+#define         RX_WAIT_LOW            4 
 #define         RX_WAIT_HIGH     16
 
 #define 	RX_BUF_SIZE	64
@@ -70,13 +70,16 @@ void setup()
   digitalWrite(BAUD_PIN_2, HIGH);
   pinMode(BAUD_PIN_2, INPUT);
 
+  long baud; 
   if (digitalRead(BAUD_PIN_1) == LOW)
-    Serial.begin(BAUD_RATE_1);
+    baud = BAUD_RATE_1;
   else if (digitalRead(BAUD_PIN_2) == LOW)
-    Serial.begin(BAUD_RATE_2);
+    baud = BAUD_RATE_2;
   else 
-    Serial.begin(BAUD_RATE_3);
+    baud = BAUD_RATE_3;
   
+  baud = 230400;
+  Serial.begin(baud);
   Serial.println();
   Serial.println(":I LEDuino CAN-USB Adaptor Version 2;");
 

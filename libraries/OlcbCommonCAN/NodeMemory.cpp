@@ -119,6 +119,11 @@ void NodeMemory::store(NodeID* nid, Event* cE, uint8_t nC) {
             p++;
          }
     }
+    
+    // clear some memory
+    for (int k = 0; k < 64; k++) {
+        writeByte(addr++, 0);
+    }
 }
 
 void NodeMemory::store(NodeID* nid, Event* cE, uint8_t nC, uint8_t* data, int extraBytes) {

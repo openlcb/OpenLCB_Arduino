@@ -14,7 +14,7 @@ class LinkControl;
 /**
 * Call once to record constants and do needed setup
 */
-void SNII_setup(uint8_t count, OpenLcbCanBuffer* b, LinkControl* link);
+void SNII_setup(uint8_t count, uint8_t var_comment_offset, OpenLcbCanBuffer* b, LinkControl* link);
   
 /**
 * Handle any routine processing that needs to be done.
