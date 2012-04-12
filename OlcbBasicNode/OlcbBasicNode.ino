@@ -87,11 +87,12 @@ const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0
  * 
  * 6 - 12       Node ID
  *
- * 13 - 13+8*8  EventID storage
- * 77 - 89      Node name (zero-term string)
- * 90 - 110     User comment (zero-term string)
+ * 13 - 13+8*sizeof(Event)  EventID storage
+ * 94 - 113     Node name (zero-term string)
+ * 114 - 136     User comment (zero-term string)
  *
  *************************************************** */
+#define SNII_var_data 13+8*sizeof(Event)+1
 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {
@@ -108,7 +109,7 @@ const uint8_t getRead(uint32_t address, int space) {
     return pgm_read_byte(SNII_const_data+address);
   } else if (space == 0xFB) { // 
     // used by ADCDI for variable data
-    return EEPROM.read(address);
+    return EEPROM.read(SNII_var_data+address);
   } else {
     // unknown space
     return 0; 
@@ -238,7 +239,7 @@ void setup()
   
   // Init protocol blocks
   PIP_setup(&txBuffer, &link);
-  SNII_setup((uint8_t)sizeof(SNII_const_data), &txBuffer, &link);
+  SNII_setup((uint8_t)sizeof(SNII_const_data), 20, &txBuffer, &link);
 
   // Initialize OpenLCB CAN connection
   OpenLcb_can_init();
