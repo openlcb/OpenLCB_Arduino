@@ -206,7 +206,7 @@ bool at90can_init(uint8_t bitrate)
 		CANIDM1 = 0;                        //get all messages 
 		CANIDM2 = 0;                        //1 = check bit 
 		CANIDM3 = 0;                        //0 = ignore bit 
-		CANIDM4 = (1<<IDEMSK); 
+		CANIDM4 = 0; //(1<<IDEMSK); 		// do not ignore standard frames
 		//set to receive, DLC, IDE
 		//set MOBs 5-14 to receive. Is this anything like ideal?
 		if(i >= 5)
