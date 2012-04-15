@@ -103,6 +103,11 @@
     memcpy(data, nid->val, 6);
   }
 
+  bool OpenLcbCanBuffer::isAMR(uint16_t alias) {
+    return isFrameTypeCAN() && (getVariableField() == AMR_VAR_FIELD)
+                && (alias == getSourceAlias());
+  }
+
   void OpenLcbCanBuffer::setCIM(uint8_t i, uint16_t testval, uint16_t alias) {
     uint16_t var =  (( (0x7-i) & 7) << 12) | (testval & 0xFFF); 
     setFrameTypeCAN(alias, var);
@@ -145,7 +150,10 @@
   }
   
   bool OpenLcbCanBuffer::isMsgForHere(uint16_t alias) {
-    if (! isFrameTypeOpenLcb() ) return false;
+    return isForHere(alias) && isFrameTypeOpenLcb();
+  }
+  
+  bool OpenLcbCanBuffer::isForHere(uint16_t alias) {
     uint16_t format = getOpenLcbFormat();
     switch (format) {
         case MTI_FORMAT_SIMPLE_MTI:

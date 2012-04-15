@@ -37,12 +37,14 @@ class EventID;
   // start of CAN-level messages
   void setFrameTypeCAN(uint16_t alias, uint16_t varField);  
   void setCIM(uint8_t i, uint16_t testval, uint16_t alias);
-  void setAMD(uint16_t alias,NodeID* nid);
-  void setAMR(uint16_t alias,NodeID* nid);
   bool isCIM();
   
   void setRIM(uint16_t alias);
   bool isRIM();
+
+  void setAMD(uint16_t alias,NodeID* nid);
+  bool isAMR(uint16_t alias);
+  void setAMR(uint16_t alias,NodeID* nid);
 
   // end of CAN-level messages
   
@@ -62,6 +64,7 @@ class EventID;
   void setOpenLcbMTI(uint16_t fmt, uint16_t mti);
   bool isOpenLcbMTI(uint16_t fmt, uint16_t mti);
   
+  bool isForHere(uint16_t alias);  // include OpenLCB messages and other frames
   bool isMsgForHere(uint16_t alias);
   bool isAddressedMessage();
 
