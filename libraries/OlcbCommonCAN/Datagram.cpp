@@ -63,9 +63,19 @@ void Datagram::check() {
 }
 
 bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
+    // conditionally check for link-level frames that stop reception
+    if (receiving) {
+        if (rcv->isAMR(fromAlias)) {
+            // yes, abort reception
+            rptr = rbuf;
+            receiving = false;
+            return false;
+        }
+    }
     // check for datagram reply, which can free buffer
     if ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  // addressed to here
          // TODO also need to check that this is _from_ the node that's sending the datagram
+         // as a redundant check (shouldn't be anybody else sending a reply right now, though)
          ) {
         // for this node, check meaning
         if (rcv->data[0] == MTI_DATAGRAM_RCV_OK ) { // datagram ACK
@@ -98,7 +108,7 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
             fromAlias = rcv->getSourceAlias();
             receiving = true;
          }
-         // this is for is, is it part of a currently-being received datagram?
+         // this is for us, is it part of a currently-being received datagram?
          if (fromAlias != rcv->getSourceAlias()) {
             // no - reject temporarily; done immediately with wait
             // TODO: Need a more robust method here
