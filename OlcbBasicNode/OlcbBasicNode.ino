@@ -5,7 +5,7 @@
 //   setup() at line 189 determines which are consumers and
 //   which are producers
 //
-//   Bob Jacobsen 2010
+//   Bob Jacobsen 2010, 2012
 //      based on examples by Alex Shepherd and David Harris
 //==============================================================
 
@@ -23,44 +23,12 @@
 // from the top level file (this file)
 #include <EEPROM.h>
 #include <can.h>
-
-// init for serial communications
-//#define         BAUD_RATE       115200
-#define         BAUD_RATE       57600
-//#define         BAUD_RATE       19200
-
-// OpenLCB definitions
-#include "OpenLcbCanInterface.h"
-#include "OpenLcbCanBuffer.h"
 #include "NodeID.h"
-#include "EventID.h"
-#include "Event.h"
 
-// specific OpenLCB implementations
-#include "LinkControl.h"
-#include "Datagram.h"
-//#include "OlcbStream.h"  // suppressed stream for space
-#include "Configuration.h"
-#include "NodeMemory.h"
-#include "PCE.h"
-#include "PIP.h"
-#include "SNII.h"
-#include "BG.h"
-#include "ButtonLed.h"
-
-OpenLcbCanBuffer     rxBuffer;	// CAN receive buffer
-OpenLcbCanBuffer     txBuffer;	// CAN send buffer
-OpenLcbCanBuffer*    ptxCAN;
+// init for serial communications if used
+#define         BAUD_RATE       57600
 
 NodeID nodeid(2,3,4,5,6,7);    // This node's default ID
-
-LinkControl link(&txBuffer, &nodeid);
-
-unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from);
-//unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length);  // suppressed stream for space
-
-Datagram dg(&txBuffer, datagramCallback, &link);
-//OlcbStream str(&txBuffer, streamRcvCallback, &link);   // suppressed stream for space
 
 /**
  * Get and put routines that 
@@ -69,27 +37,45 @@ Datagram dg(&txBuffer, datagramCallback, &link);
 
 // next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
 extern "C" {
-const prog_char configDefInfo[] PROGMEM = "<?xml version=\"1.0\"?> \
-<?xml-stylesheet type=\"text/xsl\" href=\"xslt/cdi.xsl\"?> \
-<cdi xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd\"><identification><manufacturer>OpenLCB</manufacturer><model>OlcbBasicNode</model><hardwareVersion>1.0</hardwareVersion><softwareVersion>0.4</softwareVersion></identification><segment origin=\"0\" space=\"0\"><group offset=\"77\"><name>User Identification</name><description>Lets the user add his own description</description><string size=\"12\"><name>Node Name</name></string><string size=\"20\"><name>Node Description</name></string></group><group offset=\"13\" replication=\"2\"><description>Input Pin</description><group><name>Activation Event</name><eventid/></group><group><name>Inactivation Event</name><eventid/></group></group><group replication=\"2\"><description>Output Pin</description><group><name>Set Event</name><eventid/></group><group><name>Reset Event</name><eventid/></group></group></segment><segment origin=\"0\" space=\"1\"><int size=\"4\"><name>Reset</name><description>Controls reloading and clearing node memory. Board must be restarted for this to take effect.</description><map><relation><property>0xEE555EE5</property><value>(No reset)</value></relation><relation><property>0</property><value>Reset all to defaults</value></relation><relation><property>0xEE5533CC</property><value>Reset EventIDs to new defaults</value></relation></map></int><int size=\"6\"><name>NodeID</name><description>This boards NodeID. Board must be restarted for this to take effect.</description></int></segment></cdi> \
-";
+const prog_char configDefInfo[] PROGMEM = {
+   60, 63, 120, 109, 108, 32, 118, 101, 114, 115, 105, 111, 110, 61, 39, 49, 46, 48, 39, 63, 62, 10, 60, 63, 120, 109, 108, 45, 115, 116, 121, 108, 101, 115, 104, 101, 101, 116, 32, 116, 121, 112, 101, 61, 39, 116, 101, 120, 116, 47, 120, 115, 108, 39, 32, 104, 114, 101, 102, 61, 39, 120, 115, 108, 116, 47, 99, 100, 105, 46, 120, 115, 108, 39, 63, 62, 10, 60, 99, 100, 105, 32, 120, 109, 108, 110, 115, 58, 120, 115, 105, 61, 39, 104, 116, 116, 112, 58, 47, 47, 119, 119, 119, 46, 119, 51, 46, 111, 114, 103, 47, 50, 48, 48, 49, 47, 88, 77, 76, 83, 99, 104, 101, 109, 97, 45, 105, 110,    // | <?xml version='1.0'?><?xml-stylesheet type='text/xsl' href='xslt/cdi.xsl'?><cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-in|
+   115, 116, 97, 110, 99, 101, 39, 32, 120, 115, 105, 58, 110, 111, 78, 97, 109, 101, 115, 112, 97, 99, 101, 83, 99, 104, 101, 109, 97, 76, 111, 99, 97, 116, 105, 111, 110, 61, 39, 104, 116, 116, 112, 58, 47, 47, 111, 112, 101, 110, 108, 99, 98, 46, 111, 114, 103, 47, 116, 114, 117, 110, 107, 47, 112, 114, 111, 116, 111, 116, 121, 112, 101, 115, 47, 120, 109, 108, 47, 115, 99, 104, 101, 109, 97, 47, 99, 100, 105, 46, 120, 115, 100, 39, 62, 10, 10, 60, 105, 100, 101, 110, 116, 105, 102, 105, 99, 97, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 60, 109, 97, 110, 117, 102, 97, 99, 116, 117,    // | stance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'><identification>    <manufactu|
+   114, 101, 114, 62, 79, 112, 101, 110, 76, 67, 66, 60, 47, 109, 97, 110, 117, 102, 97, 99, 116, 117, 114, 101, 114, 62, 10, 32, 32, 32, 32, 60, 109, 111, 100, 101, 108, 62, 79, 108, 99, 98, 66, 97, 115, 105, 99, 78, 111, 100, 101, 60, 47, 109, 111, 100, 101, 108, 62, 10, 32, 32, 32, 32, 60, 104, 97, 114, 100, 119, 97, 114, 101, 86, 101, 114, 115, 105, 111, 110, 62, 49, 46, 48, 60, 47, 104, 97, 114, 100, 119, 97, 114, 101, 86, 101, 114, 115, 105, 111, 110, 62, 10, 32, 32, 32, 32, 60, 115, 111, 102, 116, 119, 97, 114, 101, 86, 101, 114, 115, 105, 111, 110, 62, 48, 46, 52, 60,    // | rer>OpenLCB</manufacturer>    <model>OlcbBasicNode</model>    <hardwareVersion>1.0</hardwareVersion>    <softwareVersion>0.4<|
+   47, 115, 111, 102, 116, 119, 97, 114, 101, 86, 101, 114, 115, 105, 111, 110, 62, 10, 60, 47, 105, 100, 101, 110, 116, 105, 102, 105, 99, 97, 116, 105, 111, 110, 62, 10, 10, 60, 115, 101, 103, 109, 101, 110, 116, 32, 111, 114, 105, 103, 105, 110, 61, 39, 48, 39, 32, 115, 112, 97, 99, 101, 61, 39, 48, 39, 62, 10, 32, 32, 32, 32, 60, 103, 114, 111, 117, 112, 32, 111, 102, 102, 115, 101, 116, 61, 39, 55, 55, 39, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 110, 97, 109, 101, 62, 85, 115, 101, 114, 32, 73, 100, 101, 110, 116, 105, 102, 105, 99, 97, 116, 105, 111, 110, 60, 47, 110,    // | /softwareVersion></identification><segment origin='0' space='0'>    <group offset='77'>        <name>User Identification</n|
+   97, 109, 101, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 76, 101, 116, 115, 32, 116, 104, 101, 32, 117, 115, 101, 114, 32, 97, 100, 100, 32, 104, 105, 115, 32, 111, 119, 110, 32, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 60, 47, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 115, 116, 114, 105, 110, 103, 32, 115, 105, 122, 101, 61, 39, 49, 50, 39, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 110, 97, 109, 101, 62, 78, 111, 100, 101, 32,    // | ame>        <description>Lets the user add his own description</description>        <string size='12'>            <name>Node |
+   78, 97, 109, 101, 60, 47, 110, 97, 109, 101, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 47, 115, 116, 114, 105, 110, 103, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 115, 116, 114, 105, 110, 103, 32, 115, 105, 122, 101, 61, 39, 50, 48, 39, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 110, 97, 109, 101, 62, 78, 111, 100, 101, 32, 68, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 60, 47, 110, 97, 109, 101, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 47, 115, 116, 114, 105, 110, 103, 62, 10, 32, 32, 32, 32, 60, 47, 103, 114, 111, 117, 112,    // | Name</name>        </string>        <string size='20'>            <name>Node Description</name>        </string>    </group|
+   62, 10, 32, 32, 32, 32, 60, 103, 114, 111, 117, 112, 32, 111, 102, 102, 115, 101, 116, 61, 39, 49, 51, 39, 32, 114, 101, 112, 108, 105, 99, 97, 116, 105, 111, 110, 61, 39, 50, 39, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 73, 110, 112, 117, 116, 32, 80, 105, 110, 60, 47, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 103, 114, 111, 117, 112, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 110, 97, 109, 101, 62, 65, 99, 116, 105, 118, 97, 116,    // | >    <group offset='13' replication='2'>        <description>Input Pin</description>        <group>            <name>Activat|
+   105, 111, 110, 32, 69, 118, 101, 110, 116, 60, 47, 110, 97, 109, 101, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 101, 118, 101, 110, 116, 105, 100, 47, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 47, 103, 114, 111, 117, 112, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 103, 114, 111, 117, 112, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 110, 97, 109, 101, 62, 73, 110, 97, 99, 116, 105, 118, 97, 116, 105, 111, 110, 32, 69, 118, 101, 110, 116, 60, 47, 110, 97, 109, 101, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,    // | ion Event</name>            <eventid/>        </group>        <group>            <name>Inactivation Event</name>           |
+   32, 60, 101, 118, 101, 110, 116, 105, 100, 47, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 47, 103, 114, 111, 117, 112, 62, 10, 32, 32, 32, 32, 60, 47, 103, 114, 111, 117, 112, 62, 10, 32, 32, 32, 32, 60, 103, 114, 111, 117, 112, 32, 114, 101, 112, 108, 105, 99, 97, 116, 105, 111, 110, 61, 39, 50, 39, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 79, 117, 116, 112, 117, 116, 32, 80, 105, 110, 60, 47, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 103, 114, 111,    // |  <eventid/>        </group>    </group>    <group replication='2'>        <description>Output Pin</description>        <gro|
+   117, 112, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 110, 97, 109, 101, 62, 83, 101, 116, 32, 69, 118, 101, 110, 116, 60, 47, 110, 97, 109, 101, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 101, 118, 101, 110, 116, 105, 100, 47, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 47, 103, 114, 111, 117, 112, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 103, 114, 111, 117, 112, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 110, 97, 109, 101, 62, 82, 101, 115, 101, 116, 32, 69, 118, 101, 110, 116, 60, 47, 110, 97,    // | up>            <name>Set Event</name>            <eventid/>        </group>        <group>            <name>Reset Event</na|
+   109, 101, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 101, 118, 101, 110, 116, 105, 100, 47, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 47, 103, 114, 111, 117, 112, 62, 10, 32, 32, 32, 32, 60, 47, 103, 114, 111, 117, 112, 62, 10, 60, 47, 115, 101, 103, 109, 101, 110, 116, 62, 10, 10, 60, 115, 101, 103, 109, 101, 110, 116, 32, 111, 114, 105, 103, 105, 110, 61, 39, 48, 39, 32, 115, 112, 97, 99, 101, 61, 39, 49, 39, 62, 10, 32, 32, 32, 32, 60, 105, 110, 116, 32, 115, 105, 122, 101, 61, 39, 52, 39, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60,    // | me>            <eventid/>        </group>    </group></segment><segment origin='0' space='1'>    <int size='4'>        <|
+   110, 97, 109, 101, 62, 82, 101, 115, 101, 116, 60, 47, 110, 97, 109, 101, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 67, 111, 110, 116, 114, 111, 108, 115, 32, 114, 101, 108, 111, 97, 100, 105, 110, 103, 32, 97, 110, 100, 32, 99, 108, 101, 97, 114, 105, 110, 103, 32, 110, 111, 100, 101, 32, 109, 101, 109, 111, 114, 121, 46, 32, 66, 111, 97, 114, 100, 32, 109, 117, 115, 116, 32, 98, 101, 32, 114, 101, 115, 116, 97, 114, 116, 101, 100, 32, 102, 111, 114, 32, 116, 104, 105, 115, 32, 116, 111, 32, 116, 97, 107, 101, 32, 101, 102, 102,    // | name>Reset</name>        <description>Controls reloading and clearing node memory. Board must be restarted for this to take eff|
+   101, 99, 116, 46, 60, 47, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 109, 97, 112, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 114, 101, 108, 97, 116, 105, 111, 110, 62, 60, 112, 114, 111, 112, 101, 114, 116, 121, 62, 48, 120, 69, 69, 53, 53, 53, 69, 69, 53, 60, 47, 112, 114, 111, 112, 101, 114, 116, 121, 62, 60, 118, 97, 108, 117, 101, 62, 40, 78, 111, 32, 114, 101, 115, 101, 116, 41, 60, 47, 118, 97, 108, 117, 101, 62, 60, 47, 114, 101, 108, 97, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 32,    // | ect.</description>        <map>            <relation><property>0xEE555EE5</property><value>(No reset)</value></relation>     |
+   32, 32, 32, 32, 32, 32, 32, 60, 114, 101, 108, 97, 116, 105, 111, 110, 62, 60, 112, 114, 111, 112, 101, 114, 116, 121, 62, 48, 60, 47, 112, 114, 111, 112, 101, 114, 116, 121, 62, 60, 118, 97, 108, 117, 101, 62, 82, 101, 115, 101, 116, 32, 97, 108, 108, 32, 116, 111, 32, 100, 101, 102, 97, 117, 108, 116, 115, 60, 47, 118, 97, 108, 117, 101, 62, 60, 47, 114, 101, 108, 97, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 60, 114, 101, 108, 97, 116, 105, 111, 110, 62, 60, 112, 114, 111, 112, 101, 114, 116, 121, 62, 48, 120, 69, 69, 53, 53, 51, 51, 67,    // |        <relation><property>0</property><value>Reset all to defaults</value></relation>            <relation><property>0xEE5533C|
+   67, 60, 47, 112, 114, 111, 112, 101, 114, 116, 121, 62, 60, 118, 97, 108, 117, 101, 62, 82, 101, 115, 101, 116, 32, 69, 118, 101, 110, 116, 73, 68, 115, 32, 116, 111, 32, 110, 101, 119, 32, 100, 101, 102, 97, 117, 108, 116, 115, 60, 47, 118, 97, 108, 117, 101, 62, 60, 47, 114, 101, 108, 97, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 47, 109, 97, 112, 62, 10, 32, 32, 32, 32, 60, 47, 105, 110, 116, 62, 10, 32, 32, 32, 32, 60, 105, 110, 116, 32, 115, 105, 122, 101, 61, 39, 54, 39, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 110, 97, 109, 101, 62,    // | C</property><value>Reset EventIDs to new defaults</value></relation>        </map>    </int>    <int size='6'>        <name>|
+   78, 111, 100, 101, 73, 68, 60, 47, 110, 97, 109, 101, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 84, 104, 105, 115, 32, 98, 111, 97, 114, 100, 115, 32, 78, 111, 100, 101, 73, 68, 46, 32, 66, 111, 97, 114, 100, 32, 109, 117, 115, 116, 32, 98, 101, 32, 114, 101, 115, 116, 97, 114, 116, 101, 100, 32, 102, 111, 114, 32, 116, 104, 105, 115, 32, 116, 111, 32, 116, 97, 107, 101, 32, 101, 102, 102, 101, 99, 116, 46, 60, 47, 100, 101, 115, 99, 114, 105, 112, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 60, 47, 105, 110, 116, 62,    // | NodeID</name>        <description>This boards NodeID. Board must be restarted for this to take effect.</description>    </int>|
+   10, 60, 47, 115, 101, 103, 109, 101, 110, 116, 62, 10, 10, 60, 47, 99, 100, 105, 62, 10, 0
+};
 
 const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0\0000.4";
 
-}
+} // end extern "C"
+
+#include "OlcbArduinoCAN.h"
 
 /* *************************************************
  * EEPROM memory layout
  *     See NodeMemory.h for background info
  *
- * 0 - 3        Memory state flag
- * 4 - 5        Cycle count
- * 
- * 6 - 12       Node ID
+ * Internal data, not to be reset by user:
+ *     0 - 3        Memory state flag
+ *     4 - 5        Cycle count
+ *     6 - 12       Node ID
  *
- * 13 - 13+8*sizeof(Event)  EventID storage
- * 94 - 113     Node name (zero-term string)
- * 114 - 136     User comment (zero-term string)
+ * User configuration data:
+ *     13 - 13+8*sizeof(Event)  EventID storage
+ *     94 - 113     Node name (zero-term string)
+ *     114 - 136     User comment (zero-term string)
  *
  *************************************************** */
 #define SNII_var_data 13+8*sizeof(Event)+1
@@ -99,16 +85,16 @@ const uint8_t getRead(uint32_t address, int space) {
     // Configuration definition information
     return pgm_read_byte(configDefInfo+address);
   } else if (space == 0xFE) {
-    // All memory
+    // All memory reads from RAM starting at first location in this program
     return *(((uint8_t*)&rxBuffer)+address);
   } else if (space == 0xFD) {
-    // Configuration space
+    // Configuration space is entire EEPROM
     return EEPROM.read(address);
   } else if (space == 0xFC) { // 
-    // used by ADCDI for constant data
+    // used by ADCDI/SNII for constant data
     return pgm_read_byte(SNII_const_data+address);
   } else if (space == 0xFB) { // 
-    // used by ADCDI for variable data
+    // used by ADCDI/SNII for variable data
     return EEPROM.read(SNII_var_data+address);
   } else {
     // unknown space
@@ -130,28 +116,6 @@ extern "C" {
 uint8_t protocolIdentValue[6] = {0xD5,0x40,0,0,0,0};
 }
 
-Configuration cfg(&dg, 0, &getRead, &getWrite, (void (*)())0);
-//Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);   // suppressed stream for space
-
-unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from){
-  // invoked when a datagram arrives
-  //logstr("consume datagram of length ");loghex(length); lognl();
-  //for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
-  //printf("\n");
-  // pass to consumers
-  return cfg.receivedDatagram(rbuf, length, from);
-}
-
-// suppressed stream for space
-//unsigned int resultcode;
-//unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
-//  // invoked when a stream frame arrives
-//  //printf("consume frame of length %d: ",length);
-//  //for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
-//  //printf("\n");
-//  return resultcode;  // return pre-ordained result
-//}
-
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
 Event events[] = {
     Event(), Event(), Event(), Event(), 
@@ -160,10 +124,12 @@ Event events[] = {
 int eventNum = 8;
 
 // output drivers
-ButtonLed p14(14, LOW);
-ButtonLed p15(15, LOW);
-ButtonLed p16(16, LOW);
-ButtonLed p17(17, LOW);
+// 14, 15, 16, 17 for LEDuino with standard shield
+// 16, 17, 18, 19 for IOduino to clear built-in blue and gold
+ButtonLed pA(16, LOW); 
+ButtonLed pB(17, LOW);
+ButtonLed pC(18, LOW);
+ButtonLed pD(19, LOW);
 
 #define ShortBlinkOn   0x00010001L
 #define ShortBlinkOff  0xFFFEFFFEL
@@ -174,10 +140,10 @@ long patterns[] = {
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn
 };
-ButtonLed* buttons[] = {&p14,&p14,&p15,&p15,&p16,&p16,&p17,&p17};
+ButtonLed* buttons[] = {&pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD};
 
-ButtonLed blue(48, LOW);  // 18 LEDuino, 48 IO, 14 IOuino
-ButtonLed gold(49, LOW);  // 19 LEDuino, 49 IO, 15 IOuino
+ButtonLed blue(14, LOW);  // 18 LEDuino, 48 IO, 14 IOuino
+ButtonLed gold(15, LOW);  // 19 LEDuino, 49 IO, 15 IOuino
 
 void pceCallback(int index){
   // invoked when an event is consumed; drive pins as needed
@@ -199,9 +165,9 @@ PCE pce(events, eventNum, &txBuffer, &nodeid, pceCallback, store, &link);
 BG bg(&pce, buttons, patterns, eventNum, &blue, &gold);
 
 bool states[] = {false, false, false, false};
-void produceFromPins() {
-  // called from loop(), this looks at pins and 
-  // and decides which events to fire.
+void produceFromInputs() {
+  // called from loop(), this looks at changes in input pins and 
+  // and decides which events to fire
   // with pce.produce(i);
   // The first event of each pair is sent on button down,
   // and second on button up.
@@ -226,7 +192,7 @@ void setup()
   //delay(250);Serial.begin(BAUD_RATE);logstr("\nOlcbBasicNode\n");
   
   // read OpenLCB from EEPROM
-  //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
+  nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
   nm.setup(&nodeid, events, eventNum);  
   
   // set event types, now that IDs have been loaded from configuration
@@ -237,58 +203,18 @@ void setup()
       pce.newEvent(i,false,true); // produce, consume
   }
   
-  // Init protocol blocks
-  PIP_setup(&txBuffer, &link);
-  SNII_setup((uint8_t)sizeof(SNII_const_data), 20, &txBuffer, &link);
-
-  // Initialize OpenLCB CAN connection
-  OpenLcb_can_init();
-  
-  // Initialize OpenLCB CAN link controller
-  link.reset();
+  Olcb_setup();
 }
 
 void loop() {
-
-  // check for input frames, acquire if present
-  bool rcvFramePresent = OpenLcb_can_get_frame(&rxBuffer);
-  
-  // process link control first
-  link.check();
-  bool handled = false;
-  if (rcvFramePresent) {
+    bool activity = Olcb_loop();
+    if (activity) {
     // blink blue to show that the frame was received
     blue.blink(0x1);
-    // see if recieved frame changes link state
-    handled = link.receivedFrame(&rxBuffer);
   }
-
-  // if link is initialized, higher-level operations possible
-  if (link.linkInitialized()) {
-     // if frame present, pass to handlers
-     if (rcvFramePresent && rxBuffer.isMsgForHere(link.getAlias())) {
-        handled |= pce.receivedFrame(&rxBuffer);
-        handled |= dg.receivedFrame(&rxBuffer);
-        //handled |= str.receivedFrame(&rxBuffer); // suppressed stream for space
-        handled |= PIP_receivedFrame(&rxBuffer);
-        handled |= SNII_receivedFrame(&rxBuffer);
-        if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer);
-     }
-     // periodic processing of any state changes
-     pce.check();
-     dg.check();
-     //str.check();  // suppressed stream for space
-     cfg.check();
-     bg.check();
-     PIP_check();
-     SNII_check();
-     produceFromPins();
-  } else {
-    // link not up, but continue to show indications on blue and gold
-    blue.process();
-    gold.process();
-  }
-
+  // handle the status lights  
+  blue.process();
+  gold.process();
 }
 
 
