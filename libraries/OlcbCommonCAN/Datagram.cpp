@@ -65,7 +65,7 @@ void Datagram::check() {
 bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
     // conditionally check for link-level frames that stop reception
     if (receiving) {
-        if (rcv->isAMR(fromAlias)) {
+        if (rcv->isAMR(fromAlias) || rcv->isAMD(fromAlias)) {
             // yes, abort reception
             rptr = rbuf;
             receiving = false;
