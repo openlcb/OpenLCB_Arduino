@@ -97,6 +97,11 @@
     memcpy(data, nid->val, 6);
   }
 
+  bool OpenLcbCanBuffer::isAMD(uint16_t alias) {
+    return isFrameTypeCAN() && (getVariableField() == AMD_VAR_FIELD)
+                && (alias == getSourceAlias());
+  }
+
   void OpenLcbCanBuffer::setAMR(uint16_t alias,NodeID* nid) {
     setFrameTypeCAN(alias, AMR_VAR_FIELD);
     length=6;

@@ -43,8 +43,10 @@ class EventID;
   bool isRIM();
 
   void setAMD(uint16_t alias,NodeID* nid);
-  bool isAMR(uint16_t alias);
+  bool isAMD(uint16_t alias);
+  
   void setAMR(uint16_t alias,NodeID* nid);
+  bool isAMR(uint16_t alias);
 
   // end of CAN-level messages
   
