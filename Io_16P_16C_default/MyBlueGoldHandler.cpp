@@ -12,6 +12,7 @@ void MyBlueGoldHandler::create(OLCB_Link *link, OLCB_NodeID *nid, MyEventHandler
   OLCB_Virtual_Node::create(link,nid);
   _index = -1;
   _input_index = -1;
+  _input_count = 0;
   _started = false;
   _event_handler = eventHandler;
 
@@ -271,7 +272,7 @@ void MyBlueGoldHandler::update(void)
       moveToIdle(false);
     }
     else if(_input_pressed)
-    {
+	{
       //figure out which input was pressed
       uint8_t in;
       for(in = 0; in < 8; ++in)
@@ -285,20 +286,25 @@ void MyBlueGoldHandler::update(void)
       //Third time, we unflag "off"
       //check "on"
       //first, check to see if user has moved to a different input, changing their mind.
-      if(in != (_input_index>>1))
+      if((_input_index == -1) || (in != (_input_index>>1)))
       {
+      	gold.on(0x000A000A);
         _input_index = (in << 1);
         blue.on(0xFFFFFFFF);
+        _input_count = 1;
       }
-      else if(_input_index > -1 && (_input_index & 0x01)) //this is the third press, because it's on an "off" producer
-      {
-        _input_index = -1;
-        blue.on(0xF0F0F0F0); //indicate that nothing is selected for learning
-      }
-      else// if(_input_index > -1 && !(_input_index & 0x01)) //this is the second press
+      else if(_input_count == 1)
       {
         _input_index = (in << 1) + 1;
         blue.on(0x000A000A); //indicate that "off" is selected
+		_input_count = 2;
+      }
+      else if(_input_count == 2)
+      {
+      	gold.on(0);
+        _input_index = -1;
+        _input_count = 0;
+        blue.on(0xF0F0F0F0); //indicate that nothing is selected for learning
       }
     }
     break;
@@ -373,7 +379,10 @@ void MyBlueGoldHandler::update(void)
       moveToIdle(false);
 
     }
-    else if(_input_pressed)
+else if(_input_pressed)
+{
+	//ignore button-up events
+    if(!(_input_pressed & 0x01))
     {
       //figure out which input was pressed
       uint8_t in;
@@ -388,22 +397,29 @@ void MyBlueGoldHandler::update(void)
       //Third time, we unflag "off"
       //check "on"
       //first, check to see if user has moved to a different input, changing their mind.
-      if(in != (_input_index>>1))
+      if((_input_index == -1) || (in != (_input_index>>1)))
       {
+      	gold.on(0x000A000A);
         _input_index = (in << 1);
         blue.on(0xFFFFFFFF);
+        _input_count = 1;
       }
-      else if(_input_index > -1 && (_input_index & 0x01)) //this is the third press, because it's on an "off" producer
-      {
-        _input_index = -1;
-        blue.on(0x00000000); //indicate that nothing is selected for learning
-      }
-      else// if(_input_index > -1 && !(_input_index & 0x01)) //this is the second press
+      else if(_input_count == 1)
       {
         _input_index = (in << 1) + 1;
         blue.on(0x000A000A); //indicate that "off" is selected
+		_input_count = 2;
+      }
+      else if(_input_count == 2)
+      {
+      	gold.on(0);
+        _input_index = -1;
+        _input_count = 0;
+        blue.on(0xF0F0F0F0); //indicate that nothing is selected for learning
       }
     }
+}
+
     break;
   }
 }

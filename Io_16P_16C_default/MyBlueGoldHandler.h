@@ -76,6 +76,7 @@ private:
 
   uint8_t _input_pressed;
   uint8_t _last_input;
+  uint8_t _input_count;
   MyEventHandler* _event_handler; //for teaching and learning from.
   uint8_t *_input_buttons; //we know there are 8 of them.
 
