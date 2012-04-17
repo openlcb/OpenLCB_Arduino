@@ -379,11 +379,8 @@ void MyBlueGoldHandler::update(void)
       moveToIdle(false);
 
     }
-else if(_input_pressed)
-{
-	//ignore button-up events
-    if(!(_input_pressed & 0x01))
-    {
+	else if(_input_pressed)
+	{
       //figure out which input was pressed
       uint8_t in;
       for(in = 0; in < 8; ++in)
@@ -399,7 +396,6 @@ else if(_input_pressed)
       //first, check to see if user has moved to a different input, changing their mind.
       if((_input_index == -1) || (in != (_input_index>>1)))
       {
-      	gold.on(0x000A000A);
         _input_index = (in << 1);
         blue.on(0xFFFFFFFF);
         _input_count = 1;
@@ -412,13 +408,11 @@ else if(_input_pressed)
       }
       else if(_input_count == 2)
       {
-      	gold.on(0);
         _input_index = -1;
         _input_count = 0;
-        blue.on(0xF0F0F0F0); //indicate that nothing is selected for learning
+        blue.on(0x00); //indicate that nothing is selected for learning
       }
-    }
-}
+	}
 
     break;
   }
