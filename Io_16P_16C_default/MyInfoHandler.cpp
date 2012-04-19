@@ -9,18 +9,7 @@
 #define MTI_PIP_REQUEST   0x2E
 #define MTI_PIP_RESPONSE  0x2F
 
-static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board\n1.0";
-
-//prog_char string_0[] PROGMEM = "\x01Railstars Limited";   // "String 0" etc are strings to store - change to suit. First character must be a '1', which is a version byte.
-//prog_char string_1[] PROGMEM = "Railstars Io";
-//prog_char string_2[] PROGMEM = "1.0";
-//PROGMEM const char *SNIP_table[] =	   // change "string_table" name to suit
-//{   
-//  string_0,
-//  string_1,
-//  string_2 };
-//
-//#define MAX_STRING 2
+static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board\n1.0\n1.0";
 
 bool isSNIPRequest(OLCB_Buffer *buffer)
 {

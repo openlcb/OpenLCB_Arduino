@@ -5,7 +5,6 @@ void MyConfigHandler::create(OLCB_Link *link, OLCB_NodeID *nid, MyEventHandler *
 {
   _eventHandler = eventHandler;
   OLCB_Datagram_Handler::create(link,nid);
-  OLCB_Virtual_Node::create(link,nid);
 }
 
 bool MyConfigHandler::handleMessage(OLCB_Buffer *buffer)
@@ -231,7 +230,7 @@ bool MyConfigHandler::MACProcessCommand(void)
       //check NID first!
       OLCB_NodeID n;
       memcpy(&n, &(_rxDatagramBuffer->data[2]), 6);
-      if(n.sameNID(OLCB_Virtual_Node::NID))
+      if(n.sameNID(NID))
       {
         _eventHandler->factoryReset();
         void (*restart)() = 0x00;
@@ -255,7 +254,7 @@ bool MyConfigHandler::MACProcessCommand(void)
       {
         for(uint8_t j = 0; i < 6; ++j)
         {
-          reply.data[(i*8)+j+2] = OLCB_Virtual_Node::NID->val[j];
+          reply.data[(i*8)+j+2] = NID->val[j];
         }
         reply.data[(i*8)+7+2] = eid6;
         reply.data[(i*8)+8+2] = eid7;

@@ -18,11 +18,11 @@ extern ButtonLed gold; // button on pin 15
  * Here is the class for handling PC Event Reports
  ************************/
 class MyEventHandler: 
-public OLCB_Virtual_Node, public OLCB_Event_Handler
+public OLCB_Event_Handler
 {
 public:
   MyEventHandler(void) : 
-  _inhibit(false), _first_run(true), _inputs(0x00), _dirty(0)
+  _inhibit(false), _first_check(true), _first_run(true), _inputs(0x00), _dirty(0)
   {
     for(uint8_t i = 0; i < 8; ++i)
       _input_buttons[i] = i+8;
@@ -59,6 +59,7 @@ protected:
 
 private:
   bool _inhibit;
+  bool _first_check;
   bool _first_run;
   uint8_t _inputs;
   uint8_t _dirty;

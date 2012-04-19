@@ -6,7 +6,6 @@
 void MyEventHandler::create(OLCB_Link *link, OLCB_NodeID *nid)
 {
   OLCB_Event_Handler::create(link,nid);
-  OLCB_Virtual_Node::create(link,nid);
 }
 
 bool MyEventHandler::handleMessage(OLCB_Buffer *buffer)
@@ -153,7 +152,7 @@ void MyEventHandler::factoryReset(void)
   {
     for(j = 0; j < 6; ++j)
     {
-      EEPROM.write((i*8)+j+4, OLCB_Virtual_Node::NID->val[j]);
+      EEPROM.write((i*8)+j+4, NID->val[j]);
     }
     EEPROM.write((i*8)+6+4, eid6);
     EEPROM.write((i*8)+7+4, eid7+i);
@@ -163,7 +162,7 @@ void MyEventHandler::factoryReset(void)
   {
     for(j = 0; j < 6; ++j)
     {
-      EEPROM.write((i*8)+j+4, OLCB_Virtual_Node::NID->val[j]);
+      EEPROM.write((i*8)+j+4, NID->val[j]);
     }
     EEPROM.write((i*8)+6+4, eid6);
     EEPROM.write((i*8)+7+4, eid7+(i-(_numEvents/2)));
@@ -185,7 +184,7 @@ void MyEventHandler::update(void)
   for(uint8_t i = 0; i < 8; ++i)
     //first, are we going to set up any kind of learning? TODO
 
-    if(!_inhibit)
+    if(!_inhibit && !_first_run)
     {
       // looks at the input pins and
       // and decide whether and which events to fire
@@ -196,7 +195,7 @@ void MyEventHandler::update(void)
       {
         state = digitalRead(_input_buttons[i]); //digitalRead(i+8);
         prev_state = (_inputs & (1<<i))>>i;
-        if((state != prev_state) || _first_run) //change in state!
+        if((state != prev_state) || _first_check) //change in state!
         {	//input has changed, fire event and update flag
           //Serial.print("input state change to ");
           //Serial.print(state, DEC);
@@ -210,9 +209,11 @@ void MyEventHandler::update(void)
           produce((i<<1) | !(state^0x01));
         }
       }
-      _first_run = false;
+      _first_check = false;
     }
   OLCB_Event_Handler::update(); //called last to permit the new events to be sent out immediately.
+  if(_sendEvent == _numEvents)
+    _first_run = false;
   if(_dirty) //check to see if we need to dump memory to EEPROM
   {
     store();

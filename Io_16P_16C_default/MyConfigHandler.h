@@ -79,7 +79,7 @@ static PROGMEM char cdixml[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cdi
 
 /* Class to handle Memory Configuration protocol and CDI protocol */
 class MyConfigHandler : 
-public OLCB_Virtual_Node, public OLCB_Datagram_Handler
+public OLCB_Datagram_Handler
 {
 public:
   void create(OLCB_Link *link, OLCB_NodeID *nid, MyEventHandler *eventHandler);
