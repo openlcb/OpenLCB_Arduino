@@ -70,8 +70,8 @@ void loadNodeID(OLCB_NodeID *nid)
 
 void setup()
 {
-  Serial.begin(115200);
-  Serial.println("Io 16C 16P default");
+  //Serial.begin(115200);
+  //Serial.println("Io 16C 16P default");
   //first, set up inputs and outputs, setting pull-up resistors on inputs
   for(int i = 0; i < 8; ++i) //outputs
   {
@@ -94,10 +94,10 @@ void setup()
   cfg.create(&link, &nodeid, &pce);
   bg.create(&link, &nodeid, &pce);
   info.create(&link, &nodeid);
-  link.addVNode(&pce);
-  link.addVNode(&cfg);
-  link.addVNode(&bg);
-  link.addVNode(&info);
+  link.addVNode((OLCB_Virtual_Node*)&pce);
+  link.addVNode((OLCB_Virtual_Node*)&cfg);
+  link.addVNode((OLCB_Virtual_Node*)&bg);
+  link.addVNode((OLCB_Virtual_Node*)&info);
 }
 
 // ================ Loop ===================

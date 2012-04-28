@@ -3,19 +3,6 @@
 //really, should probably be using avr/eeprom.h, but this is going to be more portable in the end, I think?
 
 
-void MyEventHandler::create(OLCB_Link *link, OLCB_NodeID *nid)
-{
-  OLCB_Event_Handler::create(link,nid);
-}
-
-bool MyEventHandler::handleMessage(OLCB_Buffer *buffer)
-{
-  if(isPermitted());
-  return OLCB_Event_Handler::handleMessage(buffer);
-
-  return false;
-}
-
 bool MyEventHandler::store(void)
 {
   //write the stored EventIDs into EEPROM
@@ -69,7 +56,7 @@ void MyEventHandler::initialize(OLCB_Event *events, uint8_t num)
   //now, read it back out into SRAM
   load(); //TODO add check for valid EEPROM.
 
-  //and a little more setup...first the 16 producers
+  //and a little more setup.first the 16 producers
   for(uint8_t i = 0; i < 16; ++i)
     newEvent(i, true, false);
   //and the 16 consumers

@@ -56,7 +56,6 @@ public OLCB_Virtual_Node
 public:
 
   void update(void);
-  bool handleMessage(OLCB_Buffer *buffer);
   void create(OLCB_Link *link, OLCB_NodeID *nid, MyEventHandler *eventHandler);
 
 

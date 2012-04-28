@@ -418,15 +418,6 @@ void MyBlueGoldHandler::update(void)
   }
 }
 
-bool MyBlueGoldHandler::handleMessage(OLCB_Buffer *buffer)
-{
-  if(isPermitted())
-  {
-    return OLCB_Virtual_Node::handleMessage(buffer);
-  }
-  return false;
-}
-
 /**
  * Send an event in response to the "ident" button pushes
  */

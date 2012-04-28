@@ -32,10 +32,6 @@ public:
 
   void factoryReset(void);
 
-  void create(OLCB_Link *link, OLCB_NodeID *nid);
-
-  bool handleMessage(OLCB_Buffer *buffer);
-
   void update(void);
 
   bool consume(uint16_t index);

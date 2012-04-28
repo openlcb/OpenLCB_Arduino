@@ -13,20 +13,24 @@ static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board
 
 bool isSNIPRequest(OLCB_Buffer *buffer)
 {
-  if(! (buffer->isFrameTypeOpenLcb() && (buffer->getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_NON_DATAGRAM)) )
+  if(! (buffer->isFrameTypeOpenLcb() && (buffer->getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_MESSAGE)) )
     return false;
   return (buffer->data[0] == ((MTI_SNIP_REQUEST)&0xFF) );
 }
 
 bool isPIPRequest(OLCB_Buffer *buffer)
 {
-  if(! (buffer->isFrameTypeOpenLcb() && (buffer->getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_NON_DATAGRAM)) )
+  if(! (buffer->isFrameTypeOpenLcb() && (buffer->getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_MESSAGE)) )
     return false;
   return (buffer->data[0] == ((MTI_PIP_REQUEST)&0xFF) );
 }
 
 void MyInfoHandler::update(void)
 {
+  if(!isPermitted())
+  {
+      return;
+  }
   //handle pending snip request responses
   if(_string_index > -1)
   {
@@ -98,7 +102,7 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
       _reply.init(NID);
       _reply.setDestinationNID(&source_address);
       _reply.setFrameTypeOpenLcb();
-      _reply.setOpenLcbFormat(MTI_FORMAT_ADDRESSED_NON_DATAGRAM);
+      _reply.setOpenLcbFormat(MTI_FORMAT_ADDRESSED_MESSAGE);
       _reply.data[0] = MTI_SNIP_RESPONSE;
       retval = true;
     }
@@ -106,7 +110,7 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
   else if(isPIPRequest(buffer))
   {
     //is it for us?
-    //Serial.println("got PIP aimed at...");
+    //Serial.println("got PIP aimed at.");
     OLCB_NodeID dest;
     buffer->getDestinationNID(&dest);
     //Serial.println(dest.alias, DEC);
@@ -120,7 +124,7 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
       reply.init(NID);
       reply.setDestinationNID(&source_address);
       reply.setFrameTypeOpenLcb();
-      reply.setOpenLcbFormat(MTI_FORMAT_ADDRESSED_NON_DATAGRAM);
+      reply.setOpenLcbFormat(MTI_FORMAT_ADDRESSED_MESSAGE);
       reply.data[0] = MTI_PIP_RESPONSE;
       reply.length = 7;
       reply.data[1] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;

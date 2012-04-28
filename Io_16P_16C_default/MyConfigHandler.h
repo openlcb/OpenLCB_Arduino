@@ -83,8 +83,7 @@ public OLCB_Datagram_Handler
 {
 public:
   void create(OLCB_Link *link, OLCB_NodeID *nid, MyEventHandler *eventHandler);
-  bool handleMessage(OLCB_Buffer *buffer);
-  void update(void);
+//  void update(void);
   void datagramResult(bool accepted, uint16_t errorcode);
   void initialize(void);
   bool processDatagram(void);

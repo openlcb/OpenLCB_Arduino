@@ -7,20 +7,6 @@ void MyConfigHandler::create(OLCB_Link *link, OLCB_NodeID *nid, MyEventHandler *
   OLCB_Datagram_Handler::create(link,nid);
 }
 
-bool MyConfigHandler::handleMessage(OLCB_Buffer *buffer)
-{
-  if(isPermitted())
-    return OLCB_Datagram_Handler::handleMessage(buffer);
-  return false;
-}
-
-void MyConfigHandler::update(void)
-{
-  if(isPermitted())
-  {
-    OLCB_Datagram_Handler::update();
-  }
-}
 
 void MyConfigHandler::datagramResult(bool accepted, uint16_t errorcode)
 {
@@ -73,32 +59,34 @@ bool MyConfigHandler::processDatagram(void)
 {
   //To have made it this far, we can be sure that _rxDatagramBuffer has a valid datagram loaded up, and that it is in fact addressed to us.
 
-    if(isPermitted()) //only act on it if we are in Permitted state. Otherwise no point.
+  if(!isPermitted()) //only act on it if we are in Permitted state. Otherwise no point.
   {
-    //Serial.println("got a datagram!");
+    return false;
+  }
+    //Serial..println("got a datagram!");
     //Serial.println(_rxDatagramBuffer->data[0], HEX);
     //check the first byte of the payload to see what kind of datagram we have
     switch(_rxDatagramBuffer->data[0])
     {
     case MAC_PROTOCOL_ID: //MAC protocol
-      //Serial.println("using MAC protocol");
+      //Serial..println("using MAC protocol");
       switch (_rxDatagramBuffer->data[1]&0xC0)
       {
       case MAC_CMD_READ:
-        //Serial.println("read request");
+        //Serial..println("read request");
         return MACProcessRead();
         break;
       case MAC_CMD_WRITE:
-        //Serial.println("write request");
+        //Serial..println("write request");
         return MACProcessWrite();
         break;
       case MAC_CMD_OPERATION:
-        //Serial.println("cmd request");
+        //Serial..println("cmd request");
         return MACProcessCommand();
         break;
       }
     }
-  }
+
   //Serial.println("Not for us to handle, going to NAK");
   return false;
 }
@@ -111,9 +99,9 @@ bool MyConfigHandler::MACProcessRead(void)
   //copy first six bytes. TODO why?
   memcpy(reply.data, _rxDatagramBuffer->data, 6);
   reply.data[1] = MAC_CMD_READ_REPLY | reply.data[1]&0x0F; //WTF?
-  //Serial.print("Making reply with MTI ");
-  //Serial.println(reply.data[0], HEX);
-  //Serial.println(reply.data[1], HEX);
+  //Serial..print("Making reply with MTI ");
+  //Serial..println(reply.data[0], HEX);
+  //Serial..println(reply.data[1], HEX);
   //TODO presume datagram?
   uint8_t length = decodeLength(_rxDatagramBuffer->data);
   uint32_t address = getAddress(_rxDatagramBuffer->data);
@@ -123,24 +111,24 @@ bool MyConfigHandler::MACProcessRead(void)
   switch(space)
   {
   case 0xFF: //CDI request.
-    //Serial.println("CDI request.");
+    //Serial..println("CDI request.");
     reply.length = readCDI(address, length, &(reply.data[6])) + 6;
-    //Serial.print("total length of CDI reply = ");
-    //Serial.println(reply.length, DEC);
-    sendDatagram(&reply);
+    //Serial..print("total length of CDI reply = ");
+    //Serial..println(reply.length, DEC);
+    return sendDatagram(&reply);
     return true;
   case 0xFE: //"All memory" access. Just give them what they want?
-    //Serial.println("all memory request. ignoring");
+    //Serial..println("all memory request. ignoring");
     break;
   case 0xFD: //configuration space
-    //Serial.println("configuration space...");
+    //Serial..println("configuration space.");
     reply.length = _eventHandler->readConfig(address, length, &(reply.data[6])) + 6;
-    //Serial.print("total length of reply = ");
-    //Serial.println(reply.length, DEC);
-    sendDatagram(&reply);
-    return true;
+    //Serial..print("total length of reply = ");
+    //Serial..println(reply.length, DEC);
+    return sendDatagram(&reply);
+    //return true;
   }
-  //Serial.println("NAKing");
+  //Serial..println("NAKing");
   return false; //send a NAK. Is this what we really want?
 }
 
@@ -207,7 +195,7 @@ bool MyConfigHandler::MACProcessCommand(void)
       break;
     case 0xFD: //configuration space
       reply.data[1] |= 0x01; //present
-      //largest address is...
+      //largest address is.
       reply.data[3] = _eventHandler->getLargestAddress()>>24 & 0xFF;
       reply.data[4] = _eventHandler->getLargestAddress()>>16 & 0xFF;
       reply.data[5] = _eventHandler->getLargestAddress()>>8 & 0xFF;
