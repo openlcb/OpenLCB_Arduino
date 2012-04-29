@@ -45,6 +45,9 @@ unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length);  // suppress
 Datagram dg(&txBuffer, datagramCallback, &link);
 OlcbStream str(&txBuffer, streamRcvCallback, &link);   // suppress stream for space
 
+extern const uint8_t getRead(uint32_t address, int space);
+extern void getWrite(uint32_t address, int space, uint8_t val);
+extern void restart();
 
 //Configuration cfg(&dg, 0, &getRead, &getWrite, (void (*)())0);
 Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);   // suppress stream for space
@@ -105,13 +108,16 @@ bool Olcb_loop() {
   // if link is initialized, higher-level operations possible
   if (link.linkInitialized()) {
      // if frame present, pass to handlers
-     if (rcvFramePresent && rxBuffer.isForHere(link.getAlias())) {
-        handled |= pce.receivedFrame(&rxBuffer);
-        handled |= dg.receivedFrame(&rxBuffer);
-        handled |= str.receivedFrame(&rxBuffer); // suppress stream for space
-        handled |= PIP_receivedFrame(&rxBuffer);
-        handled |= SNII_receivedFrame(&rxBuffer);
-        if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer);
+     if (rcvFramePresent) {
+        handled |= dg.receivedFrame(&rxBuffer);  // has to process frame level
+        if(rxBuffer.isMsgForHere(link.getAlias())) {
+            handled |= pce.receivedFrame(&rxBuffer);
+        
+            handled |= str.receivedFrame(&rxBuffer); // suppress stream for space
+            handled |= PIP_receivedFrame(&rxBuffer);
+            handled |= SNII_receivedFrame(&rxBuffer);
+            if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer);
+        }
      }
      // periodic processing of any internal state change needs
      pce.check();

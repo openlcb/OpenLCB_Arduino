@@ -158,36 +158,17 @@
     return isForHere(alias) && isFrameTypeOpenLcb();
   }
   
-  bool OpenLcbCanBuffer::isForHere(uint16_t alias) {
+  bool OpenLcbCanBuffer::isForHere(uint16_t alias) {  // includes frame level
+    if (!isFrameTypeOpenLcb()) return true;
     uint16_t format = getOpenLcbFormat();
-    switch (format) {
-        case MTI_FORMAT_SIMPLE_MTI:
-        case MTI_FORMAT_COMPLEX_MTI:
-            return true;
-        case MTI_FORMAT_ADDRESSED_DATAGRAM:
-        case MTI_FORMAT_ADDRESSED_DATAGRAM_LAST:
-        case MTI_FORMAT_ADDRESSED_NON_DATAGRAM:
-        case MTI_FORMAT_STREAM_CODE:
-            return alias == getDestAlias();
-        default:
-            return false;
-    }
+    if (format == MTI_FORMAT_UNADDRESSED_MTI) return true;
+    else return alias == getDestAlias();
   }
   
   bool OpenLcbCanBuffer::isAddressedMessage() {
     uint16_t format = getOpenLcbFormat();
-    switch (format) {
-        case MTI_FORMAT_SIMPLE_MTI:
-        case MTI_FORMAT_COMPLEX_MTI:
-            return false;
-        case MTI_FORMAT_ADDRESSED_DATAGRAM:
-        case MTI_FORMAT_ADDRESSED_DATAGRAM_LAST:
-        case MTI_FORMAT_ADDRESSED_NON_DATAGRAM:
-        case MTI_FORMAT_STREAM_CODE:
-            return true;
-        default:
-            return false;
-    }
+    if (format == MTI_FORMAT_UNADDRESSED_MTI) return false;
+    else return true;
   }
 
   void OpenLcbCanBuffer::setOpenLcbMTI(uint16_t fmt, uint16_t mtiHeaderByte) {
@@ -208,30 +189,30 @@
   
   void OpenLcbCanBuffer::setPCEventReport(EventID* eid) {
     init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI,MTI_PC_EVENT_REPORT);
+    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_PC_EVENT_REPORT);
     length=8;
     loadFromEid(eid);
   }
   
   bool OpenLcbCanBuffer::isPCEventReport() {
-      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_PC_EVENT_REPORT);
+      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_PC_EVENT_REPORT);
   }
 
   void OpenLcbCanBuffer::setLearnEvent(EventID* eid) {
     init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI,MTI_LEARN_EVENT);
+    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_LEARN_EVENT);
     length=8;
     loadFromEid(eid);
   }
 
   bool OpenLcbCanBuffer::isLearnEvent() {
-      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_LEARN_EVENT);
+      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_LEARN_EVENT);
   }
 
   void OpenLcbCanBuffer::setInitializationComplete(uint16_t alias, NodeID* nid) {
     nodeAlias = alias;
     init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_INITIALIZATION_COMPLETE);
+    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_INITIALIZATION_COMPLETE);
     length=6;
     memcpy(data, nid->val, 6);
     //data[0] = nid->val[0];
@@ -243,7 +224,7 @@
   }
   
   bool OpenLcbCanBuffer::isInitializationComplete() {
-      return isOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI, MTI_INITIALIZATION_COMPLETE);
+      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_INITIALIZATION_COMPLETE);
   }
   
   void OpenLcbCanBuffer::getEventID(EventID* evt) {
@@ -279,20 +260,20 @@
   }
 
   bool OpenLcbCanBuffer::isVerifyNIDglobal() {
-      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFY_NID_GLOBAL);
+      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_VERIFY_NID_GLOBAL);
   }
 
   bool OpenLcbCanBuffer::isVerifyNID(uint16_t nida) {
       if (nida != (getVariableField()&0xFFF) ) return false;
       if (getOpenLcbFormat() != MTI_FORMAT_ADDRESSED_NON_DATAGRAM) return false;
       if (length == 0) return false;
-      if (data[0] != MTI_VERIFY_NID) return false;
+      if (data[0] != MTI_8_VERIFY_NID) return false;
       return true;
   }
 
   void OpenLcbCanBuffer::setVerifiedNID(NodeID* nid) {
     init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI,MTI_VERIFIED_NID);
+    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_VERIFIED_NID);
     length=6;
     memcpy(data, nid->val, 6);
     //data[0] = nid->val[0];
@@ -305,23 +286,23 @@
 
   bool OpenLcbCanBuffer::isVerifiedNID()
   {
-    return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_VERIFIED_NID);
+    return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_VERIFIED_NID);
   }
 
   void OpenLcbCanBuffer::setOptionalIntRejected(OpenLcbCanBuffer* rcv) {
     init(nodeAlias);
     setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
     length=1;
-    data[0] = MTI_OPTION_INT_REJECTED;
+    data[0] = MTI_8_OPTION_INT_REJECTED;
   }
 
   bool OpenLcbCanBuffer::isIdentifyConsumers() {
-      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_IDENTIFY_CONSUMERS);
+      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_IDENTIFY_CONSUMERS);
   }
 
   void OpenLcbCanBuffer::setConsumerIdentified(EventID* eid) {
     init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_CONSUMER_IDENTIFIED);
+    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_CONSUMER_IDENTIFIED);
     length=8;
     loadFromEid(eid);
   }
@@ -329,18 +310,18 @@
   void OpenLcbCanBuffer::setConsumerIdentifyRange(EventID* eid, EventID* mask) {
     // does send a message, but not complete yet - RGJ 2009-06-14
     init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_IDENTIFY_CONSUMERS_RANGE);
+    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_IDENTIFY_CONSUMERS_RANGE);
     length=8;
     loadFromEid(eid);
   }
 
   bool OpenLcbCanBuffer::isIdentifyProducers() {
-      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_IDENTIFY_PRODUCERS);
+      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_IDENTIFY_PRODUCERS);
   }
 
   void OpenLcbCanBuffer::setProducerIdentified(EventID* eid) {
     init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_PRODUCER_IDENTIFIED);
+    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_PRODUCER_IDENTIFIED);
     length=8;
     loadFromEid(eid);
   }
@@ -348,20 +329,20 @@
   void OpenLcbCanBuffer::setProducerIdentifyRange(EventID* eid, EventID* mask) {
     // does send a message, but not complete yet - RGJ 2009-06-14
     init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_COMPLEX_MTI,MTI_IDENTIFY_PRODUCERS_RANGE);
+    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_IDENTIFY_PRODUCERS_RANGE);
     length=8;
     loadFromEid(eid);
   }
 
   bool OpenLcbCanBuffer::isIdentifyEventsGlobal() {
-      return isOpenLcbMTI(MTI_FORMAT_SIMPLE_MTI, MTI_IDENTIFY_EVENTS_GLOBAL);
+      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_IDENTIFY_EVENTS_GLOBAL);
   }
 
   bool OpenLcbCanBuffer::isIdentifyEvents(uint16_t nida) {
       if (nida != (getVariableField()&0xFFF) ) return false;
       if (getOpenLcbFormat() != MTI_FORMAT_ADDRESSED_NON_DATAGRAM) return false;
       if (length == 0) return false;
-      if (data[0] != MTI_IDENTIFY_EVENTS) return false;
+      if (data[0] != MTI_8_IDENTIFY_EVENTS) return false;
       return true;
   }
 
@@ -380,11 +361,14 @@
   // general, but not efficient
   bool OpenLcbCanBuffer::isDatagram() {
       return isFrameTypeOpenLcb() 
-                && ( (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM)
+                && ( (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_ALL)
+                        || (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_FIRST)
+                        || (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_MID)
                         || (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_LAST))
                 && (nodeAlias == (getVariableField()&0xFFF) );
   }
   // just checks 1st, assumes datagram already checked.
   bool OpenLcbCanBuffer::isLastDatagram() {
-      return (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_LAST);
+      return (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_LAST)
+            || (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_ALL);
   }
