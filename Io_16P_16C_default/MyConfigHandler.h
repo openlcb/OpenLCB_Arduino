@@ -6,7 +6,7 @@
 #include "OLCB_Datagram_Handler.h"
 
 //XML CDI data, taken from Io_8P_8C_default.xml
-static PROGMEM char cdixml[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cdi>\n<identification>\n<manufacturer>Railstars Limited</manufacturer>\n<model>Io</model>\n<hardwareVersion>1.0</hardwareVersion>\n<softwareVersion>1.0</softwareVersion>\n</identification>\n<segment origin=\"0\" space=\"0\">\n<group offset=\"0\" replication=\"8\">\n<name>Produced Events</name>\n<description>The EventIDs for the outputs</description>\n<eventid/>\n<eventid/>\n</group>\n<group replication=\"8\">\n<name>Consumed Events</name>\n<description>The EventIDs for the inputs</description>\n<eventid/>\n<eventid/>\n</group>\n</segment>\n</cdi>\n";
+static PROGMEM char cdixml[] = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<cdi>\n<identification>\n<manufacturer>Railstars Limited</manufacturer>\n<model>Io Developer\'s Board</model>\n<hardwareVersion>1.0</hardwareVersion>\n<softwareVersion>1.0</softwareVersion>\n</identification>\n<segment origin=\"0\" space=\"0\">\n<group offset=\"0\" replication=\"8\">\n<name>Produced Events</name>\n<description>The EventIDs for the outputs</description>\n<eventid/>\n<eventid/>\n</group>\n<group replication=\"8\">\n<name>Consumed Events</name>\n<description>The EventIDs for the inputs</description>\n<eventid/>\n<eventid/>\n</group>\n</segment>\n</cdi>";
 
 /*{
 
