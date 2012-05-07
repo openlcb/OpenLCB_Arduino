@@ -104,10 +104,10 @@ int Configuration::decodeSpace(uint8_t* data) {
         case 0x03:
             val = 0xFF;
             break;
-        case 0x01:
+        case 0x02:
             val = 0xFE;
             break;
-        case 0x02:
+        case 0x01:
             val = 0xFD;
             break;
         case 0x00:
