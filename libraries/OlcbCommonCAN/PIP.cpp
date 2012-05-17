@@ -26,7 +26,7 @@ void PIP_setup(OpenLcbCanBuffer* b, LinkControl* li) {
         if (OpenLcb_can_xmt_ready(buffer)) {
             buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, dest);
             buffer->data[0] = 0x2F;
-            memcpy( protocolIdentValue, (buffer->data)+1, 6); 
+            memcpy( &(buffer->data[0])+1, protocolIdentValue, 6); 
             buffer->length = 7;
             OpenLcb_can_queue_xmt_immediate(buffer);  // checked previously
             queued = false;
