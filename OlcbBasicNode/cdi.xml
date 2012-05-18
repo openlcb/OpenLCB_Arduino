@@ -10,13 +10,13 @@
 </identification>
 
 <segment origin='0' space='253'>
-    <group offset='77'>
+    <group offset='94'>
         <name>User Identification</name>
         <description>Lets the user add his own description</description>
-        <string size='12'>
+        <string size='20'>
             <name>Node Name</name>
         </string>
-        <string size='20'>
+        <string size='24'>
             <name>Node Description</name>
         </string>
     </group>

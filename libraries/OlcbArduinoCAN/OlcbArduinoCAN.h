@@ -77,7 +77,7 @@ unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
 void Olcb_setup() {
   // Init protocol blocks
   PIP_setup(&txBuffer, &link);
-  SNII_setup((uint8_t)sizeof(SNII_const_data), 20, &txBuffer, &link);
+  SNII_setup((uint8_t)sizeof(SNII_const_data), SNII_var_offset, &txBuffer, &link);
 
   // Initialize OpenLCB CAN connection
   OpenLcb_can_init();
