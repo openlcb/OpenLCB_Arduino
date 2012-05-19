@@ -33,7 +33,7 @@
  * 0-7 format MTI format field just above this.
  */
  
-#define MTI_12_INITIALIZATION_COMPLETE     0x887
+#define MTI_12_INITIALIZATION_COMPLETE     0x087
 
 #define MTI_12_VERIFY_NID_GLOBAL           0x8A7
 #define MTI_12_VERIFIED_NID                0x8B7
