@@ -24,7 +24,8 @@
 
 <segment origin='10' space='253'>
     <group replication='2'>
-        <description>Input Pin</description>
+        <name>Inputs</name>
+        <repname>Input</repname>
         <eventid offset='2' >
             <name>Activation Event</name>
         </eventid>
@@ -33,7 +34,8 @@
         </eventid>
     </group>
     <group replication='2'>
-        <description>Output Pin</description>
+        <name>Outputs</name>
+        <repname>Output</repname>
         <eventid offset='2' >
             <name>Set Event</name>
         </eventid>
