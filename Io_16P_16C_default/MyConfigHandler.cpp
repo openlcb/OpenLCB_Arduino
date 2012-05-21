@@ -43,10 +43,10 @@ uint8_t MyConfigHandler::decodeSpace(uint8_t* data) {
     val = 0xFF;
     break;
   case 0x01:
-    val = 0xFE;
+    val = 0xFD;
     break;
   case 0x02:
-    val = 0xFD;
+    val = 0xFE;
     break;
   case 0x00:
     val = data[6];
