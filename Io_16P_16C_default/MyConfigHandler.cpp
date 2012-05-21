@@ -55,13 +55,13 @@ uint8_t MyConfigHandler::decodeSpace(uint8_t* data) {
   return val;
 }
 
-bool MyConfigHandler::processDatagram(void)
+uint16_t MyConfigHandler::processDatagram(void)
 {
   //To have made it this far, we can be sure that _rxDatagramBuffer has a valid datagram loaded up, and that it is in fact addressed to us.
 
   if(!isPermitted()) //only act on it if we are in Permitted state. Otherwise no point.
   {
-    return false;
+    return DATAGRAM_REJECTED;
   }
     //Serial..println("got a datagram!");
     //Serial.println(_rxDatagramBuffer->data[0], HEX);
@@ -92,7 +92,7 @@ bool MyConfigHandler::processDatagram(void)
 }
 
 //Memory Access Configuration Protocol
-bool MyConfigHandler::MACProcessRead(void)
+uint16_t MyConfigHandler::MACProcessRead(void)
 {
   OLCB_Datagram reply;
   memcpy(&(reply.destination), &(_rxDatagramBuffer->source), sizeof(OLCB_NodeID));
@@ -115,8 +115,11 @@ bool MyConfigHandler::MACProcessRead(void)
     reply.length = readCDI(address, length, &(reply.data[6])) + 6;
     //Serial..print("total length of CDI reply = ");
     //Serial..println(reply.length, DEC);
-    return sendDatagram(&reply);
-    return true;
+    if(sendDatagram(&reply))
+      return DATAGRAM_ERROR_OK;
+    else
+      //have them resend
+      return DATAGRAM_REJECTED_BUFFER_FULL;
   case 0xFE: //"All memory" access. Just give them what they want?
     //Serial..println("all memory request. ignoring");
     break;
@@ -125,14 +128,17 @@ bool MyConfigHandler::MACProcessRead(void)
     reply.length = _eventHandler->readConfig(address, length, &(reply.data[6])) + 6;
     //Serial..print("total length of reply = ");
     //Serial..println(reply.length, DEC);
-    return sendDatagram(&reply);
-    //return true;
+    if(sendDatagram(&reply))
+      return DATAGRAM_ERROR_OK;
+    else
+      //have them resend
+      return DATAGRAM_REJECTED_BUFFER_FULL;
   }
   //Serial..println("NAKing");
-  return false; //send a NAK. Is this what we really want?
+  return DATAGRAM_REJECTED; //send a NAK. Is this what we really want?
 }
 
-bool MyConfigHandler::MACProcessWrite(void)
+uint16_t MyConfigHandler::MACProcessWrite(void)
 {
   uint8_t length = decodeLength(_rxDatagramBuffer->data);
   uint32_t address = getAddress(_rxDatagramBuffer->data);
@@ -149,12 +155,12 @@ bool MyConfigHandler::MACProcessWrite(void)
     break;
   case 0xFD: //configuration space
     _eventHandler->writeConfig(address, length, &(_rxDatagramBuffer->data[6]));
-    return true;
+    return DATAGRAM_ERROR_OK;
   }
-  return false; //send a NAK. Is this what we really want?
+  return DATAGRAM_REJECTED; //send a NAK. Is this what we really want?
 }
 
-bool MyConfigHandler::MACProcessCommand(void)
+uint16_t MyConfigHandler::MACProcessCommand(void)
 {
   OLCB_Datagram reply;
   reply.data[0] = MAC_PROTOCOL_ID;
@@ -202,8 +208,10 @@ bool MyConfigHandler::MACProcessCommand(void)
       reply.data[6] = _eventHandler->getLargestAddress() & 0xFF;
       break;
     }
-    sendDatagram(&reply);
-    break;
+    if(sendDatagram(&reply))
+      return DATAGRAM_ERROR_OK;
+    else
+      return DATAGRAM_REJECTED_BUFFER_FULL;
   case MAC_CMD_RESETS:
     //Serial.println("MAC_CMD_RESETS");
     // force restart (may not reply?)
@@ -252,9 +260,12 @@ bool MyConfigHandler::MACProcessCommand(void)
         }
         eid7++;
       }
-      sendDatagram(&reply);
       EEPROM.write(2,eid6);
       EEPROM.write(3,eid7);
+      if(sendDatagram(&reply))
+        return DATAGRAM_ERROR_OK;
+      else
+        return DATAGRAM_REJECTED_BUFFER_FULL;
     }
     break;
   case MAC_CMD_FREEZE:
@@ -266,6 +277,8 @@ bool MyConfigHandler::MACProcessCommand(void)
   default:
     break;
   }
+
+  return DATAGRAM_REJECTED;
 }
 
 uint8_t MyConfigHandler::readCDI(uint16_t address, uint8_t length, uint8_t *data)
