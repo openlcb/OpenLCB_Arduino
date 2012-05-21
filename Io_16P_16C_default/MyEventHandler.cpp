@@ -302,6 +302,7 @@ void MyEventHandler::writeConfig(uint16_t address, uint8_t length, uint8_t *data
   //Serial.println("===");
   //for(i = 0; i < length; ++i)
   //Serial.println(*(data+i), HEX);
+  _dirty = 1;
 }
 
 
