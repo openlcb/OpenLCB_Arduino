@@ -26,7 +26,10 @@
     <group replication='2'>
         <name>Inputs</name>
         <repname>Input</repname>
-        <eventid offset='2' >
+        <string size='16' offset='150'>
+            <name>Description</name>
+        </string>
+        <eventid offset='-164' ><!-- forward 150, add 16, back 166, then forward 2-->
             <name>Activation Event</name>
         </eventid>
         <eventid offset='2' >
@@ -36,7 +39,10 @@
     <group replication='2'>
         <name>Outputs</name>
         <repname>Output</repname>
-        <eventid offset='2' >
+        <string size='16' offset='150'>
+            <name>Description</name>
+        </string>
+        <eventid offset='-164' ><!-- forward 150, add 16, back 166, then forward 2-->
             <name>Set Event</name>
         </eventid>
         <eventid offset='2' >
