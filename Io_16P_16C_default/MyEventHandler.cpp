@@ -258,7 +258,7 @@ uint8_t MyEventHandler::readConfig(uint16_t address, uint8_t length, uint8_t *da
       ++k;
     }
     *(data+i) = _events[k].val[j];
-    Serial.println(_events[k].val[j], HEX);
+    //Serial.println(_events[k].val[j], HEX);
   }
   //Serial.println("===");
   //for(i = 0; i < length; ++i)
@@ -296,7 +296,7 @@ void MyEventHandler::writeConfig(uint16_t address, uint8_t length, uint8_t *data
       ++k;
     }
     _events[k].val[j] = *(data+i);
-    Serial.println(_events[k].val[j], HEX);
+    //Serial.println(_events[k].val[j], HEX);
   }
   //Serial.println("===");
   //for(i = 0; i < length; ++i)
