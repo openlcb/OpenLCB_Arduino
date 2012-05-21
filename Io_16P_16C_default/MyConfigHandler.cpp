@@ -141,7 +141,7 @@ uint16_t MyConfigHandler::MACProcessRead(void)
 uint16_t MyConfigHandler::MACProcessWrite(void)
 {
 //  uint8_t length = decodeLength(_rxDatagramBuffer->data);
-  uint8_t length = _rxDatagramBuffer->(length-6);
+  uint8_t length = (_rxDatagramBuffer->length)-6;
   uint32_t address = getAddress(_rxDatagramBuffer->data);
   uint8_t space = decodeSpace(_rxDatagramBuffer->data);
   //And, now do something useful.
