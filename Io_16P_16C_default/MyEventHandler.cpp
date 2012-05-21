@@ -258,7 +258,7 @@ uint8_t MyEventHandler::readConfig(uint16_t address, uint8_t length, uint8_t *da
       ++k;
     }
     *(data+i) = _events[k].val[j];
-    //Serial.println(_events[k].val[j], HEX);
+    Serial.println(_events[k].val[j], HEX);
   }
   //Serial.println("===");
   //for(i = 0; i < length; ++i)
@@ -269,7 +269,6 @@ uint8_t MyEventHandler::readConfig(uint16_t address, uint8_t length, uint8_t *da
 void MyEventHandler::writeConfig(uint16_t address, uint8_t length, uint8_t *data)
 {
   //This method gets called by configuration handlers. We are being asked to write an EventID. We'll write it to memory, and do a lazy write to EEPROM later.
-    _dirty = 1;
 
   //decode the address into a producer/consumer by dividing by 8
   uint8_t index = (address>>3);
@@ -297,7 +296,7 @@ void MyEventHandler::writeConfig(uint16_t address, uint8_t length, uint8_t *data
       ++k;
     }
     _events[k].val[j] = *(data+i);
-    //Serial.println(_events[k].val[j], HEX);
+    Serial.println(_events[k].val[j], HEX);
   }
   //Serial.println("===");
   //for(i = 0; i < length; ++i)

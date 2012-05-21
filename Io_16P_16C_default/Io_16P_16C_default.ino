@@ -70,8 +70,8 @@ void loadNodeID(OLCB_NodeID *nid)
 
 void setup()
 {
-  //Serial.begin(115200);
-  //Serial.println("Io 16C 16P default");
+  Serial.begin(115200);
+  Serial.println("Io 16C 16P default");
   //first, set up inputs and outputs, setting pull-up resistors on inputs
   for(int i = 0; i < 8; ++i) //outputs
   {
