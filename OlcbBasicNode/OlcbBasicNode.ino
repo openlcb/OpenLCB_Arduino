@@ -28,7 +28,7 @@
 // init for serial communications if used
 #define         BAUD_RATE       57600
 
-NodeID nodeid(2,3,4,5,6,7);    // This node's default ID
+NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
 
 /**
  * Get and put routines that 
