@@ -222,7 +222,7 @@ int main( int argc, const char* argv[] )
 	
 	printf("Receive single fragment datagram OK\n");
 	resultcode = 0;
-	b.id = 0x1D573BFD;
+	b.id = 0x1A573BFD;
 	b.length = (uint8_t)4;
     b.data[0]=0x40;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
     queueTestMessage(&b);
@@ -231,7 +231,7 @@ int main( int argc, const char* argv[] )
 
 	printf("Receive three fragment datagram OK\n");
 	resultcode = 0;
-	b.id = 0x1C573BFD;
+	b.id = 0x1B573BFD;
 	b.length = (uint8_t)4;
     b.data[0]=0x50;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
     queueTestMessage(&b);
@@ -250,7 +250,7 @@ int main( int argc, const char* argv[] )
 
 	printf("Receive single fragment datagram, return fail\n");
 	resultcode = 0x1234;
-	b.id = 0x1D573BFD;
+	b.id = 0x1A573BFD;
 	b.length = (uint8_t)4;
     b.data[0]=0x40;b.data[1]=0x41;b.data[2]=0x42;b.data[3]=0x43;
     queueTestMessage(&b);
