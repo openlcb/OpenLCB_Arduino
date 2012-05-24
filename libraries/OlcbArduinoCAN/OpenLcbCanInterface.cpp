@@ -9,6 +9,20 @@
 
 void OpenLcb_can_init() {
     can_init(BITRATE_125_KBPS);
+
+    // From Don Goodman-Wilson's libraries/OpenLCB/OLCB_CAN_Link.cpp
+    // Filter out standard can frames using hardware to avoid random crash
+    // upon receipt of large numbers of them.
+#if defined (__AVR_AT90CAN128__) || defined (__AVR_AT90CAN64__) || defined (__AVR_AT90CAN32__)
+	for(uint8_t i = 0; i < 15; ++i)
+    {
+    	CANPAGE = (i << 4);
+    	CANIDM4 |= (1<<IDEMSK);
+	}
+#else
+	//TODO figure out how to set up filters for MCP2515
+#endif
+
 }
 
 // Can a (the) CAN buffer be used?  
