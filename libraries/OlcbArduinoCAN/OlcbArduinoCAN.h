@@ -96,6 +96,7 @@ void produceFromInputs();
 bool Olcb_loop() {  
   // check for input frames, acquire if present
   bool rcvFramePresent = OpenLcb_can_get_frame(&rxBuffer);
+  // standard frames suppressed before here
   
   // process link control first
   link.check();
