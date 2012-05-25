@@ -41,8 +41,12 @@ void parseCANStr(char *pBuf, OpenLcbCanBuffer *pCAN, uint8_t len)
   {
     memset(pCAN, 0, sizeof(tCAN));
 
-    pCAN->flags.extended = pBuf[1] == 'X';
-
+    if (pBuf[1] == 'X') {
+        pCAN->flags.extended = true ;
+    } else {
+        return;  // skip standard frames
+    }
+    
     char *pEnd;
 
     pCAN->id = strtoul(pBuf+2, &pEnd, 16);
