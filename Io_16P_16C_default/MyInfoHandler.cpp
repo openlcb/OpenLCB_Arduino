@@ -52,7 +52,7 @@ void MyInfoHandler::update(void)
       //Serial.print((char)(_reply.data[i]));
     }
     //Serial.println();
-    _link->sendMessage(&_reply);
+    while(! _link->sendMessage(&_reply) ) {}
     //now, set up for next run.
     //Serial.println("setting up for next time");
     _string_index += (_reply.length-1);
