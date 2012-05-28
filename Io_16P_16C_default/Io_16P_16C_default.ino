@@ -106,6 +106,10 @@ void loop()
 {
   // OpenLCB statndard processing:
   link.update();
+  if (link.wasActiveSet()) {
+    link.resetWasActive();
+    blue.blink(0x01);
+  }
 }
 
 // ---------------------------------------------------

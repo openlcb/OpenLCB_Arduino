@@ -180,6 +180,7 @@ void OLCB_CAN_Link::update(void)
       //Serial.println(rxBuffer.id, HEX);
       rxBuffer.setExternal();
       deliverMessage();
+      wasActive = true;
 //    }
   }
   //update alias allocation
@@ -488,4 +489,14 @@ bool OLCB_CAN_Link::sendMessage()
     //deliverMessage(); //send the message to local nodes
     
     return true;
+}
+
+bool OLCB_CAN_Link::wasActiveSet()
+{
+    return wasActive;
+}
+
+void OLCB_CAN_Link::resetWasActive()
+{
+    wasActive = false;
 }
