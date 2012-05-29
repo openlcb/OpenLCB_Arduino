@@ -14,7 +14,7 @@ void writeNodeID()
   EEPROM.write(0x0FFC, 0x01);
   EEPROM.write(0x0FFD, 0x02);
   EEPROM.write(0x0FFE, 0x02);
-  EEPROM.write(0x0FFF, 0x12); //<<<<<<<<<<<<<<<<<<<<<< CHANGE THIS <<<<<<<<<<<<<<<<<<<<<<<<<
+  EEPROM.write(0x0FFF, 0x00); //<<<<<<<<<<<<<<<<<<<<<< CHANGE THIS <<<<<<<<<<<<<<<<<<<<<<<<<
 }
 
 
@@ -27,7 +27,7 @@ bool once;
 
 
 void setup() {
-  //writeNodeID();
+  writeNodeID();
   
   // set up all pins for action
   for(uint8_t i=0;i<NPINS;i++) {
