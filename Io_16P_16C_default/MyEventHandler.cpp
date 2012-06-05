@@ -123,8 +123,8 @@ void MyEventHandler::factoryReset(void)
     return;
   }
 
-  //first, increment the next available ID by 16, and write it back
-  if(eid7 == 240) //need to increment val[6] as well
+  //first, increment the next available ID by 32, and write it back
+  if(eid7 >= 224) //need to increment val[6] as well
   {
     EEPROM.write(2, eid6+1); //might wrap around to 0; it's gonna happen, I guess
   }
@@ -132,7 +132,7 @@ void MyEventHandler::factoryReset(void)
   {
     EEPROM.write(2, eid6);
   }
-  EEPROM.write(3, eid7+16);
+  EEPROM.write(3, eid7+32);
 
   //now, increment through the producers, and write the new EventIDs
   for(i = 0; i < _numEvents/2; ++i)
@@ -142,9 +142,12 @@ void MyEventHandler::factoryReset(void)
       EEPROM.write((i*8)+j+4, NID->val[j]);
     }
     EEPROM.write((i*8)+6+4, eid6);
+    if(eid7+i == 255)
+      ++eid6;
     EEPROM.write((i*8)+7+4, eid7+i);
   }
-  //now do it again, so that the consumers have the same EventIDs as the producers
+  
+  //now do it again, so that the consumers have the different EventIDs than the producers
   for(i = _numEvents/2; i < _numEvents; ++i)
   {
     for(j = 0; j < 6; ++j)
@@ -152,7 +155,9 @@ void MyEventHandler::factoryReset(void)
       EEPROM.write((i*8)+j+4, NID->val[j]);
     }
     EEPROM.write((i*8)+6+4, eid6);
-    EEPROM.write((i*8)+7+4, eid7+(i-(_numEvents/2)));
+    if(eid7+i == 255)
+      ++eid6;
+    EEPROM.write((i*8)+7+4, eid7+i);
   }
   //TODO CHECK TO SEE IF THESE NEED TO BE WRITTEn!!
   EEPROM.write(0, 'I');

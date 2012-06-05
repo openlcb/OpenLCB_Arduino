@@ -9,7 +9,7 @@
 #define MTI_PIP_REQUEST   0x2E
 #define MTI_PIP_RESPONSE  0x2F
 
-static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board\n1.0\n1.0";
+static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board\n1.0\n1.1";
 
 bool isSNIPRequest(OLCB_Buffer *buffer)
 {
