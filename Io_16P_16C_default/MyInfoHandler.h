@@ -17,6 +17,7 @@ public:
   void create(OLCB_Link *link, OLCB_NodeID *nid);
 
 private:
+  bool _messageReady;
   char _buffer[19];
   int8_t _string_index;
   uint8_t _string_length;

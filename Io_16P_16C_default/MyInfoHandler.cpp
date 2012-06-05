@@ -52,7 +52,7 @@ void MyInfoHandler::update(void)
       //Serial.print((char)(_reply.data[i]));
     }
     //Serial.println();
-    while(! _link->sendMessage(&_reply) ) {}
+    while(! _link->sendMessage(&_reply) );
     //now, set up for next run.
     //Serial.println("setting up for next time");
     _string_index += (_reply.length-1);
@@ -64,6 +64,11 @@ void MyInfoHandler::update(void)
       //Serial.println("done!");
       _string_index = -1;
     }
+  }
+  else if(_messageReady)
+  {
+    _messageReady = false;
+    while(! _link->sendMessage(&_reply));
   }
   OLCB_Virtual_Node::update();
 }
@@ -133,7 +138,8 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
       reply.data[4] = 0x00;
       reply.data[5] = 0x00;
       reply.data[6] = 0x00;
-      _link->sendMessage(&reply);
+//      while(!_link->sendMessage(&reply)); //TODO THIS IS NOT PERMITTED!!
+      _messageReady = true;
       retval = true;
     }
   }
