@@ -24,8 +24,8 @@ static uint8_t state;
 
 const uint8_t getRead(uint32_t address, int space);
 
-void SNII_setup(uint8_t c, uint8_t offset, OpenLcbCanBuffer* b, LinkControl* li) {
-      const_count = c;
+void SNII_setup(uint8_t count, uint8_t offset, OpenLcbCanBuffer* b, LinkControl* li) {
+      const_count = count;
       var_offset = offset;
       buffer = b;
       link = li;
