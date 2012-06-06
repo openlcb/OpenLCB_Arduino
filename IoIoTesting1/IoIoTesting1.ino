@@ -7,7 +7,7 @@
 #define NPINS 16
 
 #include <EEPROM.h>
-void writeNodeID()
+void writeNodeID_Io()  // For Io_16P_16C_default
 {
   EEPROM.write(0x0FFA, 0x05);
   EEPROM.write(0x0FFB, 0x02);
@@ -17,6 +17,22 @@ void writeNodeID()
   EEPROM.write(0x0FFF, 0x00); //<<<<<<<<<<<<<<<<<<<<<< CHANGE THIS <<<<<<<<<<<<<<<<<<<<<<<<<
 }
 
+void writeNodeID_Olcb()  // For OlcbBasicNode
+{
+  EEPROM.write(0x00, 0xEE);
+  EEPROM.write(0x01, 0x55);
+  EEPROM.write(0x02, 0x5E);
+  EEPROM.write(0x03, 0xE5);
+  EEPROM.write(0x04, 0x00);
+  EEPROM.write(0x05, 0x00);
+  
+  EEPROM.write(0x06, 0x05);
+  EEPROM.write(0x07, 0x02);
+  EEPROM.write(0x08, 0x01);
+  EEPROM.write(0x09, 0x02);
+  EEPROM.write(0x0A, 0x02);
+  EEPROM.write(0x0B, 0x23); //<<<<<<<<<<<<<<<<<<<<<< CHANGE THIS <<<<<<<<<<<<<<<<<<<<<<<<<
+}
 
 
 ButtonLed b[50];
@@ -27,7 +43,8 @@ bool once;
 
 
 void setup() {
-  writeNodeID();
+  writeNodeID_Io();
+  writeNodeID_Olcb();                    
   
   // set up all pins for action
   for(uint8_t i=0;i<NPINS;i++) {
