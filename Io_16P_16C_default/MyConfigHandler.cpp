@@ -63,32 +63,32 @@ uint16_t MyConfigHandler::processDatagram(void)
   {
     return DATAGRAM_REJECTED;
   }
-    //Serial..println("got a datagram!");
+    //Serial.println("got a datagram!");
     //Serial.println(_rxDatagramBuffer->data[0], HEX);
     //check the first byte of the payload to see what kind of datagram we have
     switch(_rxDatagramBuffer->data[0])
     {
     case MAC_PROTOCOL_ID: //MAC protocol
-      //Serial..println("using MAC protocol");
+      //Serial.println("using MAC protocol");
       switch (_rxDatagramBuffer->data[1]&0xC0)
       {
       case MAC_CMD_READ:
-        //Serial..println("read request");
+        //Serial.println("read request");
         return MACProcessRead();
         break;
       case MAC_CMD_WRITE:
-        //Serial..println("write request");
+        //Serial.println("write request");
         return MACProcessWrite();
         break;
       case MAC_CMD_OPERATION:
-        //Serial..println("cmd request");
+        //Serial.println("cmd request");
         return MACProcessCommand();
         break;
       }
     }
 
   //Serial.println("Not for us to handle, going to NAK");
-  return false;
+  return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;
 }
 
 //Memory Access Configuration Protocol
@@ -99,42 +99,54 @@ uint16_t MyConfigHandler::MACProcessRead(void)
   //copy first six bytes. TODO why?
   memcpy(reply.data, _rxDatagramBuffer->data, 6);
   reply.data[1] = MAC_CMD_READ_REPLY | reply.data[1]&0x0F; //WTF?
-  //Serial..print("Making reply with MTI ");
-  //Serial..println(reply.data[0], HEX);
-  //Serial..println(reply.data[1], HEX);
+  //Serial.print("Making reply with MTI ");
+  //Serial.println(reply.data[0], HEX);
+  //Serial.println(reply.data[1], HEX);
   //TODO presume datagram?
   uint8_t length = decodeLength(_rxDatagramBuffer->data);
   uint32_t address = getAddress(_rxDatagramBuffer->data);
   uint8_t space = decodeSpace(_rxDatagramBuffer->data);
+  //Serial.print("length = ");
+  //Serial.println(length, DEC);
+  //Serial.print("address = ");
+  //Serial.println(address, HEX);
+  //Serial.print("space = ");
+  //Serial.println(space, HEX);
   //And, now do something useful.
   //first check the space?
   switch(space)
   {
   case 0xFF: //CDI request.
-    //Serial..println("CDI request.");
+    //Serial.println("CDI request.");
     reply.length = readCDI(address, length, &(reply.data[6])) + 6;
-    //Serial..print("total length of CDI reply = ");
-    //Serial..println(reply.length, DEC);
+    //Serial.print("total length of CDI reply = ");
+    //Serial.println(reply.length, DEC);
     if(sendDatagram(&reply))
       return DATAGRAM_ERROR_OK;
     else
       //have them resend
       return DATAGRAM_REJECTED_BUFFER_FULL;
   case 0xFE: //"All memory" access. Just give them what they want?
-    //Serial..println("all memory request. ignoring");
+    //Serial.println("all memory request. ignoring");
     break;
   case 0xFD: //configuration space
-    //Serial..println("configuration space.");
+    //Serial.println("configuration space.");
     reply.length = _eventHandler->readConfig(address, length, &(reply.data[6])) + 6;
-    //Serial..print("total length of reply = ");
-    //Serial..println(reply.length, DEC);
+    //Serial.print("total length of reply = ");
+    //Serial.println(reply.length, DEC);
     if(sendDatagram(&reply))
+    {
+      //Serial.println("away OK");
       return DATAGRAM_ERROR_OK;
+    }
     else
+    {
+      //Serial.println("Failure: TX Buffer full");
       //have them resend
       return DATAGRAM_REJECTED_BUFFER_FULL;
+    }
   }
-  //Serial..println("NAKing");
+  //Serial.println("NAKing");
   return DATAGRAM_REJECTED; //send a NAK. Is this what we really want?
 }
 
@@ -188,7 +200,7 @@ uint16_t MyConfigHandler::MACProcessCommand(void)
     reply.data[4] = 0x00;
     reply.data[5] = 0x00;
     reply.data[6] = 0x00; //largest address continued
-    reply.data[7] = 0x00; //byte alignment flags; we require no byte alignment
+    reply.data[7] = 0x01; //flags
     switch(_rxDatagramBuffer->data[2])
     {
     case 0xFF: //CDI
@@ -207,6 +219,7 @@ uint16_t MyConfigHandler::MACProcessCommand(void)
       reply.data[4] = _eventHandler->getLargestAddress()>>16 & 0xFF;
       reply.data[5] = _eventHandler->getLargestAddress()>>8 & 0xFF;
       reply.data[6] = _eventHandler->getLargestAddress() & 0xFF;
+      reply.data[7] = 0x00; //can write
       break;
     }
     if(sendDatagram(&reply))

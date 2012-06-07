@@ -95,7 +95,7 @@ void MyEventHandler::firstInitialization(void)
   }
   //Write next EventID for when factoryReset gets called
   EEPROM.write(0x02, 0x00);
-  EEPROM.write(0x03, 0x17);
+  EEPROM.write(0x03, 0x10);
   //And the formatted tag
   EEPROM.write(0x00, 'I');
   EEPROM.write(0x01, 'o');

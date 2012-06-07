@@ -67,7 +67,11 @@ void MyInfoHandler::update(void)
   }
   else if(_messageReady)
   {
+    //Serial.println("Found a message to be delivered!");
     _messageReady = false;
+    //Serial.println(_reply.data[0], HEX);
+    //Serial.println(_reply.flags.extended, HEX);
+    //Serial.println(_reply.id, HEX);
     while(! _link->sendMessage(&_reply));
   }
   OLCB_Virtual_Node::update();
@@ -76,6 +80,7 @@ void MyInfoHandler::update(void)
 
 void MyInfoHandler::create(OLCB_Link *link, OLCB_NodeID *nid)
 {
+  _messageReady = false;
   _string_index = -1;
   _string_length = strlen_P(snipstring)+1; //the first +1 is to INCLUDE the null;
   OLCB_Virtual_Node::create(link,nid);
@@ -123,22 +128,23 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
     if(dest == *NID)
     {
       //Serial.println("Got PIP request");
-      OLCB_Buffer reply;
       OLCB_NodeID source_address;
       buffer->getSourceNID(&source_address);
-      reply.init(NID);
-      reply.setDestinationNID(&source_address);
-      reply.setFrameTypeOpenLcb();
-      reply.setOpenLcbFormat(MTI_FORMAT_ADDRESSED_MESSAGE);
-      reply.data[0] = MTI_PIP_RESPONSE;
-      reply.length = 7;
-      reply.data[1] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;
-      reply.data[2] = 0x00;
-      reply.data[3] = 0x00;
-      reply.data[4] = 0x00;
-      reply.data[5] = 0x00;
-      reply.data[6] = 0x00;
-//      while(!_link->sendMessage(&reply)); //TODO THIS IS NOT PERMITTED!!
+      _reply.init(NID);
+      _reply.setDestinationNID(&source_address);
+      _reply.setFrameTypeOpenLcb();
+      _reply.setOpenLcbFormat(MTI_FORMAT_ADDRESSED_MESSAGE);
+      _reply.data[0] = MTI_PIP_RESPONSE;
+      _reply.length = 7;
+      _reply.data[1] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;
+      _reply.data[2] = 0x00;
+      _reply.data[3] = 0x00;
+      _reply.data[4] = 0x00;
+      _reply.data[5] = 0x00;
+      _reply.data[6] = 0x00;
+      //Serial.println(_reply.data[0], HEX);
+      //Serial.println(_reply.flags.extended, HEX);
+      //Serial.println(_reply.id, HEX);
       _messageReady = true;
       retval = true;
     }
