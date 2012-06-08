@@ -70,7 +70,7 @@ bool LinkControl::sendCIM(uint8_t i) {
     case 2:  fragment = ( (nid->val[3]<<4)&0xFF0) | ( (nid->val[4] >> 4) &0xF);
              break;
     default:
-    case 3:  fragment = ( (nid->val[4]<<8)&0xF00) | ( nid->val[5] &0xF);
+    case 3:  fragment = ( (nid->val[4]<<8)&0xF00) | ( nid->val[5] &0xFF);
              break;
   }
   txBuffer->setCIM(i,fragment,getAlias());
