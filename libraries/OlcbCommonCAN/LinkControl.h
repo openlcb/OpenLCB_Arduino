@@ -65,7 +65,7 @@ class LinkControl {
   /**
    * Send an Optional Interaction Rejected frame
    */
-  void rejectMessage(OpenLcbCanBuffer* rcv);
+  void rejectMessage(OpenLcbCanBuffer* rcv, uint16_t code);
 
   /**
    * Check if the link startup procedure has completed OK.

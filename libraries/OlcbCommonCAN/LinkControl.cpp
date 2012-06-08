@@ -150,9 +150,12 @@ uint16_t LinkControl::getAlias() {
   return (lfsr1 ^ lfsr2 ^ (lfsr1>>12) ^ (lfsr2>>12) )&0xFFF;
 }
 
-void LinkControl::rejectMessage(OpenLcbCanBuffer* rcv) {
+void LinkControl::rejectMessage(OpenLcbCanBuffer* rcv, uint16_t code) {
      // send OptionalInterationRejected; should be threaded, but isn't
      txBuffer->setOptionalIntRejected(rcv);
+     txBuffer->data[1] = (code>>8)&0xFF;
+     txBuffer->data[2] =  code    &0xFF;
+     txBuffer->length = 3;
      OpenLcb_can_queue_xmt_wait(txBuffer);
 }
 

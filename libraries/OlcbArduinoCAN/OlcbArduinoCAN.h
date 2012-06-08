@@ -117,7 +117,7 @@ bool Olcb_loop() {
             handled |= str.receivedFrame(&rxBuffer); // suppress stream for space
             handled |= PIP_receivedFrame(&rxBuffer);
             handled |= SNII_receivedFrame(&rxBuffer);
-            if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer);
+            if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer, 0x2000);
         }
      }
      // periodic processing of any internal state change needs
