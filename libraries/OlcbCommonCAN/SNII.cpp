@@ -82,11 +82,19 @@ bool SNII_receivedFrame(OpenLcbCanBuffer* rcv) {
     if ( rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  { 
         // for this node, check meaning
         if (rcv->data[0] == 0x52 ) { // SCIP request
-            ptr = 0;
-            state = STATE_CONST;
-            dest = rcv->getSourceAlias();
-            
-            return true;
+            // check if available to send
+            if (state == STATE_DONE) {
+                // OK, start process
+                ptr = 0;
+                state = STATE_CONST;
+                dest = rcv->getSourceAlias();
+                
+                return true;
+            } else {
+                // busy already, skip & ask for resend
+                link->rejectMessage(rcv,0x1000);
+                return true;
+            }
         }
     }
     return false;
