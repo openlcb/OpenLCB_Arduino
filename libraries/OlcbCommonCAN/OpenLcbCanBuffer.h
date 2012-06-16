@@ -91,7 +91,7 @@ class EventID;
   void setVerifiedNID(NodeID* nid);
   bool isVerifiedNID();
 
-  void setOptionalIntRejected(OpenLcbCanBuffer* rcv);
+  void setOptionalIntRejected(OpenLcbCanBuffer* rcv, uint16_t code);
   
   bool isIdentifyConsumers();
   

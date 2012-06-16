@@ -289,11 +289,18 @@
     return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_VERIFIED_NID);
   }
 
-  void OpenLcbCanBuffer::setOptionalIntRejected(OpenLcbCanBuffer* rcv) {
+  void OpenLcbCanBuffer::setOptionalIntRejected(OpenLcbCanBuffer* rcv, uint16_t code) {
     init(nodeAlias);
     setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
-    length=1;
+    length=5;
     data[0] = MTI_8_OPTION_INT_REJECTED;
+    // make 1 byte MTI into 2 byte form
+    uint16_t mti = (rcv->data[0]) << 4;
+    data[1] = ((mti>>8)&0xFF) | 0x10;  // add addressed bit
+    data[2] = mti&0xFF;
+
+    data[3] = (code>>8)&0xFF;
+    data[4] =  code    &0xFF;
   }
 
   bool OpenLcbCanBuffer::isIdentifyConsumers() {
