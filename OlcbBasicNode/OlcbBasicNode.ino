@@ -30,6 +30,13 @@
 
 NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid 
 
+// Define pins
+// BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
+#define BLUE 48
+
+// GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
+#define GOLD 49
+
 /**
  * Get and put routines that 
  * use a test memory space.
@@ -146,8 +153,8 @@ long patterns[] = {
 };
 ButtonLed* buttons[] = {&pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD};
 
-ButtonLed blue(14, LOW);  // 18 LEDuino, 48 IO, 14 IOuino
-ButtonLed gold(15, LOW);  // 19 LEDuino, 49 IO, 15 IOuino
+ButtonLed blue(BLUE, LOW);
+ButtonLed gold(GOLD, LOW);
 
 void pceCallback(int index){
   // invoked when an event is consumed; drive pins as needed
@@ -193,7 +200,7 @@ void produceFromInputs() {
 void setup()
 {
   // set up serial comm; may not be space for this!
-  //delay(250);Serial.begin(BAUD_RATE);logstr("\nOlcbBasicNode\n");
+  delay(250);Serial.begin(BAUD_RATE);logstr("\nOlcbBasicNode\n");Serial.print(BLUE);
   
   // read OpenLCB from EEPROM
   //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
