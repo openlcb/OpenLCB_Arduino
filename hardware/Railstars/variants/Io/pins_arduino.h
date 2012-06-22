@@ -27,6 +27,10 @@
 
 #include <avr/pgmspace.h>
 
+#ifndef __RAILSTARS_IO__
+#define __RAILSTARS_IO__
+#endif
+
 #ifndef PCICR
 #define PCICE EICR
 #endif
@@ -50,8 +54,8 @@ const static uint8_t SCK  = 17;
 const static uint8_t SDA = 25;
 const static uint8_t SCL = 24;
 const static uint8_t LED_BUILTIN = 48;
-const static uint8_t BLUE = 48;
-const static uint8_t GOLD = 49;
+#define BLUE 48
+#define GOLD 49
 
 const static uint8_t A0 = 40;
 const static uint8_t A1 = 41;

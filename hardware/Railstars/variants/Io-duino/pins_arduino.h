@@ -27,6 +27,10 @@
 
 #include <avr/pgmspace.h>
 
+#ifndef __RAILSTARS_IODUINO__
+#define __RAILSTARS_IODUINO__
+#endif
+
 #ifndef PCICR
 #define PCICE EICR
 #endif
@@ -49,8 +53,8 @@ const static uint8_t SCK  = 13;
 const static uint8_t SDA = 24;
 const static uint8_t SCL = 25;
 const static uint8_t LED_BUILTIN = 14;
-const static uint8_t BLUE = 14;
-const static uint8_t GOLD = 15;
+#define BLUE 14
+#define GOLD 15
 
 const static uint8_t A0 = 16;
 const static uint8_t A1 = 17;
