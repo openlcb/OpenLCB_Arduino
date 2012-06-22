@@ -131,9 +131,25 @@ uint16_t MyConfigHandler::MACProcessRead(void)
     break;
   case 0xFD: //configuration space
     //Serial.println("configuration space.");
-    reply.length = _eventHandler->readConfig(address, length, &(reply.data[6])) + 6;
-    //Serial.print("total length of reply = ");
-    //Serial.println(reply.length, DEC);
+  	if(address < 260)
+  	{
+  		reply.length = _eventHandler->readConfig(address, length, &(reply.data[6])) + 6;
+	}
+	else
+	{
+		reply.length = length + 6; //give them what they want
+		for(uint16_t i = 0; i < length; ++i)
+		{
+			//Serial.print("Read: ");
+			//Serial.print(address+i, HEX);
+                        //Serial.print(" ");
+                        //Serial.print(i+6, HEX);
+			//Serial.print(":");
+			uint8_t x = EEPROM.read(address+i);
+                        //Serial.println(x, HEX);
+			reply.data[6+i] = x;
+		}
+	}
     if(sendDatagram(&reply))
     {
       //Serial.println("away OK");
@@ -156,6 +172,15 @@ uint16_t MyConfigHandler::MACProcessWrite(void)
   uint8_t length = (_rxDatagramBuffer->length)-6;
   uint32_t address = getAddress(_rxDatagramBuffer->data);
   uint8_t space = decodeSpace(_rxDatagramBuffer->data);
+  
+  //Serial.println("Write Command");
+  //Serial.print("length =");
+  //Serial.println(length, HEX);
+  //Serial.print("address =");
+  //Serial.println(address, HEX);
+  //Serial.print("space =");
+  //Serial.println(space, HEX);
+  
   //And, now do something useful.
   //first check the space?
   switch(space)
@@ -167,7 +192,23 @@ uint16_t MyConfigHandler::MACProcessWrite(void)
     //TODO
     break;
   case 0xFD: //configuration space
-    _eventHandler->writeConfig(address, length, &(_rxDatagramBuffer->data[6]));
+  	//send to eventHandler, if less than 260, as it will need to update the event table directly. Otherwise, it's ours to handle
+  	if(address < 260)
+  	{
+            //Serial.println("sending to EventHandler");
+	    _eventHandler->writeConfig(address, length, &(_rxDatagramBuffer->data[6]));
+	}
+	else
+	{
+		for(uint16_t i = 0; i < length; ++i)
+		{
+			//Serial.print("Write: ");
+			//Serial.print(address+i, HEX);
+			//Serial.print(":");
+			//Serial.println(_rxDatagramBuffer->data[6+i], HEX);
+			EEPROM.write(address+i, _rxDatagramBuffer->data[6+i]);
+		}
+	}
     return DATAGRAM_ERROR_OK;
   }
   return DATAGRAM_REJECTED; //send a NAK. Is this what we really want?
@@ -184,7 +225,7 @@ uint16_t MyConfigHandler::MACProcessCommand(void)
     //Serial.println("MAC_CMD_GET_CONFIG_OPTIONS");
     reply.length = 7;
     reply.data[1] = MAC_CMD_GET_CONFIG_OPTIONS_REPLY;
-    reply.data[2] = MAC_CONFIG_OPTIONS_UNALIGNED_READS | MAC_CONFIG_OPTIONS_UNALIGNED_WRITES | MAC_CONFIG_OPTIONS_MFG_ACDI_FD_READ; //available commands byte 1
+    reply.data[2] = MAC_CONFIG_OPTIONS_UNALIGNED_READS | MAC_CONFIG_OPTIONS_UNALIGNED_WRITES | MAC_CONFIG_OPTIONS_MFG_ACDI_FD_READ | MAC_CONFIG_OPTIONS_USR_ACDI_FC_READ; //available commands byte 1
     reply.data[3] = 0x00; //available commands byte 2
     reply.data[4] = MAC_CONFIG_OPTIONS_1_BYTE_WRITE | MAC_CONFIG_OPTIONS_2_BYTE_WRITE | MAC_CONFIG_OPTIONS_4_BYTE_WRITE | MAC_CONFIG_OPTIONS_64_BYTE_WRITE | MAC_CONFIG_OPTIONS_ARBITRARY_WRITE;
     reply.data[5] = 0xFF; //highest address space

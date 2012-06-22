@@ -1,6 +1,7 @@
 #include "MyInfoHandler.h"
 #include <OLCB_CAN_Buffer.h>
 #include <avr/pgmspace.h>
+#include <EEPROM.h>
 
 //NOTE This class is largely a hack. It works, but there's a lot going on here that should be handled by the lower-level libraries!
 
@@ -9,7 +10,7 @@
 #define MTI_PIP_REQUEST   0x2E
 #define MTI_PIP_RESPONSE  0x2F
 
-static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board\n1.0\n1.1";
+static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board\n1.0\n1.2";
 
 bool isSNIPRequest(OLCB_Buffer *buffer)
 {
@@ -31,6 +32,7 @@ void MyInfoHandler::update(void)
   {
       return;
   }
+  _reply.length = 1; //always at least one, for MTI byte
   //handle pending snip request responses
   if(_string_index > -1)
   {
@@ -59,11 +61,63 @@ void MyInfoHandler::update(void)
     //Serial.print("new string index = ");
     //Serial.println(_string_index, DEC);
     //Serial.print(_string_index > strlen(_buffer));
-    if(_string_index >= _string_length) //done!
+    if(_string_index >= _string_length) //done! with this part; now moving to EEPROM
     {
-      //Serial.println("done!");
       _string_index = -1;
+      _eeprom_index = 1027;
     }
+  }
+  //else, we're sending the second set of strings.
+  else if(_eeprom_index > -1)
+  {
+  	if((_eeprom_index == 1027) && (_reply.length < 8)) //1027 is a stand in to indicate to send the "01" byte first
+  	{
+        //Serial.println("start on user strings");
+  		_reply.data[1] = 0x01;
+    	        ++_reply.length;
+  		++_eeprom_index;
+  		_eeprom_string_index = 1;
+  	}
+  	if(_eeprom_string_index == 1) //user name
+  	{
+  		//read bytes until the reply is full, or we encounter a 0x00'
+  		uint8_t c = 0xFF;
+  		while( (_reply.length < 8) && (c != 0x00) && (_eeprom_index < 1060) )
+  		{
+  			c = EEPROM.read(_eeprom_index);
+                        //Serial.print(c, HEX);
+  			_reply.data[_reply.length] = c;
+  			++_reply.length;
+  			++_eeprom_index;
+  		}
+  		if( (c == 0x00) || (_eeprom_index >= 1060) ) //ready to move to next string
+  		{
+  			_eeprom_index = 1060;
+  			_eeprom_string_index = 2;
+                        //Serial.println();
+  		}
+  	}
+  	if(_eeprom_string_index == 2) //user description
+  	{
+  	  	//read bytes until the reply is full, or we encounter a 0x00'
+  		uint8_t c = 0xFF;
+  		while( (_reply.length < 8) && (c != 0x00) && (_eeprom_index < 1188) )
+  		{
+  			c = EEPROM.read(_eeprom_index);
+                        //Serial.print(c, HEX);
+  			_reply.data[_reply.length] = c;
+  			++_reply.length;
+  			++_eeprom_index;
+  		}
+  		if( (c == 0x00) || (_eeprom_index >= 1188) ) //ready to be done
+  		{
+  			_eeprom_index = -1;
+   			_eeprom_string_index = 0;
+                        //Serial.println();
+  		}
+  	}
+  	while(! _link->sendMessage(&_reply) );
+
   }
   else if(_messageReady)
   {
@@ -82,6 +136,8 @@ void MyInfoHandler::create(OLCB_Link *link, OLCB_NodeID *nid)
 {
   _messageReady = false;
   _string_index = -1;
+  _eeprom_index = -1;
+  _eeprom_string_index = 0;
   _string_length = strlen_P(snipstring)+1; //the first +1 is to INCLUDE the null;
   OLCB_Virtual_Node::create(link,nid);
 }
@@ -106,6 +162,13 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
     if(dest == *NID)
     {
       //Serial.println("Got SNIP request");
+      if( (_string_index > -1) || (_eeprom_index > -1) ) //we're busy!
+      {
+        //Serial.println("cant handle SNIP/PIP request, returning false");
+        retval = false;
+      }
+      else
+      {
       _string_index = 0;
       OLCB_NodeID source_address;
       buffer->getSourceNID(&source_address);
@@ -115,6 +178,7 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
       _reply.setOpenLcbFormat(MTI_FORMAT_ADDRESSED_MESSAGE);
       _reply.data[0] = MTI_SNIP_RESPONSE;
       retval = true;
+      }
     }
   }
   else if(isPIPRequest(buffer))
@@ -149,7 +213,6 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
       retval = true;
     }
   }
-
   return retval;
 }
 

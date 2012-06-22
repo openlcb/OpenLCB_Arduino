@@ -70,7 +70,7 @@ void MyEventHandler::firstInitialization(void)
   //This method should only ever be called once. It formats the EEPROM to contain a set of universal EventIDs from the Railstars pool 05.02.01.02.02.00.00.XX
 
     //First for the producers
-  for(uint8_t i = 0; i < 16; ++i)
+  for(uint16_t i = 0; i < 16; ++i)
   {
     EEPROM.write(0x04+(i*8)+0, 0x05);
     EEPROM.write(0x04+(i*8)+1, 0x02);
@@ -82,7 +82,7 @@ void MyEventHandler::firstInitialization(void)
     EEPROM.write(0x04+(i*8)+7, i);
   }
   //Second for the consumers
-  for(uint8_t i = 0; i < 16; ++i)
+  for(uint16_t i = 0; i < 16; ++i)
   {
     EEPROM.write(0x04+((i+16)*8)+0, 0x05);
     EEPROM.write(0x04+((i+16)*8)+1, 0x02);
@@ -92,6 +92,18 @@ void MyEventHandler::firstInitialization(void)
     EEPROM.write(0x04+((i+16)*8)+5, 0x00);
     EEPROM.write(0x04+((i+16)*8)+6, 0x00);
     EEPROM.write(0x04+((i+16)*8)+7, i);
+  }
+  //Third, the user strings for each event need to be initialized to all null chars
+  for(uint16_t i = 260; i < (260+256); ++i)
+  {
+  	if(EEPROM.read(i) != 0x00)
+  		EEPROM.write(i, 0x00);
+  }
+  //Fourth, the user strings for the node as a whole need to be initialized to all null chars
+  for(uint16_t i = 1028; i < (1028+32+128); ++i)
+  {
+  	if(EEPROM.read(i) != 0x00)
+  		EEPROM.write(i, 0x00);
   }
   //Write next EventID for when factoryReset gets called
   EEPROM.write(0x02, 0x00);
@@ -240,8 +252,8 @@ uint8_t MyEventHandler::readConfig(uint16_t address, uint8_t length, uint8_t *da
   //Serial.print("length: ");
   //Serial.println(length);
   uint8_t index = (address>>3);
-  uint16_t offset = address - (index<<3);
-  if( (length+address) > (_numEvents*8) ) //too much! Would cause overflow
+  uint16_t offset = address - (index<<3) - 4;
+  if( (length+address-4) > (_numEvents*8) ) //too much! Would cause overflow
     //TODO caculate a shorter length to prevent overflow
     length = (_numEvents*8) - (address);
   //Serial.print("modified length: ");
@@ -267,7 +279,7 @@ uint8_t MyEventHandler::readConfig(uint16_t address, uint8_t length, uint8_t *da
   }
   //Serial.println("===");
   //for(i = 0; i < length; ++i)
-  //Serial.println(*(data+i), HEX);
+    //Serial.println(*(data+i), HEX);
   return length;
 }
 
@@ -277,8 +289,8 @@ void MyEventHandler::writeConfig(uint16_t address, uint8_t length, uint8_t *data
 
   //decode the address into a producer/consumer by dividing by 8
   uint8_t index = (address>>3);
-  uint16_t offset = address - (index<<3);
-  if( (length+address) > (_numEvents*8) ) //too much! Would cause overflow
+  uint16_t offset = address - (index<<3) - 4;
+  if( (length+address - 4) > (_numEvents*8) ) //too much! Would cause overflow
     //TODO caculate a shorter length to prevent overflow
     length = (_numEvents*8) - (address);
   //Serial.println("writeConfig");

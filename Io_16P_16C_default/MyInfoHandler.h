@@ -19,6 +19,8 @@ public:
 private:
   bool _messageReady;
   char _buffer[19];
+  int16_t _eeprom_index;
+  uint8_t _eeprom_string_index;
   int8_t _string_index;
   uint8_t _string_length;
   OLCB_Buffer _reply;
