@@ -109,14 +109,17 @@ bool Olcb_loop() {
   // if link is initialized, higher-level operations possible
   if (link.linkInitialized()) {
      // if frame present, pass to handlers
-     if (rcvFramePresent) {
+     if (rcvFramePresent && rxBuffer.isForHere(link.getAlias()) ) {
         handled |= dg.receivedFrame(&rxBuffer);  // has to process frame level
-        if(rxBuffer.isMsgForHere(link.getAlias())) {
+        if(rxBuffer.isFrameTypeOpenLcb()) {  // skip if not OpenLCB message (already for here)
+            
             handled |= pce.receivedFrame(&rxBuffer);
         
             handled |= str.receivedFrame(&rxBuffer); // suppress stream for space
             handled |= PIP_receivedFrame(&rxBuffer);
             handled |= SNII_receivedFrame(&rxBuffer);
+            
+            // if not handled, by default reject
             if (!handled && rxBuffer.isAddressedMessage()) link.rejectMessage(&rxBuffer, 0x2000);
         }
      }
