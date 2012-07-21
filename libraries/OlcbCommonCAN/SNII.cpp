@@ -22,6 +22,9 @@ static uint8_t state;
 #define STATE_COMMENT 4
 #define STATE_DONE 5
 
+#define MTI_SNII_REQUEST 0xDE8
+#define MTI_SNII_REPLY   0xA08
+
 const uint8_t getRead(uint32_t address, int space);
 
 void SNII_setup(uint8_t count, uint8_t offset, OpenLcbCanBuffer* b, LinkControl* li) {
@@ -60,10 +63,10 @@ const uint8_t SNII_nextByte() {
 void SNII_check() {
     if ( state != STATE_DONE ) {
         if (OpenLcb_can_xmt_ready(buffer)) {
-            buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, dest);
-            buffer->data[0] = 0x53;
+            buffer->setOpenLcbMTI(MTI_SNII_REPLY);
+            buffer->setDestAlias(dest);
             uint8_t i;
-            for (i = 1; i<8; i++ ) {
+            for (i = 2; i<8; i++ ) {
                 buffer->data[i] = SNII_nextByte();
                 if (state == STATE_DONE) {
                     i++;
@@ -79,22 +82,19 @@ void SNII_check() {
 
 
 bool SNII_receivedFrame(OpenLcbCanBuffer* rcv) {
-    if ( rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  { 
-        // for this node, check meaning
-        if (rcv->data[0] == 0x52 ) { // SCIP request
-            // check if available to send
-            if (state == STATE_DONE) {
-                // OK, start process
-                ptr = 0;
-                state = STATE_CONST;
-                dest = rcv->getSourceAlias();
-                
-                return true;
-            } else {
-                // busy already, skip & ask for resend
-                link->rejectMessage(rcv,0x1000);
-                return true;
-            }
+    if ( rcv->isOpenLcbMTI(MTI_SNII_REQUEST) )  { 
+        // check if available to send
+        if (state == STATE_DONE) {
+            // OK, start process
+            ptr = 0;
+            state = STATE_CONST;
+            dest = rcv->getSourceAlias();
+            
+            return true;
+        } else {
+            // busy already, skip & ask for resend
+            link->rejectMessage(rcv,0x1000);
+            return true;
         }
     }
     return false;

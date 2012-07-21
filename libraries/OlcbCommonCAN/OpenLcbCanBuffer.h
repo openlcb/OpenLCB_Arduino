@@ -17,7 +17,7 @@ class EventID;
   // Initialize a buffer for transmission
   void init(uint16_t a);
   
-  // start of basic message structure
+  // Start of basic message structure
 
   void setFrameTypeCAN();
   bool isFrameTypeCAN();
@@ -30,11 +30,10 @@ class EventID;
   
   void setSourceAlias(uint16_t a);
   uint16_t getSourceAlias();
-  uint16_t getDestAlias();
+
+  // End of basic message structure
   
-  // end of basic message structure
-  
-  // start of CAN-level messages
+  // Start of CAN-level messages
   void setFrameTypeCAN(uint16_t alias, uint16_t varField);  
   void setCIM(uint8_t i, uint16_t testval, uint16_t alias);
   bool isCIM();
@@ -48,33 +47,39 @@ class EventID;
   void setAMR(uint16_t alias,NodeID* nid);
   bool isAMR(uint16_t alias);
 
-  // end of CAN-level messages
+  // End of CAN-level messages
   
-  // start of OpenLCB format support
+  // Start of OpenLCB format support
+  
+  uint8_t getOpenLcbFormat();  // 0-7 value
+  void setOpenLcbFormat(uint8_t i);   // 0-7 value
 
-  uint16_t getOpenLcbFormat();
-  void setOpenLcbFormat(uint16_t i);
+  void setDestAlias(uint16_t a);  // needs format already set; sets length >= 2 if needed
+  uint16_t getDestAlias();
   
-  bool isOpenLcbMtiFormat();
-  bool isOpenLcDestIdFormat();
-  bool isOpenLcbStreamIdFormat();
+  void setOpenLcbMTI(uint16_t mti);  // 12 bit MTI, but can take 16
+  uint16_t getOpenLcbMTI(); 
+  bool isOpenLcbMTI(uint16_t mti);  // efficient check
+  
+  bool isForHere(uint16_t thisAlias);  // include OpenLCB messages and CAN control frames
 
-  /*
-   * First argument is format, e.g. MTI_FORMAT_ADDRESSED_NON_DATAGRAM
-   * Second is variable field
-   */
-  void setOpenLcbMTI(uint16_t fmt, uint16_t mti);
-  bool isOpenLcbMTI(uint16_t fmt, uint16_t mti);
+  bool isMsgForHere(uint16_t thisAlias);  // OpenLCB messages only
   
-  bool isForHere(uint16_t alias);  // include OpenLCB messages and other frames
-  bool isMsgForHere(uint16_t alias);
-  bool isAddressedMessage();
+  bool isAddressedMessage();  // OpenLCB messages only
 
-  // end of OpenLCB format support
+  void getEventID(EventID* evt); // loads return value into given variable
+  void getNodeID(NodeID* nid); // loads return value into given variable
+  bool matchesNid(NodeID* nid);
+
+  // End of OpenLCB format support
   
-  // start of OpenLCB messages
-  
-  void setInitializationComplete(uint16_t alias, NodeID* nid);
+  // Start of OpenLCB messages
+  //
+  // These neither set nor test the source/destination aliases.
+  // Check separately for whether this frame is addressed to 
+  // the current node (or global).
+  //
+  void setInitializationComplete(NodeID* nid);
   bool isInitializationComplete();
 
   void setPCEventReport(EventID* eid);
@@ -82,12 +87,9 @@ class EventID;
   
   void setLearnEvent(EventID* eid);
   bool isLearnEvent();
-  
-  void getEventID(EventID* evt);
-  void getNodeID(NodeID* nid);
-  
-  bool isVerifyNID(uint16_t nida);
-  bool isVerifyNIDglobal();
+    
+  bool isVerifyNID();
+
   void setVerifiedNID(NodeID* nid);
   bool isVerifiedNID();
 
@@ -107,18 +109,17 @@ class EventID;
   // Mask uses an EventID data structure; 1 bit means mask out when routing
   void setProducerIdentifyRange(EventID* eid, EventID* mask);
 
-  bool isIdentifyEvents(uint16_t nida);
-  bool isIdentifyEventsGlobal();
+  bool isIdentifyEvents();
 
-  bool isDatagram();
-  bool isLastDatagram();
-  
-  bool matchesNid(NodeID* nid);
-  
+  bool isDatagramFrame();
+  bool isLastDatagramFrame();
+    
   private: 
   unsigned int nodeAlias;   // Initialization complete sets, all later use
 
-  // service routine to copy content (0-7) to a previously-allocated Eid
+  // service routines
+
+  // copy content (0-7) to a previously-allocated Eid
   void loadFromEid(EventID* eid);
 };
 

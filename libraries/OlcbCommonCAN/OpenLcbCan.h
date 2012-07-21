@@ -11,18 +11,16 @@
 #define AMR_VAR_FIELD 0x0703
 
 /**
- * OpenLCB CAN MTI format (3 bits)
+ * OpenLCB CAN Frame format (3 bits)
  */
-#define MTI_FORMAT_UNADDRESSED_MTI         0    
-#define MTI_FORMAT_RESERVED                1
+#define FRAME_FORMAT_NORMAL_MTI               1    
 //
-//
-#define MTI_FORMAT_ADDRESSED_DATAGRAM_ALL   2    
-#define MTI_FORMAT_ADDRESSED_DATAGRAM_FIRST 3    
-#define MTI_FORMAT_ADDRESSED_DATAGRAM_MID   4    
-#define MTI_FORMAT_ADDRESSED_DATAGRAM_LAST  5    
-#define MTI_FORMAT_ADDRESSED_NON_DATAGRAM   6    
-#define MTI_FORMAT_STREAM_CODE              7    
+#define FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL   2    
+#define FRAME_FORMAT_ADDRESSED_DATAGRAM_FIRST 3    
+#define FRAME_FORMAT_ADDRESSED_DATAGRAM_MID   4    
+#define FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST  5    
+
+#define FRAME_FORMAT_STREAM                   7    
 
 
 /**
@@ -32,37 +30,39 @@
  * Note: This is just the low 12 bits, and does not include
  * 0-7 format MTI format field just above this.
  */
- 
-#define MTI_12_INITIALIZATION_COMPLETE     0x087
 
-#define MTI_12_VERIFY_NID_GLOBAL           0x8A7
-#define MTI_12_VERIFIED_NID                0x8B7
+#define MTI_OPTION_INT_REJECTED             0x068
 
-#define MTI_12_IDENTIFY_CONSUMERS          0xA4F
-#define MTI_12_IDENTIFY_CONSUMERS_RANGE    0x25F
-#define MTI_12_CONSUMER_IDENTIFIED         0x26B
+#define MTI_INITIALIZATION_COMPLETE         0x100
 
-#define MTI_12_IDENTIFY_PRODUCERS          0xA8F
-#define MTI_12_IDENTIFY_PRODUCERS_RANGE    0x29F
-#define MTI_12_PRODUCER_IDENTIFIED         0x2AB
+#define MTI_VERIFY_NID_GLOBAL               0x490
+#define MTI_VERIFY_NID_ADDRESSED            0x488
 
-#define MTI_12_IDENTIFY_EVENTS_GLOBAL      0xAB7
+#define MTI_VERIFIED_NID                    0x170
 
-#define MTI_12_LEARN_EVENT                 0xACF
-#define MTI_12_PC_EVENT_REPORT             0xADF
+#define MTI_IDENTIFY_CONSUMERS              0x8F4
+#define MTI_IDENTIFY_CONSUMERS_RANGE        0x4A4
+#define MTI_CONSUMER_IDENTIFIED             0x4C4
+
+#define MTI_IDENTIFY_PRODUCERS              0x914
+#define MTI_IDENTIFY_PRODUCERS_RANGE        0x524
+#define MTI_PRODUCER_IDENTIFIED             0x544
+
+#define MTI_IDENTIFY_EVENTS_GLOBAL          0x970
+#define MTI_IDENTIFY_EVENTS_ADDRESSED       0x968
+
+#define MTI_LEARN_EVENT                     0x594
+#define MTI_PC_EVENT_REPORT                 0x5B4
+
+#define MTI_DATAGRAM_RCV_OK                 0xA28
+
+#define MTI_DATAGRAM_REJECTED               0xA48
 
 /**
- * basic 8-bit Message Type byte values (from data[0])
- * for MTI_FORMAT_ADDRESSED_NON_DATAGRAM addressed messages.
+ * Define some decoding bits relative to 
+ * the 12-bit MTI
  */
 
-#define MTI_8_VERIFY_NID                  0x0A
-
-#define MTI_8_IDENTIFY_EVENTS             0x2B
-
-#define MTI_8_OPTION_INT_REJECTED         0x0C
-
-#define MTI_8_DATAGRAM_RCV_OK             0x4C
-#define MTI_8_DATAGRAM_REJECTED           0x4D
+#define MTI_ADDRESS_PRESENT_MASK  0x008
 
 #endif

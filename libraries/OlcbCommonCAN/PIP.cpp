@@ -11,6 +11,9 @@ static OpenLcbCanBuffer* buffer;
 static uint16_t dest;
 static bool queued;
 
+#define MTI_PIP_REQUEST 0x828
+#define MTI_PIP_REPLY   0x668
+
 extern "C" {
 extern uint8_t protocolIdentValue[6];
 }
@@ -24,10 +27,10 @@ void PIP_setup(OpenLcbCanBuffer* b, LinkControl* li) {
   void PIP_check() {
     if (queued) {
         if (OpenLcb_can_xmt_ready(buffer)) {
-            buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, dest);
-            buffer->data[0] = 0x2F;
-            memcpy( &(buffer->data[0])+1, protocolIdentValue, 6); 
-            buffer->length = 7;
+            buffer->setOpenLcbMTI(MTI_PIP_REPLY);
+            buffer->setDestAlias(dest);
+            memcpy( &(buffer->data[0])+2, protocolIdentValue, 6); 
+            buffer->length = 8;
             OpenLcb_can_queue_xmt_immediate(buffer);  // checked previously
             queued = false;
         }
@@ -36,13 +39,11 @@ void PIP_setup(OpenLcbCanBuffer* b, LinkControl* li) {
   }
     
   bool PIP_receivedFrame(OpenLcbCanBuffer* rcv) {
-    if ( rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  { 
-        // for this node, check meaning
-         if (rcv->data[0] == 0x2E ) { // PIP request
-            queued = true;
-            dest = rcv->getSourceAlias();
-            return true;
-        }
+    if ( rcv->isOpenLcbMTI(MTI_PIP_REQUEST) )  { 
+        // previously checked for this node
+        queued = true;
+        dest = rcv->getSourceAlias();
+        return true;
     }
     return false;
   }

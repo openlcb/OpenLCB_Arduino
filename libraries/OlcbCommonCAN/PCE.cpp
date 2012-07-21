@@ -147,7 +147,7 @@ void PCE::sendTeach(Event e) {   /// DPH added for Clock
         }
         // ToDo: add identify flags so that events that are both produced and consumed
         // have only one form sent in response to a specific request.
-    } else if (rcv->isIdentifyEventsGlobal() || rcv->isIdentifyEvents(link->getAlias())) {
+    } else if (rcv->isIdentifyEvents()) {
         // if so, send _all_ ProducerIdentified, ConsumerIdentified
         // via the "check" periodic call
         for (int i = 0; i < nEvents; i++) {

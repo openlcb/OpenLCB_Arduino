@@ -78,6 +78,10 @@ class Datagram {
   uint8_t rbuf[DATAGRAM_LENGTH];
   uint8_t* rptr;
   
+  void setDatagramReply(uint16_t srcAlias, uint16_t dstAlias);
+  void setDatagramAck(uint16_t srcAlias, uint16_t dstAlias);
+  void setDatagramNak(uint16_t srcAlias, uint16_t dstAlias, uint16_t code);
+  
   // returns 0 for used, OK; > 0 for specific error message
   unsigned int (*callback)(uint8_t tbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from);   // void callback(int index) pointer
 };

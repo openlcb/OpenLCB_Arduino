@@ -46,9 +46,9 @@ void Datagram::check() {
     if (OpenLcb_can_xmt_ready(buffer)) {
       // load buffer
       if (first)
-        buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_FIRST, dest);
+        buffer->setOpenLcbFormat(FRAME_FORMAT_ADDRESSED_DATAGRAM_FIRST);
       else
-        buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_MID, dest);
+        buffer->setOpenLcbFormat(FRAME_FORMAT_ADDRESSED_DATAGRAM_MID);
       buffer->length = sendcount<8 ? sendcount : 8;
       for (int i = 0; i<buffer->length; i++)
           buffer->data[i] = *(tptr++);
@@ -57,9 +57,9 @@ void Datagram::check() {
       if (sendcount == 0) {
           sendcount = -1;
           if (first)
-              buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_DATAGRAM_ALL);
+              buffer->setOpenLcbFormat(FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL);
           else
-              buffer->setOpenLcbFormat(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST);
+              buffer->setOpenLcbFormat(FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST);
       }
       // and send it
       first = false;
@@ -67,6 +67,25 @@ void Datagram::check() {
       // and wait for reply
     }
   }
+}
+
+void Datagram::setDatagramReply(uint16_t srcAlias, uint16_t dstAlias) {
+    buffer->init(srcAlias);
+    buffer->setOpenLcbFormat(FRAME_FORMAT_NORMAL_MTI); // needed to set dest address
+    buffer->setDestAlias(dstAlias);
+}
+
+void Datagram::setDatagramAck(uint16_t srcAlias, uint16_t dstAlias) {
+    setDatagramReply(srcAlias, dstAlias);
+    buffer->setOpenLcbMTI(MTI_DATAGRAM_RCV_OK);
+}
+
+void Datagram::setDatagramNak(uint16_t srcAlias, uint16_t dstAlias, uint16_t code) {
+    setDatagramReply(srcAlias, dstAlias);
+    buffer->setOpenLcbMTI(MTI_DATAGRAM_REJECTED);
+    buffer->data[2] = (code>>8)&0xFF;
+    buffer->data[3] = code&0xFF;
+    buffer->length = 4;
 }
 
 bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
@@ -80,53 +99,47 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
         }
     }
     // check for datagram reply, which can free buffer
-    if ( (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM, link->getAlias()) )  // addressed to here
-         // TODO also need to check that this is _from_ the node that's sending the datagram
-         // as a redundant check (shouldn't be anybody else sending a reply right now, though)
-         ) {
-        // for this node, check meaning
-        if (rcv->data[0] == MTI_8_DATAGRAM_RCV_OK ) { // datagram ACK
+
+     // TODO also need to check that this is _from_ the node that's sending the datagram
+     // as a redundant check (shouldn't be anybody else sending a reply right now, though)
+
+    // for this node, check meaning
+    if (rcv->isOpenLcbMTI(MTI_DATAGRAM_RCV_OK) ) { // datagram ACK
+        // release reserve
+        reservedXmt = false;
+        return true;
+    } else if (rcv->isOpenLcbMTI(MTI_DATAGRAM_REJECTED) ) { // datagram NAK
+        // check permanent or temporary
+        if (rcv->length < 6 || rcv->data[2] & (DATAGRAM_REJECTED_RESEND_MASK >> 8)) {
+            // temporary, set up for resend
+            sendcount = resendcount;
+            tptr = tbuf;
+            first = true;    
+            return true;
+        } else {
+            // permanent, drop; nothing else to do?
+            // TODO signal permanent error somehow     
             // release reserve
             reservedXmt = false;
             return true;
-        } else if (rcv->data[0] == MTI_8_DATAGRAM_REJECTED ) { // datagram NAK
-            // check permanent or temporary
-            if (rcv->length < 2 || rcv->data[1] & (DATAGRAM_REJECTED_RESEND_MASK >> 8)) {
-                // temporary, set up for resend
-                sendcount = resendcount;
-                tptr = tbuf;
-                first = true;    
-                return true;
-            } else {
-                // permanent, drop; nothing else to do?
-                // TODO signal permanent error somehow     
-                // release reserve
-                reservedXmt = false;
-                return true;
-            }
         }
-        return false;
     }
     // check for datagram fragment received
-    if (       rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_ALL, link->getAlias()) 
-            || rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_FIRST, link->getAlias())
-            || rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_MID, link->getAlias())
-            || rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, link->getAlias())
+    else if (       (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL) 
+            || (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_FIRST)
+            || (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_MID)
+            || (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST)
           ) {
          // can this start reception, e.g. we're not already receiving?
          if (
-               rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_ALL, link->getAlias())
-            || rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_FIRST, link->getAlias()) 
+               (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL)
+            || (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_FIRST) 
             ) {
             if (receiving) {
                 // already receiving, this is an error, reply if last
-                if (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_ALL, link->getAlias()) ) {
+                if (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL ) {
                     // TODO: Need a more robust scheduling method here
-                    buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
-                    buffer->data[0] = MTI_8_DATAGRAM_REJECTED;
-                    buffer->data[1] = (DATAGRAM_REJECTED_BUFFER_FULL>>8)&0xFF;
-                    buffer->data[2] = DATAGRAM_REJECTED_BUFFER_FULL&0xFF;
-                    buffer->length = 3;
+                    setDatagramNak(link->getAlias(), rcv->getSourceAlias(), DATAGRAM_REJECTED_BUFFER_FULL);
                     OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
                 }
                 return true;
@@ -140,15 +153,11 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
             // not a start segment, make sure we're receiving
             if (!receiving) {
                 // missed the start frame? if last, tell
-                if (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_ALL, link->getAlias())
-                    || rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, link->getAlias())
+                if ( (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL)
+                    || (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST)
                     ) {
                     // TODO: Need a more robust scheduling method here
-                    buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
-                    buffer->data[0] = MTI_8_DATAGRAM_REJECTED;
-                    buffer->data[1] = (DATAGRAM_REJECTED_OUT_OF_ORDER>>8)&0xFF;
-                    buffer->data[2] = DATAGRAM_REJECTED_OUT_OF_ORDER&0xFF;
-                    buffer->length = 3;
+                    setDatagramNak(link->getAlias(), rcv->getSourceAlias(), DATAGRAM_REJECTED_OUT_OF_ORDER);
                     OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
                 }
                 return true;
@@ -158,15 +167,11 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
          // this is for us, is it part of a currently-being received datagram?
          if (fromAlias != rcv->getSourceAlias()) {
             // no - if last, send reject temporarily; done immediately with wait
-            if (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_ALL, link->getAlias())
-                || rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, link->getAlias())
+            if ( (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL)
+                || (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST)
                 ) {
                 // TODO: Need a more robust scheduling method here
-                buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
-                buffer->data[0] = MTI_8_DATAGRAM_REJECTED;
-                buffer->data[1] = (DATAGRAM_REJECTED_BUFFER_FULL>>8)&0xFF;
-                buffer->data[2] = DATAGRAM_REJECTED_BUFFER_FULL&0xFF;
-                buffer->length = 3;
+                setDatagramNak(link->getAlias(), rcv->getSourceAlias(), DATAGRAM_REJECTED_BUFFER_FULL);
                 OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
             }
             return true;
@@ -176,8 +181,8 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
             *(rptr++) = rcv->data[i];
          }
          // is the end of the datagram?
-         if (rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_ALL, link->getAlias()) 
-            || rcv->isOpenLcbMTI(MTI_FORMAT_ADDRESSED_DATAGRAM_LAST, link->getAlias()) 
+         if ( ( rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL) 
+            || ( rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST )
             ) {
             // 
             unsigned int length = rptr-rbuf;
@@ -185,21 +190,15 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
             unsigned int result = (*callback)(rbuf, length, rcv->getSourceAlias());
             rptr = rbuf;
             receiving = false;
-            buffer->setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
             if (result == 0) {
                 // send OK; done immediately with wait
                 // TODO: Need a more robust method here
                 // load buffer
-                buffer->data[0] = MTI_8_DATAGRAM_RCV_OK;
-                buffer->length = 1;
+                setDatagramAck(link->getAlias(), rcv->getSourceAlias());
             } else {
                 // not OK, send reject; done immediately with wait
                 // TODO: Need a more robust method here
-                buffer->data[0] = MTI_8_DATAGRAM_REJECTED;
-                if (result > 0) result = DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;
-                buffer->data[1] = (result>>8)&0xFF;
-                buffer->data[2] = result&0xFF;
-                buffer->length = 3;
+                setDatagramNak(link->getAlias(), rcv->getSourceAlias(), DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED);
             }
             OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued _WITHOUT_ prior check
          }

@@ -23,8 +23,6 @@
 // bit 17-28
 #define MASK_SRC_ALIAS 0x00000FFFL
 
-#define MASK_DST_ALIAS 0x000FFF000L
-
 // bit 2-16
 #define MASK_VARIABLE_FIELD 0x07FFF000L
 #define SHIFT_VARIABLE_FIELD 12
@@ -36,6 +34,8 @@
   void OpenLcbCanBuffer::init(uint16_t alias) {
     // set default header: extended frame w low priority
     flags.extended = 1;
+    // no data yet
+    length = 0;
     // all bits in header default to 1 except MASK_SRC_ALIAS
     id = 0x1FFFF000 | (alias & MASK_SRC_ALIAS);
   }
@@ -49,9 +49,6 @@
   
   uint16_t OpenLcbCanBuffer::getSourceAlias() {
       return id & MASK_SRC_ALIAS;
-  }
-  uint16_t OpenLcbCanBuffer::getDestAlias() {
-      return (id & MASK_DST_ALIAS ) >>12;
   }
 
   void OpenLcbCanBuffer::setFrameTypeCAN() {
@@ -135,118 +132,74 @@
   
   // start of OpenLCB format support
   
-  uint16_t OpenLcbCanBuffer::getOpenLcbFormat() {
-      return (getVariableField() & MASK_OPENLCB_FORMAT) >> SHIFT_OPENLCB_FORMAT;
+  void OpenLcbCanBuffer::setDestAlias(uint16_t a) {
+     uint8_t format = getOpenLcbFormat();
+     if (format == FRAME_FORMAT_NORMAL_MTI) {
+        data[0] = (a>>8)&0xFF;
+        data[1] = a&0xFF;
+        if (length < 2) length = 2;
+    } else {
+        setVariableField(a | (format << SHIFT_OPENLCB_FORMAT));
+    }
+  }
+  uint16_t OpenLcbCanBuffer::getDestAlias() {
+     uint8_t format = getOpenLcbFormat();
+     if (format == FRAME_FORMAT_NORMAL_MTI)
+        return ((data[0]&0xF)<<8)|data[1]&0xFF;
+     else 
+        return getVariableField() & 0xFFF;
   }
 
-  void OpenLcbCanBuffer::setOpenLcbFormat(uint16_t i) {
-      uint16_t now = getVariableField() & ~MASK_OPENLCB_FORMAT;
-      setVariableField( ((i << SHIFT_OPENLCB_FORMAT) & MASK_OPENLCB_FORMAT) | now);
-  }
-
-  // is the variable field a destID?
-  bool OpenLcbCanBuffer::isOpenLcDestIdFormat() {
-      return ( getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_NON_DATAGRAM);
-  }
-  
-  // is the variable field a stream ID?
-  bool OpenLcbCanBuffer::isOpenLcbStreamIdFormat() {
-      return ( getOpenLcbFormat() == MTI_FORMAT_STREAM_CODE);
-  }
-  
-  bool OpenLcbCanBuffer::isMsgForHere(uint16_t alias) {
-    return isForHere(alias) && isFrameTypeOpenLcb();
-  }
-  
-  bool OpenLcbCanBuffer::isForHere(uint16_t alias) {  // includes frame level
-    if (!isFrameTypeOpenLcb()) return true;
-    uint16_t format = getOpenLcbFormat();
-    if (format == MTI_FORMAT_UNADDRESSED_MTI) return true;
-    else return alias == getDestAlias();
-  }
-  
-  bool OpenLcbCanBuffer::isAddressedMessage() {
-    uint16_t format = getOpenLcbFormat();
-    if (format == MTI_FORMAT_UNADDRESSED_MTI) return false;
-    else return true;
-  }
-
-  void OpenLcbCanBuffer::setOpenLcbMTI(uint16_t fmt, uint16_t mtiHeaderByte) {
+  void OpenLcbCanBuffer::setOpenLcbMTI(uint16_t mti) {
         setFrameTypeOpenLcb();
-        setVariableField(mtiHeaderByte);
-        setOpenLcbFormat(fmt);  // order matters here
+        setVariableField(mti | (FRAME_FORMAT_NORMAL_MTI<<SHIFT_OPENLCB_FORMAT));
   }
   
-  bool OpenLcbCanBuffer::isOpenLcbMTI(uint16_t fmt, uint16_t mtiHeaderByte) {
+  uint16_t OpenLcbCanBuffer::getOpenLcbMTI() {
+      return getVariableField() & 0xFFF;
+  }
+
+  bool OpenLcbCanBuffer::isOpenLcbMTI(uint16_t mti) {
       return isFrameTypeOpenLcb() 
-                && ( getOpenLcbFormat() == fmt )
-                && ( (getVariableField()&~MASK_OPENLCB_FORMAT) == mtiHeaderByte );
-  }
-  
-  // end of OpenLCB format and decode support
-  
-  // start of OpenLCB messages
-  
-  void OpenLcbCanBuffer::setPCEventReport(EventID* eid) {
-    init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_PC_EVENT_REPORT);
-    length=8;
-    loadFromEid(eid);
-  }
-  
-  bool OpenLcbCanBuffer::isPCEventReport() {
-      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_PC_EVENT_REPORT);
+                && ( getVariableField() == (mti | (FRAME_FORMAT_NORMAL_MTI<<SHIFT_OPENLCB_FORMAT) ) );
   }
 
-  void OpenLcbCanBuffer::setLearnEvent(EventID* eid) {
-    init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_LEARN_EVENT);
-    length=8;
-    loadFromEid(eid);
+
+  bool OpenLcbCanBuffer::isForHere(uint16_t alias) {  // includes frame level, the more common test
+    if (!isFrameTypeOpenLcb()) return true;
+    // check for global
+    uint8_t format = getOpenLcbFormat();
+    if (format == FRAME_FORMAT_NORMAL_MTI && (getVariableField() & MTI_ADDRESS_PRESENT_MASK) == 0 ) {
+        return true;
+    } else {
+        // else check addressed here
+        return alias == getDestAlias();
+    }
   }
 
-  bool OpenLcbCanBuffer::isLearnEvent() {
-      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_LEARN_EVENT);
+  bool OpenLcbCanBuffer::isMsgForHere(uint16_t alias) {
+    if (!isFrameTypeOpenLcb()) return false;
+    return isForHere(alias);
+  }
+  
+  bool OpenLcbCanBuffer::isAddressedMessage() {  // checks for message carries address, not that it's for here
+    if (!isFrameTypeOpenLcb()) return false;
+    // check for global
+    uint8_t format = getOpenLcbFormat();
+    if (format == FRAME_FORMAT_NORMAL_MTI && (getVariableField() & MTI_ADDRESS_PRESENT_MASK) == 0 ) {
+        return false;
+    } else {
+        // all other formats are addressed
+        return true;
+    }
   }
 
-  void OpenLcbCanBuffer::setInitializationComplete(uint16_t alias, NodeID* nid) {
-    nodeAlias = alias;
-    init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_INITIALIZATION_COMPLETE);
-    length=6;
-    memcpy(data, nid->val, 6);
-    //data[0] = nid->val[0];
-    //data[1] = nid->val[1];
-    //data[2] = nid->val[2];
-    //data[3] = nid->val[3];
-    //data[4] = nid->val[4];
-    //data[5] = nid->val[5];
-  }
-  
-  bool OpenLcbCanBuffer::isInitializationComplete() {
-      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_INITIALIZATION_COMPLETE);
-  }
-  
   void OpenLcbCanBuffer::getEventID(EventID* evt) {
     memcpy(evt->val, data, 8);
-    //evt->val[0] = data[0];
-    //evt->val[1] = data[1];
-    //evt->val[2] = data[2];
-    //evt->val[3] = data[3];
-    //evt->val[4] = data[4];
-    //evt->val[5] = data[5];
-    //evt->val[6] = data[6];
-    //evt->val[7] = data[7];
   }
   
   void OpenLcbCanBuffer::getNodeID(NodeID* nid) {
     memcpy(nid->val, data, 6);
-    //nid->val[0] = data[0];
-    //nid->val[1] = data[1];
-    //nid->val[2] = data[2];
-    //nid->val[3] = data[3];
-    //nid->val[4] = data[4];
-    //nid->val[5] = data[5];
   }
   
   bool OpenLcbCanBuffer::matchesNid(NodeID* nid) {
@@ -259,123 +212,136 @@
             nid->val[5] == data[5];
   }
 
-  bool OpenLcbCanBuffer::isVerifyNIDglobal() {
-      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_VERIFY_NID_GLOBAL);
+
+  // end of OpenLCB format and decode support
+  
+  // start of OpenLCB messages
+  
+  void OpenLcbCanBuffer::setInitializationComplete(NodeID* nid) {
+    setOpenLcbMTI(MTI_INITIALIZATION_COMPLETE);
+    length=6;
+    memcpy(data, nid->val, 6);
+  }
+  
+  bool OpenLcbCanBuffer::isInitializationComplete() {
+      return isOpenLcbMTI(MTI_INITIALIZATION_COMPLETE);
+  }
+  
+  void OpenLcbCanBuffer::setPCEventReport(EventID* eid) {
+    setOpenLcbMTI(MTI_PC_EVENT_REPORT);
+    length=8;
+    loadFromEid(eid);
+  }
+  
+  bool OpenLcbCanBuffer::isPCEventReport() {
+      return isOpenLcbMTI(MTI_PC_EVENT_REPORT);
   }
 
-  bool OpenLcbCanBuffer::isVerifyNID(uint16_t nida) {
-      if (nida != (getVariableField()&0xFFF) ) return false;
-      if (getOpenLcbFormat() != MTI_FORMAT_ADDRESSED_NON_DATAGRAM) return false;
-      if (length == 0) return false;
-      if (data[0] != MTI_8_VERIFY_NID) return false;
-      return true;
+  void OpenLcbCanBuffer::setLearnEvent(EventID* eid) {
+    setOpenLcbMTI(MTI_LEARN_EVENT);
+    length=8;
+    loadFromEid(eid);
+  }
+
+  bool OpenLcbCanBuffer::isLearnEvent() {
+      return isOpenLcbMTI(MTI_LEARN_EVENT);
+  }
+
+
+  bool OpenLcbCanBuffer::isVerifyNID() {
+      if (isOpenLcbMTI(MTI_VERIFY_NID_GLOBAL)) return true;
+      else return isOpenLcbMTI(MTI_VERIFY_NID_ADDRESSED);   
   }
 
   void OpenLcbCanBuffer::setVerifiedNID(NodeID* nid) {
-    init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_VERIFIED_NID);
+    setOpenLcbMTI(MTI_VERIFIED_NID);
     length=6;
     memcpy(data, nid->val, 6);
-    //data[0] = nid->val[0];
-    //data[1] = nid->val[1];
-    //data[2] = nid->val[2];
-    //data[3] = nid->val[3];
-    //data[4] = nid->val[4];
-    //data[5] = nid->val[5];
   }
 
-  bool OpenLcbCanBuffer::isVerifiedNID()
-  {
-    return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_VERIFIED_NID);
+  bool OpenLcbCanBuffer::isVerifiedNID() {
+    return isOpenLcbMTI(MTI_VERIFIED_NID);
   }
 
   void OpenLcbCanBuffer::setOptionalIntRejected(OpenLcbCanBuffer* rcv, uint16_t code) {
-    init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_ADDRESSED_NON_DATAGRAM,rcv->getSourceAlias());
-    length=5;
-    data[0] = MTI_8_OPTION_INT_REJECTED;
-    // make 1 byte MTI into 2 byte form
-    uint16_t mti = (rcv->data[0]) << 4;
-    data[1] = ((mti>>8)&0xFF) | 0x10;  // add addressed bit
-    data[2] = mti&0xFF;
+    setOpenLcbMTI(MTI_OPTION_INT_REJECTED);
+    setDestAlias(rcv->getSourceAlias());
+    length=6;
 
-    data[3] = (code>>8)&0xFF;
-    data[4] =  code    &0xFF;
+    data[2] = (code>>8)&0xFF;
+    data[3] =  code    &0xFF;
+
+    uint16_t mti = rcv->getOpenLcbMTI();
+    data[4] = ((mti>>8)&0xFF);
+    data[5] = mti&0xFF;
+
   }
 
   bool OpenLcbCanBuffer::isIdentifyConsumers() {
-      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_IDENTIFY_CONSUMERS);
+      return isOpenLcbMTI(MTI_IDENTIFY_CONSUMERS);
   }
 
   void OpenLcbCanBuffer::setConsumerIdentified(EventID* eid) {
-    init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_CONSUMER_IDENTIFIED);
+    setOpenLcbMTI(MTI_CONSUMER_IDENTIFIED);
     length=8;
     loadFromEid(eid);
   }
 
   void OpenLcbCanBuffer::setConsumerIdentifyRange(EventID* eid, EventID* mask) {
     // does send a message, but not complete yet - RGJ 2009-06-14
-    init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_IDENTIFY_CONSUMERS_RANGE);
+    setOpenLcbMTI(MTI_IDENTIFY_CONSUMERS_RANGE);
     length=8;
     loadFromEid(eid);
   }
 
   bool OpenLcbCanBuffer::isIdentifyProducers() {
-      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_IDENTIFY_PRODUCERS);
+      return isOpenLcbMTI(MTI_IDENTIFY_PRODUCERS);
   }
 
   void OpenLcbCanBuffer::setProducerIdentified(EventID* eid) {
-    init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_PRODUCER_IDENTIFIED);
+    setOpenLcbMTI(MTI_PRODUCER_IDENTIFIED);
     length=8;
     loadFromEid(eid);
   }
 
   void OpenLcbCanBuffer::setProducerIdentifyRange(EventID* eid, EventID* mask) {
     // does send a message, but not complete yet - RGJ 2009-06-14
-    init(nodeAlias);
-    setOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI,MTI_12_IDENTIFY_PRODUCERS_RANGE);
+    setOpenLcbMTI(MTI_IDENTIFY_PRODUCERS_RANGE);
     length=8;
     loadFromEid(eid);
   }
 
-  bool OpenLcbCanBuffer::isIdentifyEventsGlobal() {
-      return isOpenLcbMTI(MTI_FORMAT_UNADDRESSED_MTI, MTI_12_IDENTIFY_EVENTS_GLOBAL);
+  bool OpenLcbCanBuffer::isIdentifyEvents() {
+      if  (isOpenLcbMTI(MTI_IDENTIFY_EVENTS_GLOBAL)) return true;
+      return isOpenLcbMTI(MTI_IDENTIFY_EVENTS_ADDRESSED);
   }
 
-  bool OpenLcbCanBuffer::isIdentifyEvents(uint16_t nida) {
-      if (nida != (getVariableField()&0xFFF) ) return false;
-      if (getOpenLcbFormat() != MTI_FORMAT_ADDRESSED_NON_DATAGRAM) return false;
-      if (length == 0) return false;
-      if (data[0] != MTI_8_IDENTIFY_EVENTS) return false;
-      return true;
+  // general, but not efficient
+  bool OpenLcbCanBuffer::isDatagramFrame() {
+    uint16_t fmt = getOpenLcbFormat();
+      return isFrameTypeOpenLcb() 
+                && ( (fmt == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL)
+                        || (fmt == FRAME_FORMAT_ADDRESSED_DATAGRAM_FIRST)
+                        || (fmt == FRAME_FORMAT_ADDRESSED_DATAGRAM_MID)
+                        || (fmt == FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST) );
+  }
+  
+  // just checks 1st, assumes datagram already checked.
+  bool OpenLcbCanBuffer::isLastDatagramFrame() {
+      return (getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST)
+            || (getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL);
+  }
+
+  uint8_t OpenLcbCanBuffer::getOpenLcbFormat() {
+      return (getVariableField() & MASK_OPENLCB_FORMAT) >> SHIFT_OPENLCB_FORMAT;
+  }
+
+  void OpenLcbCanBuffer::setOpenLcbFormat(uint8_t i) {
+      uint16_t now = getVariableField() & ~MASK_OPENLCB_FORMAT;
+      setVariableField( ((i << SHIFT_OPENLCB_FORMAT) & MASK_OPENLCB_FORMAT) | now);
   }
 
   void OpenLcbCanBuffer::loadFromEid(EventID* eid) {
     memcpy(data, eid->val, 8);
-    //data[0] = eid->val[0];
-    //data[1] = eid->val[1];
-    //data[2] = eid->val[2];
-    //data[3] = eid->val[3];
-    //data[4] = eid->val[4];
-    //data[5] = eid->val[5];
-    //data[6] = eid->val[6];
-    //data[7] = eid->val[7];
   }
   
-  // general, but not efficient
-  bool OpenLcbCanBuffer::isDatagram() {
-      return isFrameTypeOpenLcb() 
-                && ( (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_ALL)
-                        || (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_FIRST)
-                        || (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_MID)
-                        || (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_LAST))
-                && (nodeAlias == (getVariableField()&0xFFF) );
-  }
-  // just checks 1st, assumes datagram already checked.
-  bool OpenLcbCanBuffer::isLastDatagram() {
-      return (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_LAST)
-            || (getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_DATAGRAM_ALL);
-  }

@@ -83,7 +83,8 @@ bool LinkControl::sendRIM() {
 }
 
 bool LinkControl::sendInitializationComplete() {
-  txBuffer->setInitializationComplete(getAlias(), nid);
+  txBuffer->setSourceAlias(getAlias());
+  txBuffer->setInitializationComplete(nid);
   return sendFrame();
 }
 
@@ -183,9 +184,11 @@ bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
    // check for aliasMapReset
 
    // see if this is a Verify request to us; first check type
-   else if (  ( rcv->isVerifyNIDglobal() && (rcv->length == 0 || rcv->matchesNid(nid)) )
-        || rcv->isVerifyNID(alias)
-      ) {
+   else if (rcv->isVerifyNID() && 
+                ( rcv->isAddressedMessage() ? rcv->getDestAlias() == alias
+                                    : (rcv->length == 0 || rcv->matchesNid(nid))
+                )
+            ) {
      // reply; should be threaded, but isn't
      txBuffer->setVerifiedNID(nid);
      OpenLcb_can_queue_xmt_wait(txBuffer);
