@@ -166,7 +166,7 @@
 
 
   bool OpenLcbCanBuffer::isForHere(uint16_t alias) {  // includes frame level, the more common test
-    if (!isFrameTypeOpenLcb()) return true;
+    if (!isFrameTypeOpenLcb()) return true; // CAN level is always for here
     // check for global
     uint8_t format = getOpenLcbFormat();
     if (format == FRAME_FORMAT_NORMAL_MTI && (getVariableField() & MTI_ADDRESS_PRESENT_MASK) == 0 ) {
