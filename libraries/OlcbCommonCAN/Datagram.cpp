@@ -62,6 +62,7 @@ void Datagram::check() {
               buffer->setOpenLcbFormat(FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST);
       }
       // and send it
+      buffer->setDestAlias(dest);
       first = false;
       OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, but OK due to earlier check
       // and wait for reply
