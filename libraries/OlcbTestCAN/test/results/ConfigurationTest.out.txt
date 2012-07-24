@@ -8,28 +8,33 @@ queue_xmt_wait: [15050573]
 queue_xmt_wait: [14607573]
 queue_xmt_wait: [10700573]
 queue_xmt_wait: [10701573] 02 03 04 05 06 07
-queue_xmt_wait: [18087573] 02 03 04 05 06 07
+queue_xmt_wait: [19100573] 02 03 04 05 06 07
 one second done
 
 --------------
 Single fragment datagram for get config
 can_get_frame:  [1d285bfd] 20 80 00 00 00 00 02
+queue_xmt_wait: [19a48573] 0b fd 60 00
    Ack to config reply datagram
 can_get_frame:  [1e285bfd] 4c
 
 Second single fragment datagram for get config
 can_get_frame:  [1d285bfd] 20 80 00 00 00 00 02
+queue_xmt_wait: [19a48573] 0b fd 60 00
    Ack to config reply datagram
 can_get_frame:  [1e285bfd] 4c
 
 Single fragment datagram for reset
 can_get_frame:  [1d285bfd] 20 a9
+queue_xmt_wait: [19a48573] 0b fd 60 00
 
 Single fragment datagram for short write
 can_get_frame:  [1d285bfd] 20 23 00 00 00 03 44 55
+queue_xmt_wait: [19a48573] 0b fd 60 00
 
 Single fragment datagram for short read
 can_get_frame:  [1d285bfd] 20 61 00 00 00 00 08
+queue_xmt_wait: [19a48573] 0b fd 60 00
    Ack to reply datagram
 can_get_frame:  [1e285bfd] 4c
 

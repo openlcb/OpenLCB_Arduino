@@ -149,22 +149,23 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue Verify Node addressed\n");
-	b.id = 0x1E57300f;
-	b.length = (uint8_t)1;
-	b.data[0]=0x0A;
+	b.id = 0x1948800F;
+	b.length = (uint8_t)2;
+	b.data[0]=0x05;
+	b.data[1]=0x73;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
 
 	printf("queue Verify Node global\n");
-	b.id = 0x188A700F;
+	b.id = 0x1949000F;
 	b.length = (uint8_t)0;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
 
 	printf("queue Identify Consumers, expect 1 reply\n");
-	b.id = 0x18A4F00F;
+	b.id = 0x198F400F;
 	b.length = (uint8_t)8;
 	b.data[0]=65;b.data[1]=66;b.data[2]=67;b.data[3]=68;b.data[4]=69;b.data[5]=70;b.data[6]=71;b.data[7]=72;
 	queueTestMessage(&b);
@@ -172,7 +173,7 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue Identify Consumers, expect no reply when matching producer event\n");
-	b.id = 0x18A4F00F;
+	b.id = 0x198F400F;
 	b.length = (uint8_t)8;
 	b.data[0]=17;b.data[1]=18;b.data[2]=19;b.data[3]=20;b.data[4]=21;b.data[5]=22;b.data[6]=23;b.data[7]=24;
 	queueTestMessage(&b);
@@ -180,7 +181,7 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue Identify Consumers, no reply due to not match\n");
-	b.id = 0x18A4F00F;
+	b.id = 0x198F400F;
 	b.length = (uint8_t)8;
 	b.data[0]=1;b.data[1]=12;b.data[2]=3;b.data[3]=4;b.data[4]=5;b.data[5]=6;b.data[6]=7;b.data[7]=8;
 	queueTestMessage(&b);
@@ -188,7 +189,7 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue Identify Producers, expect 1 reply\n");
-	b.id = 0x18A8F00F;
+	b.id = 0x1991400F;
 	b.length = (uint8_t)8;
 	b.data[0]=17;b.data[1]=18;b.data[2]=19;b.data[3]=20;b.data[4]=21;b.data[5]=22;b.data[6]=23;b.data[7]=24;
 	queueTestMessage(&b);
@@ -196,7 +197,7 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue Identify Producers, no reply\n");
-	b.id = 0x18A8F00F;
+	b.id = 0x1991400F;
 	b.length = (uint8_t)8;
 	b.data[0]=8;b.data[1]=12;b.data[2]=6;b.data[3]=5;b.data[4]=4;b.data[5]=3;b.data[6]=2;b.data[7]=1;
 	queueTestMessage(&b);
@@ -204,30 +205,32 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue Identify Events Global, expect 4 replies\n");
-	b.id = 0x18AB700F;
+	b.id = 0x1997000F;
 	b.length = (uint8_t)0;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
 
 	printf("queue Identify Events Addressed to non-existant node, expect no reply\n");
-	b.id = 0x1E00F00F;
-	b.length = (uint8_t)1;
-	b.data[0]=0x2B;
+	b.id = 0x1996800F;
+	b.length = (uint8_t)2;
+	b.data[0]=0x00;
+	b.data[1]=0x01;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
 
 	printf("queue Identify Events Addressed to correct node, expect 4 replies\n");
-	b.id = 0x1E57300F;
-	b.length = (uint8_t)1;
-	b.data[0]=0x2B;
+	b.id = 0x1996800F;
+	b.length = (uint8_t)2;
+	b.data[0]=0x05;
+	b.data[1]=0x73;
 	queueTestMessage(&b);
 	doLoop(100);
 	printf("\n");
 
 	printf("queue P/C Event Transfer, no match\n");
-	b.id = 0x182DF00F;
+	b.id = 0x195B400F;
 	b.length = (uint8_t)8;
 	b.data[0]=0;b.data[1]=12;b.data[2]=6;b.data[3]=5;b.data[4]=4;b.data[5]=3;b.data[6]=2;b.data[7]=1;
 	queueTestMessage(&b);
@@ -235,7 +238,7 @@ int main( int argc, const char* argv[] )
 	printf("\n");
 
 	printf("queue P/C Event Transfer, match event 1\n");
-	b.id = 0x182DF00F;
+	b.id = 0x195B400F;
 	b.length = (uint8_t)8;
 	b.data[0]=8;b.data[1]=7;b.data[2]=6;b.data[3]=5;b.data[4]=4;b.data[5]=3;b.data[6]=2;b.data[7]=1;
 	queueTestMessage(&b);
@@ -258,13 +261,13 @@ int main( int argc, const char* argv[] )
 	pce.markToLearn(1, true);
 	pce.markToLearn(0, false);
     printf("Teach new event, expect to announce used\n");
-	b.id = 0x18acf00F;
+	b.id = 0x1959400F;
 	b.length = (uint8_t)8;
 	b.data[0]=0x28;b.data[1]=0x27;b.data[2]=0x26;b.data[3]=0x25;b.data[4]=0x24;b.data[5]=0x23;b.data[6]=0x22;b.data[7]=0x21;
 	queueTestMessage(&b);
 	doLoop(20);
 	printf("queue Request Events, expect 2nd changed\n");
-	b.id = 0x18AB700F;
+	b.id = 0x1997000F;
 	b.length = (uint8_t)6;
 	b.data[0]=2; b.data[1]=3; b.data[2]=4; b.data[3]=5; b.data[4]=6; b.data[5]=7; 
 	queueTestMessage(&b);

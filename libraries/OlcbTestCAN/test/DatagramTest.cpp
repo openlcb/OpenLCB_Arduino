@@ -142,9 +142,10 @@ int main( int argc, const char* argv[] )
     }	
 
 	printf("datagram reply for another, expect it doesn't clear buffer\n");
-	b.id = 0x1E111BFD;
-	b.length = (uint8_t)1;
-    b.data[0]=0x4c;
+	b.id = 0x19A28BFD;
+	b.length = (uint8_t)2;
+    b.data[0]=0x00;
+    b.data[1]=0x01;
     queueTestMessage(&b);
 	doLoop(10);
 	if (dg.getTransmitBuffer() == 0) {
@@ -155,9 +156,10 @@ int main( int argc, const char* argv[] )
     printf("\n");
 
 	printf("datagram reply for this, expect it clears buffer\n");
-	b.id = 0x1E573BFD;
-	b.length = (uint8_t)1;
-    b.data[0]=0x4c;
+	b.id = 0x19A28BFD;
+	b.length = (uint8_t)2;
+    b.data[0]=0x01;
+    b.data[1]=0x11;
     queueTestMessage(&b);
 	doLoop(10);
 	if ( dg.getTransmitBuffer() != 0) {
@@ -165,9 +167,10 @@ int main( int argc, const char* argv[] )
 	    dg.sendTransmitBuffer(0, 0xBFF);
 	    loop();
         printf("handle datagram ack reply\n");
-        b.id = 0x1E573BFF;
-        b.length = (uint8_t)1;
-        b.data[0]=0x4c;
+        b.id = 0x19A28BFD;
+        b.length = (uint8_t)2;
+        b.data[0]=0x01;
+        b.data[1]=0x11;
         queueTestMessage(&b);
         doLoop(10);
         printf("\n");
@@ -185,33 +188,38 @@ int main( int argc, const char* argv[] )
 	    printf("Error: buffer still in use");
     }	
     printf("datagram nak reply for different node, ignore\n");
-    b.id = 0x1E111BFF;
-    b.length = (uint8_t)1;
-    b.data[0]=0x4d;
+	b.id = 0x19A48BFD;
+	b.length = (uint8_t)2;
+    b.data[0]=0x00;
+    b.data[1]=0x01;
     queueTestMessage(&b);
     doLoop(10);
     printf("datagram nak reply from different node, ignore\n");
-    b.id = 0x1E6ba111;
-    b.length = (uint8_t)1;
-    b.data[0]=0x4d;
+	b.id = 0x19A48111;
+	b.length = (uint8_t)2;
+    b.data[0]=0x01;
+    b.data[1]=0x11;
     queueTestMessage(&b);
     doLoop(10);
     printf("handle datagram nak reply by resending\n");
-    b.id = 0x1E573BFF;
-    b.length = (uint8_t)1;
-    b.data[0]=0x4d;
+	b.id = 0x19A48BFD;
+	b.length = (uint8_t)2;
+    b.data[0]=0x01;
+    b.data[1]=0x11;
     queueTestMessage(&b);
     doLoop(10);
     printf("handle 2nd datagram nak reply by resending again\n");
-    b.id = 0x1E573BFF;
-    b.length = (uint8_t)1;
-    b.data[0]=0x4d;
+	b.id = 0x19A48BFD;
+	b.length = (uint8_t)2;
+    b.data[0]=0x01;
+    b.data[1]=0x11;
     queueTestMessage(&b);
     doLoop(10);
 	printf("final positive reply clears buffer\n");
-	b.id = 0x1E573BFF;
-	b.length = (uint8_t)1;
-    b.data[0]=0x4c;
+	b.id = 0x19A28BFD;
+	b.length = (uint8_t)2;
+    b.data[0]=0x01;
+    b.data[1]=0x11;
     queueTestMessage(&b);
 	doLoop(10);
 	printf("\n");

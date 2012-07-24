@@ -8,13 +8,13 @@ queue_xmt_wait: [15050573]
 queue_xmt_wait: [14607573]
 queue_xmt_wait: [10700573]
 queue_xmt_wait: [10701573] 02 03 04 05 06 07
-queue_xmt_wait: [18087573] 02 03 04 05 06 07
-queue_xmt_wait: [182ab573] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [19100573] 02 03 04 05 06 07
+queue_xmt_wait: [19544573] 01 02 03 04 05 06 07 08
 produce p1
-queue_xmt_wait: [182ab573] 11 12 13 14 15 16 17 18
-queue_xmt_wait: [18adf573] 11 12 13 14 15 16 17 18
-queue_xmt_wait: [1826b573] 21 22 23 24 25 26 27 28
-queue_xmt_wait: [1826b573] 41 42 43 44 45 46 47 48
+queue_xmt_wait: [19544573] 11 12 13 14 15 16 17 18
+queue_xmt_wait: [195b4573] 11 12 13 14 15 16 17 18
+queue_xmt_wait: [194c4573] 21 22 23 24 25 26 27 28
+queue_xmt_wait: [194c4573] 41 42 43 44 45 46 47 48
 one second done
 
 trigger RIM conflict
@@ -24,67 +24,71 @@ trigger CIM conflict
 can_get_frame:  [163046ba]
 
 queue Verify Node addressed
-can_get_frame:  [1e57300f] 0a
-queue_xmt_wait: [188b7573] 02 03 04 05 06 07
+can_get_frame:  [1948800f] 05 73
+queue_xmt_wait: [19170573] 02 03 04 05 06 07
 
 queue Verify Node global
-can_get_frame:  [188a700f]
-queue_xmt_wait: [188b7573] 02 03 04 05 06 07
+can_get_frame:  [1949000f]
+queue_xmt_wait: [19170573] 02 03 04 05 06 07
 
 queue Identify Consumers, expect 1 reply
-can_get_frame:  [18a4f00f] 41 42 43 44 45 46 47 48
-queue_xmt_wait: [1826b573] 41 42 43 44 45 46 47 48
+can_get_frame:  [198f400f] 41 42 43 44 45 46 47 48
+queue_xmt_wait: [194c4573] 41 42 43 44 45 46 47 48
 
 queue Identify Consumers, expect no reply when matching producer event
-can_get_frame:  [18a4f00f] 11 12 13 14 15 16 17 18
+can_get_frame:  [198f400f] 11 12 13 14 15 16 17 18
 
 queue Identify Consumers, no reply due to not match
-can_get_frame:  [18a4f00f] 01 0c 03 04 05 06 07 08
+can_get_frame:  [198f400f] 01 0c 03 04 05 06 07 08
 
 queue Identify Producers, expect 1 reply
-can_get_frame:  [18a8f00f] 11 12 13 14 15 16 17 18
-queue_xmt_wait: [182ab573] 11 12 13 14 15 16 17 18
+can_get_frame:  [1991400f] 11 12 13 14 15 16 17 18
+queue_xmt_wait: [19544573] 11 12 13 14 15 16 17 18
 
 queue Identify Producers, no reply
-can_get_frame:  [18a8f00f] 08 0c 06 05 04 03 02 01
+can_get_frame:  [1991400f] 08 0c 06 05 04 03 02 01
 
 queue Identify Events Global, expect 4 replies
-can_get_frame:  [18ab700f]
-queue_xmt_wait: [182ab573] 01 02 03 04 05 06 07 08
-queue_xmt_wait: [182ab573] 11 12 13 14 15 16 17 18
-queue_xmt_wait: [1826b573] 21 22 23 24 25 26 27 28
-queue_xmt_wait: [1826b573] 41 42 43 44 45 46 47 48
+can_get_frame:  [1997000f]
+queue_xmt_wait: [19544573] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [19544573] 11 12 13 14 15 16 17 18
+queue_xmt_wait: [194c4573] 21 22 23 24 25 26 27 28
+queue_xmt_wait: [194c4573] 41 42 43 44 45 46 47 48
 
 queue Identify Events Addressed to non-existant node, expect no reply
-can_get_frame:  [1e00f00f] 2b
+can_get_frame:  [1996800f] 00 01
+queue_xmt_wait: [19544573] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [19544573] 11 12 13 14 15 16 17 18
+queue_xmt_wait: [194c4573] 21 22 23 24 25 26 27 28
+queue_xmt_wait: [194c4573] 41 42 43 44 45 46 47 48
 
 queue Identify Events Addressed to correct node, expect 4 replies
-can_get_frame:  [1e57300f] 2b
-queue_xmt_wait: [182ab573] 01 02 03 04 05 06 07 08
-queue_xmt_wait: [182ab573] 11 12 13 14 15 16 17 18
-queue_xmt_wait: [1826b573] 21 22 23 24 25 26 27 28
-queue_xmt_wait: [1826b573] 41 42 43 44 45 46 47 48
+can_get_frame:  [1996800f] 05 73
+queue_xmt_wait: [19544573] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [19544573] 11 12 13 14 15 16 17 18
+queue_xmt_wait: [194c4573] 21 22 23 24 25 26 27 28
+queue_xmt_wait: [194c4573] 41 42 43 44 45 46 47 48
 
 queue P/C Event Transfer, no match
-can_get_frame:  [182df00f] 00 0c 06 05 04 03 02 01
+can_get_frame:  [195b400f] 00 0c 06 05 04 03 02 01
 
 queue P/C Event Transfer, match event 1
-can_get_frame:  [182df00f] 08 07 06 05 04 03 02 01
+can_get_frame:  [195b400f] 08 07 06 05 04 03 02 01
 
 ----- start learn/teach tests ----------
 Send stand-alone learn messages (2nd, then 1st sent)
-queue_xmt_wait: [18acf573] 11 12 13 14 15 16 17 18
-queue_xmt_wait: [18acf573] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [19594573] 11 12 13 14 15 16 17 18
+queue_xmt_wait: [19594573] 01 02 03 04 05 06 07 08
 
 Mark to learn 1st, 2nd, then unmark 1st
 Teach new event, expect to announce used
-can_get_frame:  [18acf00f] 28 27 26 25 24 23 22 21
-queue_xmt_wait: [182ab573] 28 27 26 25 24 23 22 21
+can_get_frame:  [1959400f] 28 27 26 25 24 23 22 21
+queue_xmt_wait: [19544573] 28 27 26 25 24 23 22 21
 queue Request Events, expect 2nd changed
-can_get_frame:  [18ab700f] 02 03 04 05 06 07
-queue_xmt_wait: [182ab573] 01 02 03 04 05 06 07 08
-queue_xmt_wait: [182ab573] 28 27 26 25 24 23 22 21
-queue_xmt_wait: [1826b573] 21 22 23 24 25 26 27 28
-queue_xmt_wait: [1826b573] 41 42 43 44 45 46 47 48
+can_get_frame:  [1997000f] 02 03 04 05 06 07
+queue_xmt_wait: [19544573] 01 02 03 04 05 06 07 08
+queue_xmt_wait: [19544573] 28 27 26 25 24 23 22 21
+queue_xmt_wait: [194c4573] 21 22 23 24 25 26 27 28
+queue_xmt_wait: [194c4573] 41 42 43 44 45 46 47 48
 
 test ends

@@ -26,7 +26,7 @@ run: all
 	$(OBJDIR)/test/PrngTest | diff - test/results/PrngTest.out.txt || echo PrngTest failed 1>&2
 
 # reset the comparison files. Use only if sure new results correct! Commented out to avoid mistakes
-#reset: 
+reset: 
 #	@$(OBJDIR)/test/CanMrrlcbTest > test/results/CanMrrlcbTest.out.txt
 #	@$(OBJDIR)/test/StreamTest > test/results/StreamTest.out.txt
 #	@$(OBJDIR)/test/DatagramTest > test/results/DatagramTest.out.txt
