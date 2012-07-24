@@ -18,7 +18,7 @@
 //
 
 // bit 1
-#define MASK_PRIORITY 0x08000000L
+#define MASK_FRAME_TYPE 0x08000000L
 
 // bit 17-28
 #define MASK_SRC_ALIAS 0x00000FFFL
