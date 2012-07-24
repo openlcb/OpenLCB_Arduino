@@ -14,16 +14,12 @@ static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board
 
 bool isSNIPRequest(OLCB_Buffer *buffer)
 {
-  if(! (buffer->isFrameTypeOpenLcb() && (buffer->getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_MESSAGE)) )
-    return false;
-  return (buffer->data[0] == ((MTI_SNIP_REQUEST)&0xFF) );
+  return buffer->isSNIIRequest();
 }
 
 bool isPIPRequest(OLCB_Buffer *buffer)
 {
-  if(! (buffer->isFrameTypeOpenLcb() && (buffer->getOpenLcbFormat() == MTI_FORMAT_ADDRESSED_MESSAGE)) )
-    return false;
-  return (buffer->data[0] == ((MTI_PIP_REQUEST)&0xFF) );
+  return buffer->isProtocolSupportInquiry();
 }
 
 void MyInfoHandler::update(void)
@@ -158,7 +154,7 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
   {
     //is it for us?
     OLCB_NodeID dest;
-    buffer->getDestinationNID(&dest);
+    buffer->getDestNID(&dest);
     if(dest == *NID)
     {
       //Serial.println("Got SNIP request");
@@ -169,15 +165,12 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
       }
       else
       {
-      _string_index = 0;
-      OLCB_NodeID source_address;
-      buffer->getSourceNID(&source_address);
-      _reply.init(NID);
-      _reply.setDestinationNID(&source_address);
-      _reply.setFrameTypeOpenLcb();
-      _reply.setOpenLcbFormat(MTI_FORMAT_ADDRESSED_MESSAGE);
-      _reply.data[0] = MTI_SNIP_RESPONSE;
-      retval = true;
+        //send a SNII Re
+        _string_index = 0;
+        OLCB_NodeID source_address;
+        buffer->getSourceNID(&source_address);
+        _reply.setSNIIReply(NID, &source_address);
+        retval = true;
       }
     }
   }
@@ -186,7 +179,7 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
     //is it for us?
     //Serial.println("got PIP aimed at.");
     OLCB_NodeID dest;
-    buffer->getDestinationNID(&dest);
+    buffer->getDestNID(&dest);
     //Serial.println(dest.alias, DEC);
     //Serial.println(NID->alias, DEC);
     if(dest == *NID)
@@ -194,18 +187,14 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
       //Serial.println("Got PIP request");
       OLCB_NodeID source_address;
       buffer->getSourceNID(&source_address);
-      _reply.init(NID);
-      _reply.setDestinationNID(&source_address);
-      _reply.setFrameTypeOpenLcb();
-      _reply.setOpenLcbFormat(MTI_FORMAT_ADDRESSED_MESSAGE);
-      _reply.data[0] = MTI_PIP_RESPONSE;
-      _reply.length = 7;
-      _reply.data[1] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;
+      _reply.setProtocolSupportReply(NID, &source_address);
+      _reply.length = 6;
+      _reply.data[0] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;
+      _reply.data[1] = 0x00;
       _reply.data[2] = 0x00;
       _reply.data[3] = 0x00;
       _reply.data[4] = 0x00;
       _reply.data[5] = 0x00;
-      _reply.data[6] = 0x00;
       //Serial.println(_reply.data[0], HEX);
       //Serial.println(_reply.flags.extended, HEX);
       //Serial.println(_reply.id, HEX);
