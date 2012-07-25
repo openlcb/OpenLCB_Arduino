@@ -181,7 +181,6 @@ void MyEventHandler::update(void)
 {
   if(!isPermitted())
   {
-    //Serial.println("not permitted!");
     return;
   }
 

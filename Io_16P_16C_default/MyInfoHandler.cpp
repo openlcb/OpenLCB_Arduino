@@ -10,7 +10,7 @@
 #define MTI_PIP_REQUEST   0x2E
 #define MTI_PIP_RESPONSE  0x2F
 
-static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board\n1.0\n1.2";
+static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board\n1.0\n1.3";
 
 bool isSNIPRequest(OLCB_Buffer *buffer)
 {
@@ -28,23 +28,23 @@ void MyInfoHandler::update(void)
   {
       return;
   }
-  _reply.length = 1; //always at least one, for MTI byte
+  //_reply.length = 1; //always at least one, for MTI byte
   //handle pending snip request responses
   if(_string_index > -1)
   {
     //Serial.println("Working on SNIP response!");
     //we have work to do.
     //figure out how many bytes to send. Either 7 bytes, or whatever remains
-    _reply.length = _string_length-_string_index +1; //the +1 is to include the datagram MTI
+    _reply.length = _string_length-_string_index + 2;
     if(_reply.length > 8)
       _reply.length = 8;
     //Serial.print("len = ");
     //Serial.println(_reply.length, DEC);
     //Serial.print("start index= ");
     //Serial.println(_string_index, DEC);
-    for(uint8_t i = 1; i < _reply.length; ++i) //skip the MTI
+    for(uint8_t i = 2; i < _reply.length; ++i) //skip the MTI
     {
-      _reply.data[i] = pgm_read_byte(snipstring+i+_string_index-1);
+      _reply.data[i] = pgm_read_byte(snipstring+i+_string_index-2);
       if(_reply.data[i] == '\n')
         _reply.data[i] = 0;
       //Serial.print((char)(_reply.data[i]));
@@ -53,7 +53,7 @@ void MyInfoHandler::update(void)
     while(! _link->sendMessage(&_reply) );
     //now, set up for next run.
     //Serial.println("setting up for next time");
-    _string_index += (_reply.length-1);
+    _string_index += (_reply.length-2);
     //Serial.print("new string index = ");
     //Serial.println(_string_index, DEC);
     //Serial.print(_string_index > strlen(_buffer));
@@ -66,10 +66,11 @@ void MyInfoHandler::update(void)
   //else, we're sending the second set of strings.
   else if(_eeprom_index > -1)
   {
+      _reply.length = 2;
   	if((_eeprom_index == 1027) && (_reply.length < 8)) //1027 is a stand in to indicate to send the "01" byte first
   	{
         //Serial.println("start on user strings");
-  		_reply.data[1] = 0x01;
+  		_reply.data[2] = 0x01;
     	        ++_reply.length;
   		++_eeprom_index;
   		_eeprom_string_index = 1;
@@ -188,16 +189,15 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
       OLCB_NodeID source_address;
       buffer->getSourceNID(&source_address);
       _reply.setProtocolSupportReply(NID, &source_address);
-      _reply.length = 6;
-      _reply.data[0] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;
-      _reply.data[1] = 0x00;
-      _reply.data[2] = 0x00;
+      _reply.length = 8; //first two bytes are destination alias
+      _reply.data[2] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;
       _reply.data[3] = 0x00;
       _reply.data[4] = 0x00;
       _reply.data[5] = 0x00;
-      //Serial.println(_reply.data[0], HEX);
-      //Serial.println(_reply.flags.extended, HEX);
-      //Serial.println(_reply.id, HEX);
+      _reply.data[6] = 0x00;
+      _reply.data[7] = 0x00;
+      //for(uint8_t i = 0; i < _reply.length; ++i)
+        //Serial.println(_reply.data[i], HEX);
       _messageReady = true;
       retval = true;
     }

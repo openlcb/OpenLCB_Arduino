@@ -32,7 +32,6 @@ uint32_t MyConfigHandler::getAddress(uint8_t* data)
 
 // -1 means stream
 uint8_t MyConfigHandler::decodeLength(uint8_t* data) {
-  // ToDo:  Add stream
   return data[6];
 }
 
@@ -63,8 +62,10 @@ uint16_t MyConfigHandler::processDatagram(void)
   {
     return DATAGRAM_REJECTED;
   }
-    //Serial.println("got a datagram!");
-    //Serial.println(_rxDatagramBuffer->data[0], HEX);
+    //Serial.println("GOT A DATAGRAM!");
+    //Serial.println(_rxDatagramBuffer->length, DEC);
+    //for(uint8_t i = 0; i < _rxDatagramBuffer->length; ++i)
+      //Serial.println(_rxDatagramBuffer->data[i], HEX);
     //check the first byte of the payload to see what kind of datagram we have
     switch(_rxDatagramBuffer->data[0])
     {
@@ -94,6 +95,13 @@ uint16_t MyConfigHandler::processDatagram(void)
 //Memory Access Configuration Protocol
 uint16_t MyConfigHandler::MACProcessRead(void)
 {
+    //Serial.println(_rxDatagramBuffer->data[0], HEX);
+    //Serial.println(_rxDatagramBuffer->data[1], HEX);
+    //Serial.println(_rxDatagramBuffer->data[2], HEX);
+    //Serial.println(_rxDatagramBuffer->data[3], HEX);
+    //Serial.println(_rxDatagramBuffer->data[4], HEX);
+    //Serial.println(_rxDatagramBuffer->data[5], HEX);
+    //Serial.println(_rxDatagramBuffer->data[6], HEX);
   OLCB_Datagram reply;
   memcpy(&(reply.destination), &(_rxDatagramBuffer->source), sizeof(OLCB_NodeID));
   //copy first six bytes. TODO why?
@@ -141,7 +149,7 @@ uint16_t MyConfigHandler::MACProcessRead(void)
 		for(uint16_t i = 0; i < length; ++i)
 		{
 			//Serial.print("Read: ");
-			//Serial.print(address+i, HEX);
+		        //Serial.print(address+i, HEX);
                         //Serial.print(" ");
                         //Serial.print(i+6, HEX);
 			//Serial.print(":");

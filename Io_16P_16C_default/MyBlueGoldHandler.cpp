@@ -423,7 +423,7 @@ void MyBlueGoldHandler::update(void)
  */
 void MyBlueGoldHandler::sendIdent()
 {
-  _link->sendIdent();
+  _link->sendIdent(NID);
 }
 
 /**
