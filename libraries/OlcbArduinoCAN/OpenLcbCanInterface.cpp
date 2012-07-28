@@ -48,6 +48,7 @@ bool OpenLcb_can_xmt_ready(OpenLcbCanBuffer* b) {
 bool OpenLcb_can_queue_xmt_immediate(OpenLcbCanBuffer* b) {
   if (!OpenLcb_can_xmt_ready(b)) return false;
   // buffer available, queue for send
+  OpenLcb_can_active = true;
   can_send_message(b);
   return true;
 }
@@ -85,3 +86,6 @@ bool OpenLcb_can_xmt_idle() {
 bool OpenLcb_can_get_frame(OpenLcbCanBuffer* b) {
   return can_get_message(b);
 }
+
+bool OpenLcb_can_active;
+

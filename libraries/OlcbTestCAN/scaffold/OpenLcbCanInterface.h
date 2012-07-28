@@ -63,4 +63,7 @@ bool OpenLcb_can_get_frame(OpenLcbCanBuffer* b);
 // queue a buffer for test use
 void queueTestMessage(OpenLcbCanBuffer* b);
 
+// set true on any transmit; used to inform externals
+extern bool OpenLcb_can_active;
+
 #endif

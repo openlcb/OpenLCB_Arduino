@@ -66,5 +66,7 @@ bool OpenLcb_can_xmt_idle();
 // Return false (zero) if no frame available.
 bool OpenLcb_can_get_frame(OpenLcbCanBuffer* b);
 
+// set true on any transmit; used to inform externals
+extern bool OpenLcb_can_active;
 
 #endif

@@ -23,6 +23,8 @@
 // from the top level file (this file)
 #include <EEPROM.h>
 #include <can.h>
+
+#include "OlcbCommonVersion.h"
 #include "NodeID.h"
 
 // init for serial communications if used
@@ -65,7 +67,7 @@ const prog_char configDefInfo[] PROGMEM = {
    119, 32, 100, 101, 102, 97, 117, 108, 116, 115, 60, 47, 118, 97, 108, 117, 101, 62, 60, 47, 114, 101, 108, 97, 116, 105, 111, 110, 62, 10, 32, 32, 32, 32, 32, 32, 32, 32, 60, 47, 109, 97, 112, 62, 10, 32, 32, 32, 32, 60, 47, 105, 110, 116, 62, 10, 60, 47, 115, 101, 103, 109, 101, 110, 116, 62, 10, 10, 60, 47, 99, 100, 105, 62, 10, 0
 };
 
-const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0\0000.4"; // last zero in double-quote
+const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0\000" OlcbCommonVersion ; // last zero in double-quote
 
 } // end extern "C"
 
@@ -200,7 +202,7 @@ void produceFromInputs() {
 void setup()
 {
   // set up serial comm; may not be space for this!
-  delay(250);Serial.begin(BAUD_RATE);logstr("\nOlcbBasicNode\n");Serial.print(BLUE);
+  //delay(250);Serial.begin(BAUD_RATE);logstr("\nOlcbBasicNode\n");Serial.print(BLUE);
   
   // read OpenLCB from EEPROM
   //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
@@ -222,6 +224,10 @@ void loop() {
     if (activity) {
         // blink blue to show that the frame was received
         blue.blink(0x1);
+    }
+    if (OpenLcb_can_active) {
+        gold.blink(0x1);
+        OpenLcb_can_active = false;
     }
     // handle the status lights  
     blue.process();
