@@ -22,9 +22,9 @@
  * on one of two pins.
  */
 
-#define         BAUD_RATE_1       333333
-#define         BAUD_RATE_2       500000
-#define         BAUD_RATE_3       230400
+#define         BAUD_RATE_1       230400
+#define         BAUD_RATE_2       333333
+#define         BAUD_RATE_3       500000
 #define         BAUD_PIN_1        8
 #define         BAUD_PIN_2        9
 
@@ -78,7 +78,6 @@ void setup()
   else 
     baud = BAUD_RATE_3;
   
-  baud = 230400;
   Serial.begin(baud);
   Serial.println();
   Serial.println(":I LEDuino CAN-USB Adaptor Version 2;");
