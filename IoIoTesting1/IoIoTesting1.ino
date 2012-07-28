@@ -7,17 +7,17 @@
 #define NPINS 16
 
 #include <EEPROM.h>
-void writeNodeID_Io()  // For Io_16P_16C_default
+void writeNodeID_Io(uint8_t Addr)  // For Io_16P_16C_default
 {
   EEPROM.write(0x0FFA, 0x05);
   EEPROM.write(0x0FFB, 0x02);
   EEPROM.write(0x0FFC, 0x01);
   EEPROM.write(0x0FFD, 0x02);
   EEPROM.write(0x0FFE, 0x02);
-  EEPROM.write(0x0FFF, 0x00); //<<<<<<<<<<<<<<<<<<<<<< CHANGE THIS <<<<<<<<<<<<<<<<<<<<<<<<<
+  EEPROM.write(0x0FFF, Addr); 
 }
 
-void writeNodeID_Olcb()  // For OlcbBasicNode
+void writeNodeID_Olcb(uint8_t Addr)  // For OlcbBasicNode
 {
   EEPROM.write(0x00, 0xEE);
   EEPROM.write(0x01, 0x55);
@@ -31,7 +31,7 @@ void writeNodeID_Olcb()  // For OlcbBasicNode
   EEPROM.write(0x08, 0x01);
   EEPROM.write(0x09, 0x02);
   EEPROM.write(0x0A, 0x02);
-  EEPROM.write(0x0B, 0x23); //<<<<<<<<<<<<<<<<<<<<<< CHANGE THIS <<<<<<<<<<<<<<<<<<<<<<<<<
+  EEPROM.write(0x0B, Addr); 
 }
 
 
@@ -43,8 +43,20 @@ bool once;
 
 
 void setup() {
-  writeNodeID_Io();
-  writeNodeID_Olcb();                    
+  //<<<<<<<<<<< CHANGE THIS <<<<<<<<<<<<<<<<<<<<<  
+  // Change NodeAddrLastByte to your Node Address
+  uint8_t NodeAddrLastByte = 0x28 ;
+
+  // First erase the EEPROM
+  for(uint16_t i = 0; i < 0x0FFF; i++)
+    if( EEPROM.read(i) != 0xFF)
+      EEPROM.write(i, 0xFF);
+
+//  Uncomment for the Io Code  
+//  writeNodeID_Io(NodeAddrLastByte);   
+
+//  Uncomment for the OlcbBasicNode Code  
+  writeNodeID_Olcb(NodeAddrLastByte);                    
   
   // set up all pins for action
   for(uint8_t i=0;i<NPINS;i++) {
