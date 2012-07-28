@@ -84,13 +84,13 @@ void OLCB_CAN_Buffer::setDestAlias(uint16_t a)
 	//can only be called after the frame type and MTI have been set, as there are two ways of setting the destination
 	if(GET_CAN_FRAME_TYPE(id) == CAN_FRAME_TYPE_REGULAR)
 	{
-		Serial.println("putting dest alias in payload");
+		//Serial.println("putting dest alias in payload");
 		if(length == 0) length = 2;
 		data[0] = (a & 0xFFF)>>8; //TODO overwrites "only" flag; multi-part messages will need to write flags here AFTER calling this method.
 		data[1] = (a & 0xFF);
-		Serial.println(a, HEX);
-		Serial.println(data[0], HEX);
-		Serial.println(data[1], HEX);
+		//Serial.println(a, HEX);
+		//Serial.println(data[0], HEX);
+		//Serial.println(data[1], HEX);
 	} //TODO no checks in place to see if MTI is really addressed!
 	else //datagram or stream
 	{
