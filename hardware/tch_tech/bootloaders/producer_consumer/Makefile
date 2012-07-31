@@ -17,7 +17,7 @@
 # etc...
 
 # program name should not be changed...
-PROGRAM    = ATmegaBOOT_168
+PROGRAM    = AT90CAN_BOOT
 
 # enter the parameters for the avrdude isp tool
 # ISPTOOL	   = stk500v2
@@ -199,22 +199,22 @@ mega_isp: LFUSE = FF
 mega_isp: EFUSE = F5
 mega_isp: isp
 
-at90can: TARGET = at90can
-at90can: MCU_TARGET = at90can128
-at90can: CFLAGS += '-DMAX_TIME_COUNT=F_CPU>>4' '-DNUM_LED_FLASHES=3'
+producer_consumer: TARGET = at90can
+producer_consumer: MCU_TARGET = at90can128
+producer_consumer: CFLAGS += '-DMAX_TIME_COUNT=F_CPU>>4' '-DNUM_LED_FLASHES=4'
 #  -DBAUD_RATE=57600
-at90can: AVR_FREQ = 16000000L
-at90can: LDSECTION  = --section-start=.text=0xF000
-at90can: LDSECTION  = --section-start=.text=0x1E000
-at90can: $(PROGRAM)_at90can.hex
+producer_consumer: AVR_FREQ = 16000000L
+producer_consumer: LDSECTION  = --section-start=.text=0xF000
+producer_consumer: LDSECTION  = --section-start=.text=0x1E000
+producer_consumer: $(PROGRAM)producer_consumer.hex
 
-at90can_isp: at90can
-at90can_isp: TARGET = at90can
-at90can_isp: MCU_TARGET = at90can128
-at90can_isp: HFUSE = 18
-at90can_isp: LFUSE = FF
-at90can_isp: EFUSE = F5
-at90can_isp: isp
+producer_consumer_isp: at90can
+producer_consumer_isp: TARGET = at90can
+producer_consumer_isp: MCU_TARGET = at90can128
+producer_consumer_isp: HFUSE = 18
+producer_consumer_isp: LFUSE = FF
+producer_consumer_isp: EFUSE = F5
+producer_consumer_isp: isp
 
 isp: $(TARGET)
 isp: $(TARGET)
