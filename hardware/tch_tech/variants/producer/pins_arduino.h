@@ -4,6 +4,11 @@
 
   Copyright (c) 2007 David A. Mellis
 
+  ***********************************************************************
+  Modified to work with The TCH Technology Producer OpenLCB Node
+  Tim Hatch TCH Technology 07/31/2012 http://www.tchtechnology.com
+  ***********************************************************************
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either

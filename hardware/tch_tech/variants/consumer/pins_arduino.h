@@ -4,6 +4,10 @@
 
   Copyright (c) 2007 David A. Mellis
 
+  ***********************************************************************
+  Modified to work with The TCH Technology Consumer OpenLCB Node
+  Tim Hatch TCH Technology 07/31/2012 http://www.tchtechnology.com
+  ***********************************************************************
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
@@ -132,7 +136,7 @@ const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
 	PC	, // PC 6 ** 18 ** USART1_RX I/O 15
 	PC	, // PC 7 ** 19 ** USART1_TX I/O 16
 
-	PB	, // PD 7 ** 20 ** SDA  Factory Default Reset Pin
+	PB	, // PB 3 ** 20 ** SDA  Factory Default Reset Pin
 	PB	, // PD 0 ** 21 ** SCL
 
 	PA	, // PA 7 ** 22 ** I/O 17
@@ -245,7 +249,7 @@ const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
 	_BV( 0 )	, // PB 3 ** 50 ** SPI_MISO
 	_BV( 0 )	, // PB 2 ** 51 ** SPI_MOSI
 	_BV( 0 )	, // PB 1 ** 52 ** SPI_SCK
-	_BV( 0 )	, // PB 0 ** 53 ** SPI_SS (also BLUE)
+	_BV( 0 )	, // PB 0 ** 53 ** SPI_SS
 
 
 };

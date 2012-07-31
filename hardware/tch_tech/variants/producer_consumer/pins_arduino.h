@@ -4,6 +4,11 @@
 
   Copyright (c) 2007 David A. Mellis
 
+  ***********************************************************************
+  Modified to work with The TCH Technology Producer/Consumer OpenLCB Node
+  Tim Hatch TCH Technology 07/31/2012 http://www.tchtechnology.com
+  ***********************************************************************
+
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
@@ -146,8 +151,8 @@ const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
 	PA	, // PA 1 ** 28 ** I/O 23
 	PA	, // PA 0 ** 29 ** I/O 24
 
-	PB	, // PE 5 ** 30 ** I/O 25
-	PB	, // PE 4 ** 31 ** I/O 26
+	PB	, // PB 5 ** 30 ** I/O 25
+	PB	, // PB 4 ** 31 ** I/O 26
 	PE	, // PE 7 ** 32 ** I/O 27
 	PE	, // PE 6 ** 33 ** I/O 28
 	PE	, // PE 5 ** 34 ** I/O 29
@@ -155,18 +160,18 @@ const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
 	PE	, // PE 3 ** 36 ** I/O 31
 	PE	, // PE 2 ** 37 ** I/O 32
 
-	PF	, // PF 7 ** 38 ** NONE!
-	PF	, // PF 6 ** 39 ** NONE!
-	PF	, // PF 5 ** 40 ** NONE!
-	PF	, // PF 4 ** 41 ** NONE!
+	PF	, // PF 7 ** 38 ** I/O 33
+	PF	, // PF 6 ** 39 ** I/O 34
+	PF	, // PF 5 ** 40 ** I/O 35
+	PF	, // PF 4 ** 41 ** I/O 36
 
 	PG	, // PG 0 ** 42 ** GOLD
 	PG	, // PG 1 ** 43 ** BLUE
 
-	PF	, // PF 3 ** 44 ** NONE!
-	PF	, // PF 2 ** 45 ** NONE!
-      	PF	, // PF 1 ** 46 ** NONE!
-	PF	, // PF 0 ** 47 ** NONE!
+	PF	, // PF 3 ** 44 ** I/O 37
+	PF	, // PF 2 ** 45 ** I/O 38
+      	PF	, // PF 1 ** 46 ** I/O 39
+	PF	, // PF 0 ** 47 ** I/O 40
 
 	PB	, // PB 0 ** 48 ** NONE!
 	PB	, // PB 0 ** 49 ** NONE!
@@ -175,14 +180,14 @@ const uint8_t PROGMEM digital_pin_to_port_PGM[] = {
 	PB	, // PB 0 ** 50 ** SPI_MISO
 	PB	, // PB 0 ** 51 ** SPI_MOSI
 	PB	, // PB 0 ** 52 ** SPI_SCK
-	PB	, // PB 0 ** 53 ** SPI_SS (also BLUE)
+	PB	, // PB 0 ** 53 ** SPI_SS
 
       };
 
 const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
 	// PIN IN PORT		
 	// -------------------------------------------		
-	_BV( 0 )	, // PE 0 ** 0 ** USART0_RX	
+	_BV( 0 )	, // PE 0 ** 0 ** USART0_RX
 	_BV( 1 )	, // PE 1 ** 1 ** USART0_TX
 
 	_BV( 5 )	, // PB 5 ** 2 ** PWM2 I/O 1   01/02
@@ -228,18 +233,18 @@ const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
 	_BV( 3 )	, // PE 3 ** 36 ** I/O 31   3D/3E
       	_BV( 2 )	, // PE 2 ** 37 ** I/O 32   3F/40
 
-	_BV( 7 )	, // PF 7 ** 38 ** NONE!  I/O 33
-	_BV( 6 )	, // PF 6 ** 39 ** NONE!  I/O 34
-	_BV( 5 )	, // PF 5 ** 40 ** NONE!  I/O 35
-	_BV( 4 )	, // PF 4 ** 41 ** NONE!  I/O 36
+	_BV( 7 )	, // PF 7 ** 38 ** I/O 33   41/42
+	_BV( 6 )	, // PF 6 ** 39 ** I/O 34   43/44
+	_BV( 5 )	, // PF 5 ** 40 ** I/O 35   45/46
+	_BV( 4 )	, // PF 4 ** 41 ** I/O 36   47/48
 
-	_BV( 0 )	, // PG 0 ** 42 ** NONE!
-	_BV( 1 )	, // PG 1 ** 43 ** NONE!
+	_BV( 0 )	, // PG 0 ** 42 ** Gold LED
+	_BV( 1 )	, // PG 1 ** 43 ** Blue LED
 
-	_BV( 3 )	, // PF 3 ** 44 ** NONE!
-	_BV( 2 )	, // PF 3 ** 45 ** NONE!
-      	_BV( 1 )	, // PF 1 ** 46 ** NONE!
-	_BV( 0 )	, // PB 0 ** 47 ** NONE!
+	_BV( 3 )	, // PF 3 ** 44 ** I/O 37   49/4A
+	_BV( 2 )	, // PF 3 ** 45 ** I/0 38   4B/4C
+      	_BV( 1 )	, // PF 1 ** 46 ** I/O 39   4D/4E
+	_BV( 0 )	, // PF 0 ** 47 ** I/O 40   4F/50
 
 	_BV( 0 )	, // PB 0 ** 48 ** NONE!
 	_BV( 0 )	, // PB 0 ** 49 ** NONE!
@@ -247,7 +252,7 @@ const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[] = {
 	_BV( 0 )	, // PB 3 ** 50 ** SPI_MISO
 	_BV( 0 )	, // PB 2 ** 51 ** SPI_MOSI
 	_BV( 0 )	, // PB 1 ** 52 ** SPI_SCK
-	_BV( 0 )	, // PB 0 ** 53 ** SPI_SS (also BLUE)
+	_BV( 0 )	, // PB 0 ** 53 ** SPI_SS
 
 
 };
