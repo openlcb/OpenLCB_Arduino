@@ -191,7 +191,7 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
       _reply.setProtocolSupportReply(NID, &source_address);
       _reply.length = 8; //first two bytes are destination alias
       _reply.data[2] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;
-      _reply.data[3] = 0x00;
+      _reply.data[3] = 0x10 | 0x08;
       _reply.data[4] = 0x00;
       _reply.data[5] = 0x00;
       _reply.data[6] = 0x00;
