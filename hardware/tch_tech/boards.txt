@@ -57,3 +57,23 @@ producer_consumer.build.mcu=at90can128
 producer_consumer.build.f_cpu=16000000L
 producer_consumer.build.core=producer_consumer
 producer_consumer.build.variant=producer_consumer
+
+##############################################################
+
+ver_1.name=TCH Technology Version .1 boards
+ver_1.upload.protocol=stk500
+ver_1.upload.maximum_size=126976
+ver_1.upload.speed=57600
+
+ver_1.bootloader.low_fuses=0xFF
+ver_1.bootloader.high_fuses=0x58
+ver_1.bootloader.extended_fuses=0xF5
+ver_1.bootloader.path=ver_1
+ver_1.bootloader.file=AT90CAN_BOOT_producer.hex
+ver_1.bootloader.unlock_bits=0x3F
+ver_1.bootloader.lock_bits=0xCF
+
+ver_1.build.mcu=at90can128
+ver_1.build.f_cpu=16000000L
+ver_1.build.core=ver_1
+ver_1.build.variant=ver_1
