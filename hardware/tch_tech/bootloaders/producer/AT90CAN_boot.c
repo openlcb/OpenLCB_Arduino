@@ -6,9 +6,7 @@
 /*                                                        */
 /* ATmegaBOOT.c                                           */
 /*                                                        */
-/*                                                        */
-/* 20110504: Hacked for AT90CAN128 by D.E. Goodman-Wilson */
-/*           http://railstars.org/hardware/at90can/       */
+/* 20120801: tchtechnology.com producer node                                                       */
 /* 20090308: integrated Mega changes into main bootloader */
 /*           source by D. Mellis                          */
 /* 20080930: hacked for Arduino Mega (with the 1280       */
@@ -111,7 +109,7 @@
 /* ATmega128 has two UARTS so two pins are used to enter bootloader and select UART */
 /* ATmega1280 has four UARTS, but for Arduino Mega, we will only use RXD0 to get code */
 /* BL0... means UART0, BL1... means UART1 */
-#if defined __AVR_ATmega128__ // || defined __AVR_AT90CAN128__
+#if defined __AVR_ATmega128__
 #define BL_DDR  DDRF
 #define BL_PORT PORTF
 #define BL_PIN  PINF
@@ -128,22 +126,12 @@
 #endif
 
 
-/* onboard LED is used to indicate, that the bootloader was entered (3x flashing) */
+/* onboard LED is used to indicate, that the bootloader was entered (3x flashing) for tchtechnology.com producer node */
 /* if monitor functions are included, LED goes on after monitor was entered */
-#if defined __AVR_ATmega128__ || defined __AVR_AT90CAN128__ || defined __AVR_ATmega1280__
-/* Onboard LED is connected to pin PB7 (e.g. Crumb128, PROBOmega128, Savvy128, Arduino Mega) */
-#define LED_DDR  DDRB
-#define LED_PORT PORTB
-#define LED_PIN  PINB
-#define LED      PINB7
-#else
-/* Onboard LED is connected to pin PB5 in Arduino NG, Diecimila, and Duomilanuove */ 
-/* other boards like e.g. Crumb8, Crumb168 are using PB2 */
-#define LED_DDR  DDRB
-#define LED_PORT PORTB
-#define LED_PIN  PINB
-#define LED      PINB5
-#endif
+#define LED_DDR  DDRG
+#define LED_PORT PORTG
+#define LED_PIN  PING
+#define LED      PING0
 
 
 /* monitor functions will only be compiled when using ATmega128, due to bootblock size constraints */
@@ -425,12 +413,7 @@ int main(void)
 
 
 	/* flash onboard LED to signal entering of bootloader */
-#if defined(__AVR_ATmega128__) || defined __AVR_AT90CAN128__ || defined(__AVR_ATmega1280__)
-	// 4x for UART0, 5x for UART1
-	flash_led(NUM_LED_FLASHES + bootuart);
-#else
 	flash_led(NUM_LED_FLASHES);
-#endif
 
 	/* 20050803: by DojoCorp, this is one of the parts provoking the
 		 system to stop listening, cancelled from the original */
@@ -780,7 +763,6 @@ int main(void)
 			uint16_t extaddr;
 #endif
 			uint8_t addrl, addrh;
-
 #ifdef CRUMB128
 			welcome = "ATmegaBOOT / Crumb128 - (C) J.P.Kyle, E.Lins - 050815\n\r";
 #elif defined PROBOMEGA128
@@ -789,6 +771,8 @@ int main(void)
 			welcome = "ATmegaBOOT / Savvy128 - (C) J.P.Kyle, E.Lins - 050815\n\r";
 #elif defined __AVR_ATmega1280__ 
 			welcome = "ATmegaBOOT / Arduino Mega - (C) Arduino LLC - 090930\n\r";
+#elif defined __AVR_AT90CAN128__
+			welcome = "OpenLCB_tch_tech / AT90CAN128 - (C) T.C. Hatch - 123007\n\r";
 #endif
 
 			/* turn on LED */

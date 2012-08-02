@@ -6,7 +6,7 @@
 /*                                                        */
 /* ATmegaBOOT.c                                           */
 /*                                                        */
-/*                                                        */
+/* 20120801: tchtechnology.com openlcb consumer node                                                       */
 /* 20090308: integrated Mega changes into main bootloader */
 /*           source by D. Mellis                          */
 /* 20080930: hacked for Arduino Mega (with the 1280       */
@@ -126,7 +126,7 @@
 #endif
 
 
-/* onboard LED is used to indicate, that the bootloader was entered (3x flashing) */
+/* onboard LED is used to indicate, that the bootloader was entered (2x flashing)for tchtechology.com openlcb consumer node */
 /* if monitor functions are included, LED goes on after monitor was entered */
 #define LED_DDR  DDRG
 #define LED_PORT PORTG
