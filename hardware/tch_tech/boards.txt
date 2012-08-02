@@ -69,7 +69,7 @@ ver_1.bootloader.low_fuses=0xFF
 ver_1.bootloader.high_fuses=0x58
 ver_1.bootloader.extended_fuses=0xF5
 ver_1.bootloader.path=ver_1
-ver_1.bootloader.file=AT90CAN_BOOT_producer.hex
+ver_1.bootloader.file=AT90CAN_BOOT_ver_1.hex
 ver_1.bootloader.unlock_bits=0x3F
 ver_1.bootloader.lock_bits=0xCF
 

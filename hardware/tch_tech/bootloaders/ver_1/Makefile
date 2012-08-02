@@ -199,22 +199,22 @@ mega_isp: LFUSE = FF
 mega_isp: EFUSE = F5
 mega_isp: isp
 
-producer: TARGET = at90can
-producer: MCU_TARGET = at90can128
-producer: CFLAGS += '-DMAX_TIME_COUNT=F_CPU>>4' '-DNUM_LED_FLASHES=3'
+ver_1: TARGET = at90can
+ver_1: MCU_TARGET = at90can128
+ver_1: CFLAGS += '-DMAX_TIME_COUNT=F_CPU>>4' '-DNUM_LED_FLASHES=3'
 #  -DBAUD_RATE=57600
-producer: AVR_FREQ = 16000000L
-producer: LDSECTION  = --section-start=.text=0xF000
-producer: LDSECTION  = --section-start=.text=0x1E000
-producer: $(PROGRAM)_ver_1.hex
+ver_1: AVR_FREQ = 16000000L
+ver_1: LDSECTION  = --section-start=.text=0xF000
+ver_1: LDSECTION  = --section-start=.text=0x1E000
+ver_1: $(PROGRAM)_ver_1.hex
 
-producer_isp: at90can
-producer_isp: TARGET = at90can
-producer_isp: MCU_TARGET = at90can128
-producer_isp: HFUSE = 18
-producer_isp: LFUSE = FF
-producer_isp: EFUSE = F5
-producer_isp: isp
+ver_1_isp: at90can
+ver_1_isp: TARGET = at90can
+ver_1_isp: MCU_TARGET = at90can128
+ver_1_isp: HFUSE = 18
+ver_1_isp: LFUSE = FF
+ver_1_isp: EFUSE = F5
+ver_1_isp: isp
 
 isp: $(TARGET)
 isp: $(TARGET)
