@@ -34,7 +34,7 @@
 
 
 
-NodeID nodeid(2,2,54,2,18,4);    // This node's default ID
+NodeID nodeid(2,3,54,2,18,4);    // This node's default ID
 
 
 /**
