@@ -1,9 +1,6 @@
 //==============================================================
-// OlcbBasicNode23P_at90can
-//   A prototype of a basic 32-channel OpenLCB board
-//   
-//   setup() at line 189 determines which are consumers and
-//   which are producers
+// tch_tech_16P_24C
+//   A 16 input, 24 output OpenLCB node
 //
 //   Bob Jacobsen 2010
 //      based on examples by Alex Shepherd, David Harris and Tim Hatch
@@ -28,23 +25,20 @@
 //factory default reset pin
 #define FACTORY_DEFAULT_PIN 20
 // init for serial communications
-#define         BAUD_RATE       115200
+//#define         BAUD_RATE       115200
 //#define         BAUD_RATE       57600
 //#define         BAUD_RATE       19200
 
 
 NodeID nodeid(2,1,54,4,18,3);    // This node's default ID
 
-
 unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from);
 unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length);
-
 
 /**
  * Get and put routines that 
  * use a test memory space.
  */
-
 
 extern "C" {
 const prog_char configDefInfo[] PROGMEM = {
@@ -126,30 +120,8 @@ void getWrite(uint32_t address, int space, uint8_t val) {
 }
 
 extern "C" {
-uint8_t protocolIdentValue[6] = {0xD5,0x40,0,0,0,0};
-//uint8_t protocolIdent[6] = {0xD5,0x40,0,0,0,0};
-//uint8_t protocolIdentValue[6] = {0,0,0,0,0,0};
+uint8_t protocolIdentValue[6] = {0xD5,0x48,0,0,0,0};
 }
-
-//Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);
-
-//unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from){
-  // invoked when a datagram arrives
- // logstr("consume datagram of length ");loghex(length); lognl();
- // for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
- // printf("\n");
-  // pass to consumers
- //return cfg.receivedDatagram(rbuf, length, from);  
-//}
-
-//unsigned int resultcode;
-//unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
-  // invoked when a stream frame arrives
- // printf("consume frame of length %d: ",length);
- // for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
- // printf("\n");
- // return resultcode;  // return pre-ordained result
-//}
 
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
     Event events[] = {
@@ -186,7 +158,7 @@ ButtonLed p26(26, HIGH);
 ButtonLed p27(27, HIGH);
 ButtonLed p28(28, HIGH);
 ButtonLed p29(29, HIGH);//24
-ButtonLed p30(30, LOW);//25
+ButtonLed p30(30, LOW);
 ButtonLed p31(31, LOW);
 ButtonLed p32(32, LOW);
 ButtonLed p33(33, LOW);
@@ -210,7 +182,7 @@ ButtonLed p6(6, HIGH);
 ButtonLed p7(7, HIGH);
 ButtonLed p8(8, HIGH);
 ButtonLed p9(9, HIGH);//8
-ButtonLed p10(10, HIGH);//9
+ButtonLed p10(10, HIGH);
 ButtonLed p11(11, HIGH);
 ButtonLed p12(12, HIGH);
 ButtonLed p13(13, HIGH);
@@ -269,7 +241,6 @@ long patterns[] = {
 
 ButtonLed* buttons[] = {&p2,&p2,&p3,&p3,&p4,&p4,&p5,&p5,&p6,&p6,&p7,&p7,&p8,&p8,&p9,&p9,&p10,&p10,&p11,&p11,&p12,&p12,&p13,&p13,&p14,&p14,&p17,&p17,&p18,&p18,&p19,&p19,&p22,&p22,&p23,&p23,&p24,&p24,&p25,&p25,&p26,&p26,&p27,&p27,&p28,&p28,&p29,&p29,&p30,&p30,&p31,&p31,&p32,&p32,&p33,&p33,&p34,&p34,&p35,&p35,&p36,&p36,&p37,&p37,&p38,&p38,&p39,&p39,&p40,&p40,&p41,&p41,&p44,&p44,&p45,&p45,&p46,&p46,&p47,&p47};
 
-
 ButtonLed blue(42, LOW);
 ButtonLed gold(43, LOW);
 
@@ -302,8 +273,7 @@ void produceFromInputs() {
   // with pce.produce(i);
   // The first event of each pair is sent on button down,
   // and second on button up.
-  //for (int i = 0; i<eventNum/2; i++) {
-    for (int i = 0; i<eventNum/2; i++) {
+  for (int i = 0; i<eventNum/2; i++) {
     if (states[i] != buttons[i*2]->state) {
       states[i] = buttons[i*2]->state;
       if (states[i]) {
@@ -321,7 +291,7 @@ void produceFromInputs() {
 void setup()
 {
   // set up serial comm; may not be space for this!
-  delay(250);Serial.begin(BAUD_RATE);logstr("\nTCH Technology \n");
+  //delay(250);Serial.begin(BAUD_RATE);logstr("\nTCH Technology \n");
   //Serial.print("free memory in bytes ");
   Serial.println();
   // read OpenLCB from EEPROM
@@ -343,8 +313,6 @@ void setup()
   for (int i=eventNum/1.6666; i<eventNum; i++) {
       pce.newEvent(i,true,false); // produce, consume
   }
- 
- 
    Olcb_setup();
 }
 
@@ -356,6 +324,10 @@ void loop() {
     blue.blink(0x1);
   }
   if (OpenLcb_can_active) {
+        gold.blink(0x1);
+        OpenLcb_can_active = false;
+    }
+    if (OpenLcb_can_active) {
         gold.blink(0x1);
         OpenLcb_can_active = false;
     }

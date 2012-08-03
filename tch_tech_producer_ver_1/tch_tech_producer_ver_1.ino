@@ -1,9 +1,6 @@
 //==============================================================
 // tch_tech_producer_ver_1
-//   A prototype of a basic 32-channel OpenLCB board
-//   
-//   setup() at line 189 determines which are consumers and
-//   which are producers
+//   A 32-channel OpenLCB board
 //
 //   Bob Jacobsen 2010
 //      based on examples by Alex Shepherd, David Harris and Tim Hatch
@@ -32,16 +29,12 @@
 #define         BAUD_RATE       57600
 //#define         BAUD_RATE       19200
 
-
-
 NodeID nodeid(2,3,54,2,18,4);    // This node's default ID
-
 
 /**
  * Get and put routines that 
  * use a test memory space.
  */
-//prog_char configDefInfo[] PROGMEM = //"OlcbBasicNode"; // null terminated string
 static PROGMEM prog_uchar configDefInfo[] = {
    60, 63, 120, 109, 108, 32, 118, 101, 114, 115, 105, 111, 110, 61, 39, 49, 46, 48, 39, 63, 62, 10, 60, 63, 120, 109, 108, 45, 115, 116, 121, 108, 101, 115, 104, 101, 101, 116, 32, 116, 121, 112, 101, 61, 39, 116, 101, 120, 116, 47, 120, 115, 108, 39, 32, 104, 114, 101, 102, 61, 39, 104, 116, 116, 112, 58, 47, 47, 111, 112, 101, 110, 108, 99, 98, 46, 111, 114, 103, 47, 116, 114, 117, 110, 107, 47, 112, 114, 111, 116, 111, 116, 121, 112, 101, 115, 47, 120, 109, 108, 47, 120, 115, 108, 116, 47, 99, 100, 105, 46, 120, 115, 108, 39, 63, 62, 10, 60, 99, 100, 105, 32, 120, 109, 108, 110, 115, 58,    // | <?xml version='1.0'?><?xml-stylesheet type='text/xsl' href='http://openlcb.org/trunk/prototypes/xml/xslt/cdi.xsl'?><cdi xmlns:|
    120, 115, 105, 61, 39, 104, 116, 116, 112, 58, 47, 47, 119, 119, 119, 46, 119, 51, 46, 111, 114, 103, 47, 50, 48, 48, 49, 47, 88, 77, 76, 83, 99, 104, 101, 109, 97, 45, 105, 110, 115, 116, 97, 110, 99, 101, 39, 32, 120, 115, 105, 58, 110, 111, 78, 97, 109, 101, 115, 112, 97, 99, 101, 83, 99, 104, 101, 109, 97, 76, 111, 99, 97, 116, 105, 111, 110, 61, 39, 104, 116, 116, 112, 58, 47, 47, 111, 112, 101, 110, 108, 99, 98, 46, 111, 114, 103, 47, 116, 114, 117, 110, 107, 47, 112, 114, 111, 116, 111, 116, 121, 112, 101, 115, 47, 120, 109, 108, 47, 115, 99, 104, 101, 109, 97, 47, 99, 100,    // | xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cd|
@@ -117,7 +110,7 @@ void getWrite(uint32_t address, int space, uint8_t val) {
   // all other spaces not written
 }
 extern "C" {
-uint8_t protocolIdentValue[6] = {0xD5,0x40,0,0,0,0};
+uint8_t protocolIdentValue[6] = {0xD5,0x48,0,0,0,0};
 }
 
 
@@ -152,7 +145,7 @@ ButtonLed p6(6, LOW);
 ButtonLed p7(7, LOW);
 ButtonLed p8(8, LOW);
 ButtonLed p9(9, LOW);//8
-ButtonLed p10(10, LOW);//9
+ButtonLed p10(10, LOW);
 ButtonLed p11(11, LOW);
 ButtonLed p12(12, LOW);
 ButtonLed p13(13, LOW);
@@ -168,7 +161,7 @@ ButtonLed p26(26, LOW);
 ButtonLed p27(27, LOW);
 ButtonLed p28(28, LOW);
 ButtonLed p29(29, LOW);//24
-ButtonLed p30(30, LOW);//25
+ButtonLed p30(30, LOW);
 ButtonLed p31(31, LOW);
 ButtonLed p32(32, LOW);
 ButtonLed p33(33, LOW);
@@ -176,9 +169,6 @@ ButtonLed p34(34, LOW);
 ButtonLed p35(35, LOW);
 ButtonLed p36(36, LOW);
 ButtonLed p37(37, LOW);//32
-//ButtonLed p38(38, LOW);
-//ButtonLed p39(39, LOW);
-//ButtonLed p40(40, LOW);
 
 #define ShortBlinkOn   0x00010001L
 #define ShortBlinkOff  0xFFFEFFFEL
@@ -216,12 +206,9 @@ long patterns[] = {
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn//32
-  
-  
 };
-//ButtonLed* buttons[] = {&p14,&p14,&p15,&p15,&p16,&p16,&p17,&p17,&p9,&p9,&p8,&p8,&p7,&p7,&p6,&p6};
-ButtonLed* buttons[] = {&p2,&p2,&p3,&p3,&p4,&p4,&p5,&p5,&p6,&p6,&p7,&p7,&p8,&p8,&p9,&p9,&p10,&p10,&p11,&p11,&p12,&p12,&p13,&p13,&p14,&p14,&p17,&p17,&p18,&p18,&p19,&p19,&p22,&p22,&p23,&p23,&p24,&p24,&p25,&p25,&p26,&p26,&p27,&p27,&p28,&p28,&p29,&p29,&p30,&p30,&p31,&p31,&p32,&p32,&p33,&p33,&p34,&p34,&p35,&p35,&p36,&p36,&p37,&p37,};
 
+ButtonLed* buttons[] = {&p2,&p2,&p3,&p3,&p4,&p4,&p5,&p5,&p6,&p6,&p7,&p7,&p8,&p8,&p9,&p9,&p10,&p10,&p11,&p11,&p12,&p12,&p13,&p13,&p14,&p14,&p17,&p17,&p18,&p18,&p19,&p19,&p22,&p22,&p23,&p23,&p24,&p24,&p25,&p25,&p26,&p26,&p27,&p27,&p28,&p28,&p29,&p29,&p30,&p30,&p31,&p31,&p32,&p32,&p33,&p33,&p34,&p34,&p35,&p35,&p36,&p36,&p37,&p37,};
 
 ButtonLed blue(42, LOW);
 ButtonLed gold(43, LOW);
@@ -288,9 +275,6 @@ void setup()
   // set event types, now that IDs have been loaded from configuration
   for (int i=0; i<eventNum; i++) {
       pce.newEvent(i,true,false); // produce, consume
-  //}
-  //for (int i=eventNum/2; i<eventNum; i++) {
-      //pce.newEvent(i,false,true); // produce, consume
   }
  
  

@@ -1,6 +1,6 @@
 //==============================================================
 // tch_tech_consumer Node Rev B
-//   A prototype of a basic 8-channel OpenLCB board
+//   A 32-channel OpenLCB board
 //   
 //   setup() at line 189 determines which are consumers and
 //   which are producers
@@ -120,25 +120,6 @@ extern "C" {
 uint8_t protocolIdentValue[6] = {0xD5,0x40,0x80,0,0,0};
 }
 
-//Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);
-
-//unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from){
-  // invoked when a datagram arrives
-  //logstr("consume datagram of length ");loghex(length); lognl();
-  //for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
-  //printf("\n");
-  // pass to consumers
- //return cfg.receivedDatagram(rbuf, length, from);
- //}
-
-//unsigned int resultcode;
-//unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
-  // invoked when a stream frame arrives
-  //printf("consume frame of length %d: ",length);
-  //printf("\n");
-  //return resultcode;  // return pre-ordained result
-//}
-
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
     Event events[] = {
     Event(), Event(), Event(), Event(), 
@@ -193,9 +174,6 @@ ButtonLed p34(34, HIGH);
 ButtonLed p35(35, HIGH);
 ButtonLed p36(36, HIGH);
 ButtonLed p37(37, HIGH);//32
-//ButtonLed p38(38, LOW);
-//ButtonLed p39(39, LOW);
-//ButtonLed p40(40, LOW);
 
 #define ShortBlinkOn   0x00010001L
 #define ShortBlinkOff  0xFFFEFFFEL
@@ -233,10 +211,8 @@ long patterns[] = {
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn//32
-  
-  
 };
-//ButtonLed* buttons[] = {&p14,&p14,&p15,&p15,&p16,&p16,&p17,&p17,&p9,&p9,&p8,&p8,&p7,&p7,&p6,&p6};
+
 ButtonLed* buttons[] = {&p2,&p2,&p3,&p3,&p4,&p4,&p5,&p5,&p6,&p6,&p7,&p7,&p8,&p8,&p9,&p9,&p10,&p10,&p11,&p11,&p12,&p12,&p13,&p13,&p14,&p14,&p17,&p17,&p18,&p18,&p19,&p19,&p22,&p22,&p23,&p23,&p24,&p24,&p25,&p25,&p26,&p26,&p27,&p27,&p28,&p28,&p29,&p29,&p30,&p30,&p31,&p31,&p32,&p32,&p33,&p33,&p34,&p34,&p35,&p35,&p36,&p36,&p37,&p37,};
 
 
@@ -264,21 +240,6 @@ BG bg(&pce, buttons, patterns, eventNum, &blue, &gold);
 
 //bool states[] = {false, false, false, false};
 void produceFromInputs() {
-  // called from loop(), this looks at changes in input pins and 
-  // and decides which events to fire
-  // with pce.produce(i);
-  // The first event of each pair is sent on button down,
-  // and second on button up.
-  //for (int i = 0; i<eventNum/2; i++) {
-    //if (states[i] != buttons[i*2]->state) {
-      //states[i] = buttons[i*2]->state;
-      //if (states[i]) {
-        //pce.produce(i*2);
-      //} else {
-       // pce.produce(i*2+1);
-      //}
-    //}
-  //}
 }
 
 /**

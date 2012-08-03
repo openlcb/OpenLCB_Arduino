@@ -1,6 +1,6 @@
 //==============================================================
-// tch_tech_consumer Node Rev B
-//   A prototype of a basic 8-channel OpenLCB board
+// tch_tech_consumer Node ver .1 Rev A
+//   A 32-channel OpenLCB consumer board
 //   
 //   setup() at line 189 determines which are consumers and
 //   which are producers
@@ -35,7 +35,7 @@
 
 
 
-NodeID nodeid(2,0,54,7,18,4);    // This node's default ID
+NodeID nodeid(2,1,54,8,18,4);    // This node's default ID
 
 
 /**
@@ -117,27 +117,8 @@ void getWrite(uint32_t address, int space, uint8_t val) {
   // all other spaces not written
 }
 extern "C" {
-uint8_t protocolIdentValue[6] = {0xD5,0x40,0x80,0,0,0};
+uint8_t protocolIdentValue[6] = {0xD5,0x48,0x00,0,0,0};
 }
-
-//Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);
-
-//unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from){
-  // invoked when a datagram arrives
-  //logstr("consume datagram of length ");loghex(length); lognl();
-  //for (int i = 0; i<length; i++) printf("%x ", rbuf[i]);
-  //printf("\n");
-  // pass to consumers
- //return cfg.receivedDatagram(rbuf, length, from);
- //}
-
-//unsigned int resultcode;
-//unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
-  // invoked when a stream frame arrives
-  //printf("consume frame of length %d: ",length);
-  //printf("\n");
-  //return resultcode;  // return pre-ordained result
-//}
 
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
     Event events[] = {
@@ -193,9 +174,6 @@ ButtonLed p34(34, HIGH);
 ButtonLed p35(35, HIGH);
 ButtonLed p36(36, HIGH);
 ButtonLed p37(37, HIGH);//32
-//ButtonLed p38(38, LOW);
-//ButtonLed p39(39, LOW);
-//ButtonLed p40(40, LOW);
 
 #define ShortBlinkOn   0x00010001L
 #define ShortBlinkOff  0xFFFEFFFEL
@@ -236,9 +214,8 @@ long patterns[] = {
   
   
 };
-//ButtonLed* buttons[] = {&p14,&p14,&p15,&p15,&p16,&p16,&p17,&p17,&p9,&p9,&p8,&p8,&p7,&p7,&p6,&p6};
-ButtonLed* buttons[] = {&p2,&p2,&p3,&p3,&p4,&p4,&p5,&p5,&p6,&p6,&p7,&p7,&p8,&p8,&p9,&p9,&p10,&p10,&p11,&p11,&p12,&p12,&p13,&p13,&p14,&p14,&p17,&p17,&p18,&p18,&p19,&p19,&p22,&p22,&p23,&p23,&p24,&p24,&p25,&p25,&p26,&p26,&p27,&p27,&p28,&p28,&p29,&p29,&p30,&p30,&p31,&p31,&p32,&p32,&p33,&p33,&p34,&p34,&p35,&p35,&p36,&p36,&p37,&p37,};
 
+ButtonLed* buttons[] = {&p2,&p2,&p3,&p3,&p4,&p4,&p5,&p5,&p6,&p6,&p7,&p7,&p8,&p8,&p9,&p9,&p10,&p10,&p11,&p11,&p12,&p12,&p13,&p13,&p14,&p14,&p17,&p17,&p18,&p18,&p19,&p19,&p22,&p22,&p23,&p23,&p24,&p24,&p25,&p25,&p26,&p26,&p27,&p27,&p28,&p28,&p29,&p29,&p30,&p30,&p31,&p31,&p32,&p32,&p33,&p33,&p34,&p34,&p35,&p35,&p36,&p36,&p37,&p37,};
 
 ButtonLed blue(42, LOW);
 ButtonLed gold(43, LOW);
@@ -262,23 +239,7 @@ PCE pce(events, eventNum, &txBuffer, &nodeid, pceCallback, store, &link);
 
 BG bg(&pce, buttons, patterns, eventNum, &blue, &gold);
 
-//bool states[] = {false, false, false, false};
 void produceFromInputs() {
-  // called from loop(), this looks at changes in input pins and 
-  // and decides which events to fire
-  // with pce.produce(i);
-  // The first event of each pair is sent on button down,
-  // and second on button up.
-  //for (int i = 0; i<eventNum/2; i++) {
-    //if (states[i] != buttons[i*2]->state) {
-      //states[i] = buttons[i*2]->state;
-      //if (states[i]) {
-        //pce.produce(i*2);
-      //} else {
-       // pce.produce(i*2+1);
-      //}
-    //}
-  //}
 }
 
 /**
@@ -296,21 +257,14 @@ void setup()
    if (digitalRead(FACTORY_DEFAULT_PIN) != 1) 
 	nm.forceInitAll(); 
 #endif
-  //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
+  nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
   nm.setup(&nodeid, events, eventNum);  
   
   // set event types, now that IDs have been loaded from configuration
   for (int i=0; i<eventNum; i++) {
       pce.newEvent(i,false,true); // produce, consume
-  //}
-  //for (int i=eventNum/2; i<eventNum; i++) {
-      //pce.newEvent(i,false,true); // produce, consume
-  }
- 
- // Init protocol blocks
-  //PIP_setup(protocolIdent, &txBuffer, &link);
-   //PIP_setup(&txBuffer, &link);
-  //SNII_setup((uint8_t)sizeof(SNII_const_data), &txBuffer, &link);  
+ }
+  
   // Initialize OpenLCB CAN connection
   Olcb_setup();
    // Initialize OpenLCB CAN link controller
@@ -322,6 +276,10 @@ void loop() {
     if (activity) {
         // blink blue to show that the frame was received
         blue.blink(0x1);
+    }
+    if (OpenLcb_can_active) {
+        gold.blink(0x1);
+        OpenLcb_can_active = false;
     }
     if (OpenLcb_can_active) {
         gold.blink(0x1);
