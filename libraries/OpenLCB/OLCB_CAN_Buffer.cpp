@@ -273,14 +273,16 @@ bool OLCB_CAN_Buffer::isAddressed()
 // start of OpenLCB messages
 
 
-void OLCB_CAN_Buffer::setRejectOptionalInteraction(OLCB_NodeID* source, OLCB_NodeID* dest, uint16_t code)
+void OLCB_CAN_Buffer::setRejectOptionalInteraction(OLCB_NodeID* source, OLCB_NodeID* dest, uint16_t MTI, uint16_t code)
 {
 	init(source->alias);
 	setMTI(MTI_OPT_INTERACTION_REJECTED);
 	setDestAlias(dest->alias);
-	length = 4; //first two byte is dest
-	data[2] = (code>>8)&0xFF;//TODO!!
-	data[3] = code & 0xFF;
+	length = 6; //first two byte is dest
+	data[2] = (MTI>>8)&0x0F;
+	data[3] = MTI & 0xFF;
+	data[4] = (code>>8)&0xFF;
+	data[5] = code & 0xFF;
 }
 
 bool OLCB_CAN_Buffer::isRejectOptionalInteraction(void)
