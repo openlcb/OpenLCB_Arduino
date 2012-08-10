@@ -185,21 +185,29 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
     //Serial.println(NID->alias, DEC);
     if(dest == *NID)
     {
-      //Serial.println("Got PIP request");
-      OLCB_NodeID source_address;
-      buffer->getSourceNID(&source_address);
-      _reply.setProtocolSupportReply(NID, &source_address);
-      _reply.length = 8; //first two bytes are destination alias
-      _reply.data[2] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;
-      _reply.data[3] = 0x10 | 0x08;
-      _reply.data[4] = 0x00;
-      _reply.data[5] = 0x00;
-      _reply.data[6] = 0x00;
-      _reply.data[7] = 0x00;
-      //for(uint8_t i = 0; i < _reply.length; ++i)
-        //Serial.println(_reply.data[i], HEX);
-      _messageReady = true;
-      retval = true;
+      if( (_string_index > -1) || (_eeprom_index > -1) ) //we're busy!
+      {
+        //Serial.println("cant handle SNIP/PIP request, returning false");
+        retval = false;
+      }
+      else
+      {
+        //Serial.println("Got PIP request");
+        OLCB_NodeID source_address;
+        buffer->getSourceNID(&source_address);
+        _reply.setProtocolSupportReply(NID, &source_address);
+        _reply.length = 8; //first two bytes are destination alias
+        _reply.data[2] = 0x80 | 0x40 | 0x10 | 0x04 | 0x01;
+        _reply.data[3] = 0x10 | 0x08;
+        _reply.data[4] = 0x00;
+        _reply.data[5] = 0x00;
+        _reply.data[6] = 0x00;
+        _reply.data[7] = 0x00;
+        //for(uint8_t i = 0; i < _reply.length; ++i)
+          //Serial.println(_reply.data[i], HEX);
+        _messageReady = true;
+        retval = true;
+      }
     }
   }
   return retval;
