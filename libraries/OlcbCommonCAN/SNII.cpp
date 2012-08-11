@@ -25,6 +25,14 @@ static uint8_t state;
 #define MTI_SNII_REQUEST 0xDE8
 #define MTI_SNII_REPLY   0xA08
 
+/**
+ * Handle Simple Node Identification Information protocol
+ *
+ * This implementation relies on the getRead(address, space) call
+ * to find the specific value, including any special handling of
+ * program space, EEPROM, etc as needed inside the target node.
+ */
+
 const uint8_t getRead(uint32_t address, int space);
 
 void SNII_setup(uint8_t count, uint8_t offset, OpenLcbCanBuffer* b, LinkControl* li) {

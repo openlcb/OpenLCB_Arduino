@@ -13,6 +13,10 @@ class LinkControl;
 
 /**
 * Call once to record constants and do needed setup
+*
+*   count:              Length of constant section in 0xFC memory space
+*   var_comment_offset: Starting address of "comment" user-defined value in 0xFB memory space
+*
 */
 void SNII_setup(uint8_t count, uint8_t var_comment_offset, OpenLcbCanBuffer* b, LinkControl* link);
   
@@ -23,9 +27,13 @@ void SNII_setup(uint8_t count, uint8_t var_comment_offset, OpenLcbCanBuffer* b, 
 void SNII_check();
   
 /**
-* When a CAN frame is received, it should
-* be transferred to the PIP object via this method
+* When a CAN frame for this node is received, it should
+* be transferred to the SNII object via this method
 * so that it can handle the output protocol
+*
+* Returns true if frame was SNII and processed.
+* 
+* Assumes destination address check has already passed previously
 */
 bool SNII_receivedFrame(OpenLcbCanBuffer* rcv);
       
