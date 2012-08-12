@@ -27,8 +27,10 @@ void NodeMemory::forceInitEvents() {
     EEPROM.write(3,0xCC);
 }
 
-void NodeMemory::setup(NodeID* nid, Event* cE, uint8_t nC) {
+void NodeMemory::setup(NodeID* nid, Event* cE, uint8_t nC, uint8_t* data, uint16_t extraBytes, uint16_t clearBytes) {
     if (checkNidOK()) {
+        // leave NodeID and count, reset rest
+        
         // read NodeID from non-volative memory
         uint8_t* p;
         int addr = startAddress+KEYSIZE+COUNTSIZE; // skip check word and count
@@ -42,13 +44,14 @@ void NodeMemory::setup(NodeID* nid, Event* cE, uint8_t nC) {
         count = (part1<<8)+part2;
 
         // handle the rest
-        reset(nid, cE, nC);
+        reset(nid, cE, nC, clearBytes);
 
     } else if (!checkAllOK()) {
+        // fires a factory reset
         count = 0;
 
         // handle the rest
-        reset(nid, cE, nC);
+        reset(nid, cE, nC, clearBytes);
     }
     
     // read NodeID from non-volative memory
@@ -64,29 +67,29 @@ void NodeMemory::setup(NodeID* nid, Event* cE, uint8_t nC) {
     for (uint8_t k=0; k<nC; k++)
         for (unsigned int i=0; i<sizeof(Event); i++) 
             *p++ = EEPROM.read(addr++);
-    
-}
-
-void NodeMemory::setup(NodeID* nid, Event* cE, uint8_t nC, uint8_t* data, int extraBytes) {
-    setup(nid, cE, nC);
-    // read extra data
-    uint8_t* p = data;
-    int addr = KEYSIZE+COUNTSIZE+sizeof(NodeID)+nC*(sizeof(Event));
+        
+    // read extra data & load into RAM
+    p = data;
+    addr = KEYSIZE+COUNTSIZE+sizeof(NodeID)+nC*(sizeof(Event));
     for (uint8_t k=0; k<extraBytes; k++)
         *p++ = EEPROM.read(addr++);
 }
 
-void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC) {
-    // Do the in-memory update. Does not change
-    // the total count, this is not an "initial config" for factory use.
+void NodeMemory::reset(NodeID* nid, Event* cE, uint8_t nC, uint16_t clearBytes) {
+    // Do the in-memory update. Does not reset
+    // the total count to zero, this is not an "initial config" for factory use.
 
+    // clear EEPROM
+    for (uint16_t i = 4; i<clearBytes; i++) writeByte(i, 0);
+    
+    // reload the events in RAM
     Event* c;
     c = cE;
     for (uint8_t i = 0; i<nC; i++) {
         setToNewEventID(nid, c++);
     }
     
-    // and store
+    // and store those events along with everything else
     store(nid, cE, nC);
 }
 

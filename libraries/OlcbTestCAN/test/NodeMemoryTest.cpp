@@ -30,23 +30,23 @@ NodeMemory m(0);
 int main( int argc, const char* argv[] )
 {
     printf("do setup\n");
-    m.setup(&node, cEvents, cEventNum);
+    m.setup(&node, cEvents, cEventNum,0,0,0);
     EEPROM.dump();
 
     printf("do setup\n");
-    m.setup(&node, cEvents, cEventNum);
+    m.setup(&node, cEvents, cEventNum,0,0,0);
     EEPROM.dump();
 
     printf("do reset\n");
-    m.reset(&node, cEvents, cEventNum);
+    m.reset(&node, cEvents, cEventNum, 0);
     EEPROM.dump();
 
     printf("do reset\n");
-    m.reset(&node, cEvents, cEventNum);
+    m.reset(&node, cEvents, cEventNum, 0);
     EEPROM.dump();
 
     printf("do setup\n");
-    m.setup(&node, cEvents, cEventNum);
+    m.setup(&node, cEvents, cEventNum,0,0,0);
     EEPROM.dump();
 
     printf("change values\n");

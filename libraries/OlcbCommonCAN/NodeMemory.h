@@ -40,25 +40,30 @@ class NodeMemory {
    * Define starting address in EEPROM
    */
   NodeMemory(int startAddress);  // doesn't do anything
-  
+    
   /**
    * Make sure ready to go.  NodeID should have a default
    * value already in case this is the first time.
+   *
+   * events is address in RAM to load from EEPROM
+   * copy N=extraBytes of memory from end of EEPROM to RAM.
+   *
+   * If the EEPROM is corrupt, all that is reloaded after  
+   * N=clearBytes of memory is cleared to e.g. 
+   * clear name strings. This count EEPROM address 0 (e.g. _not_ starting
+   * at end of event strings; this is the full memory clear)   
    */
-  void setup(NodeID* nid, Event* events, uint8_t nunEvents);
-  
-  /**
-   * Make sure ready to go.  NodeID should have a default
-   * value already in case this is the first time.
-   * Add extra bytes of memory at end.
-   */
-  void setup(NodeID* nid, Event* events, uint8_t nunEvents, uint8_t* data, int extraBytes);
+  void setup(NodeID* nid, Event* events, uint8_t numEvents, uint8_t* data, 
+            uint16_t extraBytes, uint16_t clearBytes);
   
   /*
    * Move to a completely new set of values, e.g. a "default" reset
-   * for OpenLCB. NodeID is not changed.
+   * for OpenLCB. NodeID is not changed. EventIDs are loaded from
+   * a new range.  N=clearBytes of memory is cleared to e.g. 
+   * clear name strings counting from zero (e.g. _not_ starting
+   * at end of event strings; this is the full memory clear)
    */
-  void reset(NodeID* nid, Event* events, uint8_t nunEvents); 
+  void reset(NodeID* nid, Event* events, uint8_t numEvents, uint16_t clearBytes); 
 
   /** 
    * For debug and test, this forces the next
@@ -68,7 +73,7 @@ class NodeMemory {
   static void forceInitAll();
     
   /** 
-   * Reload a complete set of events on next restart.
+   * Reload a complete set of events via call to reset on next restart.
    */
   static void forceInitEvents();
     
