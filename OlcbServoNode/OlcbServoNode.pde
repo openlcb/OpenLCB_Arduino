@@ -156,7 +156,7 @@ void setup()
   
   // read OpenLCB from EEPROM
   //nm.forceInit(); // if need to go back to start
-  nm.setup(&nodeid, cEvents, cEventNum);  
+  nm.setup(&nodeid, cEvents, cEventNum, (uint8_t*) 0, (uint16_t)0, (uint16_t)0);  // only using event storage
  
   // Initialize OpenLCB CAN connection
   OpenLcb_can_init();

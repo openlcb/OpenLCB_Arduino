@@ -91,7 +91,11 @@ const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0
  *     94 - 113     Node name (zero-term string, 20 bytes total)
  *     114 - 136     User comment (zero-term string, 24 bytes total)
  *
+ *     12+150 - 12+150+8*sizeof(Event)  Event description strings
+ *
  *************************************************** */
+
+#define LAST_EEPROM 12+150+8*sizeof(Event)
 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {
@@ -202,11 +206,11 @@ void produceFromInputs() {
 void setup()
 {
   // set up serial comm; may not be space for this!
-  //delay(250);Serial.begin(BAUD_RATE);logstr("\nOlcbBasicNode\n");Serial.print(BLUE);
+  //delay(250);Serial.begin(BAUD_RATE);logstr("\nOlcbBasicNode\n");
   
   // read OpenLCB from EEPROM
   //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
-  nm.setup(&nodeid, events, eventNum);  
+  nm.setup(&nodeid, events, eventNum, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM);  
   
   // set event types, now that IDs have been loaded from configuration
   for (int i=0; i<eventNum/2; i++) {

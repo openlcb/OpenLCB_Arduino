@@ -195,7 +195,7 @@ void setup()
   
   // read OpenLCB from EEPROM
   //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
-  nm.setup(&nodeid, events, eventNum);  
+  nm.setup(&nodeid, events, eventNum, (uint8_t*) 0, (uint16_t)0, (uint16_t)0);  // only using event storage
   
   // set event types, now that IDs have been loaded from configuration
   for (int i=0; i<eventNum/2; i++) {
