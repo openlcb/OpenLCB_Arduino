@@ -45,8 +45,8 @@ tCAN 		txCAN;	// CAN send buffer
 tCAN		* ptxCAN;
 
 
-#define         RX_WAIT_LOW            4 
-#define         RX_WAIT_HIGH     16
+#define         RX_WAIT_LOW       2 
+#define         RX_WAIT_HIGH      8
 
 #define 	RX_BUF_SIZE	64
 char    	rxBuff[RX_BUF_SIZE];    // :lddddddddldddddddddddddddd:0 times 2 for doubled protocol
