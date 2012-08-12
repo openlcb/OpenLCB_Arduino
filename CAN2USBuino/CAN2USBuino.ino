@@ -185,6 +185,11 @@ void loop()
         }
         rxIndex = 0;
         break;
+        
+        // Ignore any XON/XOFF Chars
+      case 0x11:
+      case 0x13:
+        break;
 
       case '\n':
       case '\r':

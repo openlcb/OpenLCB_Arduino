@@ -142,11 +142,6 @@ void loop()
         rxBuff[rxIndex++] = rxChar & 0x00FF;
         break;
 
-        // Ignore any XON/XOFF Chars
-      case 0x11:
-      case 0x13:
-        break;
-
       case ';':
         if( rxIndex < RX_BUF_SIZE )
         {
@@ -156,6 +151,11 @@ void loop()
           ptxCAN = parseCANStr(rxBuff, &txCAN, rxIndex);
         }
         rxIndex = 0;
+        break;
+
+        // Ignore any XON/XOFF Chars
+      case 0x11:
+      case 0x13:
         break;
 
       case '\n':
