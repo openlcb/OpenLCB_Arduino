@@ -30,7 +30,7 @@
 //#define         BAUD_RATE       19200
 
    
-NodeID nodeid(2,1,54,8,18,2);    // This node's default ID
+NodeID nodeid(2,1,54,8,18,1);    // This node's default ID
 
 /**
  * Get and put routines that 
@@ -81,7 +81,7 @@ const prog_char SNII_const_data[] PROGMEM = "\001TCH Technology\000OpenLCB 32-Ou
  *
  **************************************************** */
 
-#define LAST_EEPROM 12+1620+8*sizeof(Event)
+#define LAST_EEPROM 12+1316+8*sizeof(Event)
 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {
