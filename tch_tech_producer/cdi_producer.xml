@@ -4,13 +4,13 @@
 
 <identification>
     <manufacturer>TCH Technology</manufacturer>
-    <model>32 Input Producer Ver .1 Rev A</model>
-    <hardwareVersion>0.0.1</hardwareVersion>
+    <model>32 Input OpenLCB Producer Rev B</model>
+    <hardwareVersion>1.0.1</hardwareVersion>
     <softwareVersion>0.6.2</softwareVersion>
 </identification>
 
 <segment origin='0' space='253'>
-    <group offset='720'>
+    <group offset='654'>
         <name>User Identification</name>
         <description>Lets the user add his own description</description>
         <string size='20'>
@@ -26,10 +26,10 @@
     <group replication='32'>
         <name>Inputs</name>
         <repname>Input</repname>
-        <string size='16' offset='760'><!--94 "offset for User ID" + 20 "Node Name" + 640 "Event ID's" = 754-->
+        <string size='16' offset='760'>
             <name>Description</name>
         </string>
-        <eventid offset='-774' ><!-- forward 754, add 16, back 754, then forward 2-->
+        <eventid offset='-774' ><!-- forward 760, add 16, back 760, then forward 2-->
             <name>Activation Event</name>
         </eventid>
         <eventid offset='2' >
