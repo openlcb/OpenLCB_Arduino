@@ -11,7 +11,10 @@ uint8_t EEPROMClass::read(int address)
 
 void EEPROMClass::write(int address, uint8_t value)
 {
-        array[address]=value;
+    if (address > sizeof(array))
+        fprintf(stderr,"access to EEPROM address %d is past end of implementing array in EEPROM.cpp\n", address);
+        
+    array[address]=value;
 }
 
 void EEPROMClass::dump() {

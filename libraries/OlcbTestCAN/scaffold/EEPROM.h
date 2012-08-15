@@ -15,7 +15,7 @@ class EEPROMClass
     void dump();
     
     private:
-    uint8_t array[200];
+    uint8_t array[30000];
 };
 
 extern EEPROMClass EEPROM;
