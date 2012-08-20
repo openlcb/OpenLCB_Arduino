@@ -41,6 +41,8 @@ void PIP_setup(OpenLcbCanBuffer* b, LinkControl* li) {
   bool PIP_receivedFrame(OpenLcbCanBuffer* rcv) {
     if ( rcv->isOpenLcbMTI(MTI_PIP_REQUEST) )  { 
         // previously checked for this node
+        // check to start bit set active, ignore if not
+        if ( ((rcv->data[0]) & 0x20) != 0) return true;
         queued = true;
         dest = rcv->getSourceAlias();
         return true;
