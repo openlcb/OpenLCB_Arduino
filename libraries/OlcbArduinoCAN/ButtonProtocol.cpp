@@ -3,8 +3,8 @@
 #include "OpenLcbCanBuffer.h"
 #include "ButtonProtocol.h"
 
-#define MTI_BP_REQUEST 0xFE8
-#define MTI_BP_REPLY   0xF08
+#define MTI_BP_REQUEST 0x948
+#define MTI_BP_REPLY   0x949
 
 ButtonProtocol::ButtonProtocol(ButtonLed** bC, uint8_t n, ButtonLed* bptr, ButtonLed* gptr) {
       buttons = bC;

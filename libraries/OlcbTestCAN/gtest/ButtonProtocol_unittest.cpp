@@ -91,10 +91,10 @@ TEST(ButtonProtocolTest, HandleOtherFrame) {
   EXPECT_FALSE(bp.receivedFrame(&b));
 }
 
-TEST(ButtonProtocolTest, HandleButtonProtocolFrame) {
+TEST(ButtonProtocolTest, HandleButtonProtocolRequestFrame) {
   
   OpenLcbCanBuffer b;
-  b.setOpenLcbMTI(0xFE8);
+  b.setOpenLcbMTI(0x948);
   
   ButtonLed blue(1,  LOW);
   ButtonLed gold(2,  LOW);
@@ -108,6 +108,26 @@ TEST(ButtonProtocolTest, HandleButtonProtocolFrame) {
   ButtonProtocol bp(buttons, (uint8_t)6, &blue, &gold);
   
   EXPECT_TRUE(bp.receivedFrame(&b));
+}
+
+
+TEST(ButtonProtocolTest, HandleButtonProtocolReplyFrame) {
+  
+  OpenLcbCanBuffer b;
+  b.setOpenLcbMTI(0x949);
+  
+  ButtonLed blue(1,  LOW);
+  ButtonLed gold(2,  LOW);
+  
+  ButtonLed pin1(10, LOW);
+  ButtonLed pin2(11, LOW);
+  ButtonLed pin3(12, LOW);
+  
+  ButtonLed* buttons[] = {&pin1,&pin1,&pin2,&pin2,&pin3,&pin3};
+  
+  ButtonProtocol bp(buttons, (uint8_t)6, &blue, &gold);
+  
+  EXPECT_FALSE(bp.receivedFrame(&b));
 }
 
 
