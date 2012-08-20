@@ -30,11 +30,12 @@
 
 class PCE;
 class ButtonLed;
+class OpenLcbCanBuffer;
 
 class BG {
   public:
 
-  BG(PCE* pce, ButtonLed** buttons, long* patterns, uint8_t nEvents, ButtonLed* blue, ButtonLed* gold);
+  BG(PCE* pce, ButtonLed** buttons, long* patterns, uint8_t nEvents, ButtonLed* blue, ButtonLed* gold, OpenLcbCanBuffer* buffer);
   
   void check();
   

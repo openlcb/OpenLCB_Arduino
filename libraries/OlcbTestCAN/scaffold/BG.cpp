@@ -5,10 +5,12 @@
 #include "PCE.h"
 #include "NodeMemory.h"
 
+class OpenLcbCanBuffer;
+
 #define UNREADY_BLINK 0xFF00FFL
 #define READY_BLINK   0x1L
 
-BG::BG(PCE* pc, ButtonLed** bC, long* pt, uint8_t n, ButtonLed* bptr, ButtonLed* gptr) {
+BG::BG(PCE* pc, ButtonLed** bC, long* pt, uint8_t n, ButtonLed* bptr, ButtonLed* gptr, OpenLcbCanBuffer* buffer) {
       pce = pc;
       buttons = bC;
       patterns = pt;

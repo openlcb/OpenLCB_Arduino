@@ -4,17 +4,19 @@
 
 #include "PCE.h"
 #include "NodeMemory.h"
+#include "OpenLcbCanBuffer.h"
 
 #define UNREADY_BLINK 0xFF00FFL
 #define READY_BLINK   0x1L
 
-BG::BG(PCE* pc, ButtonLed** bC, long* pt, uint8_t n, ButtonLed* bptr, ButtonLed* gptr) {
+BG::BG(PCE* pc, ButtonLed** bC, long* pt, uint8_t n, ButtonLed* bptr, ButtonLed* gptr, OpenLcbCanBuffer* b) {
       pce = pc;
       buttons = bC;
       patterns = pt;
       nEvents = n;
       blue = bptr;
       gold = gptr;
+      buffer = b;
 
       started = false;
       index = -1;
@@ -130,7 +132,11 @@ void BG::check() {
  * Send an event in response to the "ident" button pushes
  */
 // ToDo: make this smarter so don't have to do wait send
+Event ident(0x01, 0x01, 0x00, 0x00, 0x00, 0x00, 0xFE, 0x00);
+
 void BG::sendIdent() {
+    buffer->setProducerIdentified(&ident);
+    OpenLcb_can_queue_xmt_wait(buffer);  // wait until buffer queued, need to improve this 
 }
 
 /**

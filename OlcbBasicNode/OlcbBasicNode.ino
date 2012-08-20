@@ -130,7 +130,7 @@ void getWrite(uint32_t address, int space, uint8_t val) {
 }
 
 extern "C" {
-uint8_t protocolIdentValue[6] = {0xD5,0x58,0x00,0,0,0};
+uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
 }
 
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
@@ -179,7 +179,7 @@ PCE pce(events, eventNum, &txBuffer, &nodeid, pceCallback, store, &link);
 
 // Set up Blue/Gold configuration
 
-BG bg(&pce, buttons, patterns, eventNum, &blue, &gold);
+BG bg(&pce, buttons, patterns, eventNum, &blue, &gold, &txBuffer);
 
 bool states[] = {false, false, false, false};
 void produceFromInputs() {
