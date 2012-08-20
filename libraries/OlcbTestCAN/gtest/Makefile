@@ -17,17 +17,18 @@
 GTEST_DIR = ../../../gtest-1.6.0
 
 # Where to find user code.
-USER_DIR = ../../OlcbCommonCAN/
+COMMON_DIR = ../../OlcbCommonCAN/
+ARDUINO_DIR = ../../OlcbArduinoCAN/
 
 # Flags passed to the preprocessor.
-CPPFLAGS += -I$(GTEST_DIR)/include -I$(GTEST_DIR)/include -I$(USER_DIR) -I../../OlcbArduinoCAN/ -I../scaffold/
+CPPFLAGS += -I$(GTEST_DIR)/include -I$(GTEST_DIR)/include -I$(COMMON_DIR) -I$(ARDUINO_DIR) -I../scaffold/
 
 # Flags passed to the C++ compiler.
 CXXFLAGS += -g -Wall -Wextra
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = OpenLcbCanBuffer_unittest
+TESTS = OpenLcbCanBuffer_unittest ButtonProtocol_unittest
 
 # All Google Test headers.  Usually you shouldn't change this
 # definition.
@@ -65,26 +66,34 @@ gtest.a : gtest-all.o
 gtest_main.a : gtest-all.o gtest_main.o
 	$(AR) $(ARFLAGS) $@ $^
 
-# Builds a sample test.  A test should link with either gtest.a or
+# Builds a single test.  A test should link with either gtest.a or
 # gtest_main.a, depending on whether it defines its own main()
 # function.
 
-#sample1.o : $(USER_DIR)/sample1.cc $(USER_DIR)/sample1.h $(GTEST_HEADERS)
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/sample1.cc
+Arduino.o : ../scaffold/Arduino.cpp ../scaffold/Arduino.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ../scaffold/Arduino.cpp
 
-#sample1_unittest.o : $(USER_DIR)/sample1_unittest.cc \
-#                     $(USER_DIR)/sample1.h $(GTEST_HEADERS)
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/sample1_unittest.cc
+ButtonLed.o : ../scaffold/ButtonLed.cpp ../scaffold/ButtonLed.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ../scaffold/ButtonLed.cpp
 
-#sample1_unittest : sample1.o sample1_unittest.o gtest_main.a
-#	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
-
-OpenLcbCanBuffer.o : $(USER_DIR)/OpenLcbCanBuffer.cpp $(USER_DIR)/OpenLcbCanBuffer.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(USER_DIR)/OpenLcbCanBuffer.cpp
+OpenLcbCanBuffer.o : $(COMMON_DIR)/OpenLcbCanBuffer.cpp $(COMMON_DIR)/OpenLcbCanBuffer.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(COMMON_DIR)/OpenLcbCanBuffer.cpp
 
 OpenLcbCanBuffer_unittest.o : OpenLcbCanBuffer_unittest.cpp \
-                     $(USER_DIR)/OpenLcbCanBuffer.h $(GTEST_HEADERS)
+                     $(COMMON_DIR)/OpenLcbCanBuffer.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c OpenLcbCanBuffer_unittest.cpp
 
 OpenLcbCanBuffer_unittest : OpenLcbCanBuffer.o OpenLcbCanBuffer_unittest.o gtest_main.a
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
+
+ButtonProtocol.o : $(ARDUINO_DIR)/ButtonProtocol.cpp $(ARDUINO_DIR)/ButtonProtocol.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(ARDUINO_DIR)/ButtonProtocol.cpp
+
+ButtonProtocol_unittest.o : ButtonProtocol_unittest.cpp \
+                     $(ARDUINO_DIR)/ButtonProtocol.h $(GTEST_HEADERS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ButtonProtocol_unittest.cpp
+
+ButtonProtocol_unittest : ButtonProtocol.o OpenLcbCanBuffer.o  ButtonLed.o Arduino.o ButtonProtocol_unittest.o gtest_main.a
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
+
