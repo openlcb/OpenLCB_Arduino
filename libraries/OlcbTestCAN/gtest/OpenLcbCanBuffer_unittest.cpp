@@ -39,7 +39,7 @@
 
 
 TEST(OpenLcbCanBufferTest, SourceAlias) {
-  // This test is named "Constructor", and belongs to the "OpenLcbCanBufferTest"
+  // This test is named "SourceAlias", and belongs to the "OpenLcbCanBufferTest"
   // test case.
   
   OpenLcbCanBuffer b;
