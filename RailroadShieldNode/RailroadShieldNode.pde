@@ -164,7 +164,7 @@ PCE pce(events, eventNum, &txBuffer, &nodeid, pceCallback, store, &link);
 
 // Set up Blue/Gold configuration
 
-BG bg(&pce, buttons, patterns, eventNum, &blue, &gold);
+BG bg(&pce, buttons, patterns, eventNum, &blue, &gold, &txBuffer);
 
 bool states[] = {false, false};
 void produceFromPins() {
