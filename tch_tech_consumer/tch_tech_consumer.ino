@@ -23,7 +23,7 @@
 #include <can.h>
 #include "NodeID.h"
    
-//NodeID nodeid(2,1,54,0,0,0);    // This node's ID uncomment out and put your node ID in that is labled on the node
+NodeID nodeid(2,1,54,0,0,0);    // This node's ID uncomment out and put your last 3 digits that is label on the node
 
 /**
  * Get and put routines that 
@@ -235,7 +235,7 @@ void produceFromInputs() {
  */
 void setup()
 {
-     //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
+   
    nm.setup(&nodeid, events, eventNum, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM);   
   
   // set event types, now that IDs have been loaded from configuration
