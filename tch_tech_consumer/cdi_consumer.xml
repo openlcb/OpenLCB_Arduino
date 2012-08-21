@@ -6,7 +6,7 @@
     <manufacturer>TCH Technology</manufacturer>
     <model>32 Output OpenLCB Consumer Rev B</model>
     <hardwareVersion>1.0.1</hardwareVersion>
-    <softwareVersion>0.6.4</softwareVersion>
+    <softwareVersion>0.7.6</softwareVersion>
 </identification>
 
 <segment origin='0' space='253'>
