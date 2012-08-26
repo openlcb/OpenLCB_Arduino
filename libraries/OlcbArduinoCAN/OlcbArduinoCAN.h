@@ -23,9 +23,19 @@
 
 // specific OpenLCB implementations
 #include "LinkControl.h"
+
+#ifndef OLCB_NO_DATAGRAM
 #include "Datagram.h"
-#include "OlcbStream.h"  // suppress stream for space
+#endif
+
+#ifndef OLCB_NO_STREAM
+#include "OlcbStream.h"
+#endif
+
+#ifndef OLCB_NO_MEMCONFIG
 #include "Configuration.h"
+#endif
+
 #include "NodeMemory.h"
 #include "PCE.h"
 #include "PIP.h"
@@ -39,21 +49,26 @@ OpenLcbCanBuffer*    ptxCAN;
 
 LinkControl link(&txBuffer, &nodeid);
 
-unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from);
-unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length);  // suppress stream for space
-
-Datagram dg(&txBuffer, datagramCallback, &link);
-OlcbStream str(&txBuffer, streamRcvCallback, &link);   // suppress stream for space
-
 extern const uint8_t getRead(uint32_t address, int space);
 extern void getWrite(uint32_t address, int space, uint8_t val);
 extern void restart();
 
-//Configuration cfg(&dg, 0, &getRead, &getWrite, (void (*)())0);
-Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);   // suppress stream for space
+#ifndef OLCB_NO_STREAM
+unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length);
+OlcbStream str(&txBuffer, streamRcvCallback, &link);
+unsigned int resultcode = 1;  // dummy temp value
 
-extern PCE pce;
-extern BG bg;
+unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
+  return resultcode;  // return pre-ordained result
+}
+#else
+#define str 0
+#endif
+
+#ifndef OLCB_NO_DATAGRAM
+unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from);
+Datagram dg(&txBuffer, datagramCallback, &link);
+Configuration cfg(&dg, &str, &getRead, &getWrite, (void (*)())0);
 
 unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int from){
   // invoked when a datagram arrives
@@ -63,15 +78,10 @@ unsigned int datagramCallback(uint8_t *rbuf, unsigned int length, unsigned int f
   // pass to consumers
   return cfg.receivedDatagram(rbuf, length, from);
 }
+#endif
 
-// suppress stream for space
-unsigned int resultcode = 1;  // dummy temp value
-unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length){
-  return resultcode;  // return pre-ordained result
-}
-
-
-
+extern PCE pce;
+extern BG bg;
 
 // invoke from setup()
 void Olcb_setup() {
@@ -110,12 +120,16 @@ bool Olcb_loop() {
   if (link.linkInitialized()) {
      // if frame present, pass to handlers
      if (rcvFramePresent && rxBuffer.isForHere(link.getAlias()) ) {
+#ifndef OLCB_NO_DATAGRAM
         handled |= dg.receivedFrame(&rxBuffer);  // has to process frame level
+#endif
         if(rxBuffer.isFrameTypeOpenLcb()) {  // skip if not OpenLCB message (already for here)
             
             handled |= pce.receivedFrame(&rxBuffer);
         
+#ifndef OLCB_NO_STREAM
             handled |= str.receivedFrame(&rxBuffer); // suppress stream for space
+#endif
             handled |= PIP_receivedFrame(&rxBuffer);
             handled |= SNII_receivedFrame(&rxBuffer);
             
@@ -125,9 +139,16 @@ bool Olcb_loop() {
      }
      // periodic processing of any internal state change needs
      pce.check();
+     
+#ifndef OLCB_NO_DATAGRAM
      dg.check();
-     str.check();  // suppress stream for space
+#endif
+#ifndef OLCB_NO_STREAM
+     str.check();
+#endif
+#ifndef OLCB_NO_MEMCONFIG
      cfg.check();
+#endif
      bg.check();
      PIP_check();
      SNII_check();
