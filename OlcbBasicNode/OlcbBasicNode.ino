@@ -131,6 +131,8 @@ void getWrite(uint32_t address, int space, uint8_t val) {
 
 extern "C" {
 uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
+    // PIP, Datagram, MemConfig, P/C, ident, teach/learn, 
+    // ACDI, SNIP, CDI
 }
 
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
