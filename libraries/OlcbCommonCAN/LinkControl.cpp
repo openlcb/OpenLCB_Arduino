@@ -174,8 +174,8 @@ bool LinkControl::receivedFrame(OpenLcbCanBuffer* rcv) {
    }
    // check for aliasMapEnquiry
    else if (rcv->isFrameTypeCAN() && (rcv->getVariableField() == AME_VAR_FIELD)) {
-      // check node ID matches
-      if (!rcv->matchesNid(nid)) return false;
+      // check node ID matches or no node ID present
+      if (rcv->length != 0 && (!rcv->matchesNid(nid))) return false;
       // reply
       txBuffer->setAMD(alias, nid);
       OpenLcb_can_queue_xmt_wait(txBuffer);
