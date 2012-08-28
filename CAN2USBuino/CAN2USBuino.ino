@@ -35,6 +35,12 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+// Define pin used to show flow control
+// BLUE definition is board-specific (18 LEDuino, 48 IO, 14 IOuino; automatic on some boards)
+// Leave it undefined to skip indicating flow control on an output pin
+//#define BLUE 14
+
+
 #define         RXCAN_BUF_COUNT   32
 tCAN 		rxCAN[RXCAN_BUF_COUNT]; // CAN receive buffers
 int             rxCanBuffCounter;
@@ -78,9 +84,22 @@ void setup()
   else 
     baud = BAUD_RATE_3;
   
+  // Following lines are for 
+  // direct setting on boards that
+  // don't have input pins. Uncomment
+  // the relevant one before compilation.
+  //baud = 230400;
+  //baud = 333333;
+  //baud = 500000;
+  
   Serial.begin(baud);
   Serial.println();
   Serial.println(":I LEDuino CAN-USB Adaptor Version 2;");
+
+#ifdef BLUE
+  pinMode(BLUE, OUTPUT);
+  digitalWrite(BLUE, HIGH);
+#endif
 
   // Initialize MCP2515
   can_init(BITRATE_125_KBPS);
@@ -106,15 +125,21 @@ boolean setFlowStop = false;
 void loop()
 {
   saveCanFrames();
-  // check for RTS flow control to PC on USB side
+  // check for flow control to USB on CAN side
   int charWaiting = Serial.available();
   
   if( setFlowStop && charWaiting < RX_WAIT_LOW ) {
+#ifdef BLUE
+    digitalWrite(BLUE, HIGH);
+#endif
     Serial.print((char)0x11);  // XON
     setFlowStop = false;
   }
   else if( !setFlowStop && charWaiting > RX_WAIT_HIGH ) {
     Serial.print((char)0x13);  // XOFF
+#ifdef BLUE
+    digitalWrite(BLUE, LOW);
+#endif
     setFlowStop = true;
   }
   
