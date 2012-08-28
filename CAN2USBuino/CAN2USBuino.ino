@@ -16,10 +16,16 @@
  * Arduino baud generation.
  *
  * For data directed from USB -> CAN, the sketch provides flow
- * control using the Xon/Xoff codes.
+ * control using the Xon/Xoff codes. If BLUE is defined, that
+ * pin number will be used to indicate when flow control is asserted.
+ * (Low/On when the PC has been asked to not send data).  (See
+ * near line 47)
  * 
  * One of three baud rates can be selected by grounding (causing LOW input)
- * on one of two pins.
+ * on one of two pins.  There's also a place in the code to 
+ * modify it for a specific speed if you don't have the input pins on your 
+ * board. (See near line 94)
+ *
  */
 
 #define         BAUD_RATE_1       230400
