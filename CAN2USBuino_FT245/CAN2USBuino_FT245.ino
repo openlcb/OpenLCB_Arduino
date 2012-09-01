@@ -22,6 +22,7 @@
  */
 
 #include <arduino.h>
+#include <MsTimer2.h>
 #include <FT245.h>
 
 #include <ctype.h>
@@ -43,13 +44,50 @@ char    	rxBuff[RX_BUF_SIZE];    // :lddddddddldddddddddddddddd:0 times 2 for do
 uint8_t		rxIndex;
 uint16_t	rxChar;
 
+#ifndef BLUE
+#define BLUE 13 //TX LED indicator
+#endif
+
+#ifndef GOLD
+#define GOLD 14 //RX LED indicator
+#endif
+
+#ifdef BLUE
+#define CAN_LED_FLASH_TICKS  10
+
+volatile uint8_t txCANLEDTicks;
+volatile uint8_t rxCANLEDTicks;
+
+void flashCANTrafficeLEDs()
+{
+    // If Tx Ticks > 0, decrement and if 0 set LED pin HIGH
+  if( txCANLEDTicks > 0)
+  {
+    if(--txCANLEDTicks)
+      digitalWrite(BLUE, HIGH);
+  }
+
+    // If Rx Ticks > 0, decrement and if 0 set LED pin HIGH
+  if( rxCANLEDTicks > 0)
+  {
+    if(--rxCANLEDTicks)
+      digitalWrite(GOLD, HIGH);
+  }
+}
+#endif
+
 // -----------------------------------------------------------------------------
 void printHexChar(const uint8_t val);
 uint8_t hex_to_byte(char *s);
 uint8_t char_to_byte(char *s);
 tCAN *parseCANStr(char *pBuf, tCAN *pCAN, uint8_t len);
 
+#define AJS
+#ifdef AJS
 FTDI_FT245 FT245(&DDRF, &PORTF, &PINF, &DDRD, &PORTD, &PIND, 3, 2, 1, 0);
+#else
+FTDI_FT245 FT245(&DDRC, &PORTC, &PINC, &DDRA, &PORTA, &PINA, 0, 1, 3, 2);
+#endif
 
 void setup()
 {
@@ -60,9 +98,27 @@ void setup()
   MCUCR = DISABLE_JTAG;
 #endif
 
+//TX LED Indication
+#ifdef BLUE
+  pinMode(BLUE, OUTPUT);
+  digitalWrite(BLUE, HIGH);
+#endif
+
+//RX LED Indication
+#ifdef GOLD
+  pinMode(GOLD, OUTPUT);
+  digitalWrite(GOLD, HIGH);
+  
+    // Setup Timer Tick of 10ms
+  MsTimer2::set(10, flashCANTrafficeLEDs); // 500ms period
+  MsTimer2::start();
+#endif
+
   FT245.begin();
   FT245.println();
   FT245.println(":I FTDI FT245 CAN-USB Adaptor Version 1;");
+  
+
 
   // Initialize MCP2515
   can_init(BITRATE_125_KBPS);
@@ -93,8 +149,14 @@ void loop()
   // note that print calls are blocking
   if (rxCANflag[rxCanFlagCounter])
   {
-     rxCANflag[rxCanFlagCounter] = false;
-    
+    rxCANflag[rxCanFlagCounter] = false;
+
+#ifdef GOLD
+      //Turn RX LED Indication On
+    rxCANLEDTicks = CAN_LED_FLASH_TICKS;
+    digitalWrite(GOLD, LOW);
+#endif
+
     FT245.print(':');
     FT245.print(rxCAN[rxCanFlagCounter].flags.extended ? 'X' : 'S');
     saveCanFrames();
@@ -108,6 +170,7 @@ void loop()
     {
       FT245.print('R');
       FT245.print('0' + rxCAN[rxCanFlagCounter].length);
+
     }
     else
     {
@@ -125,12 +188,18 @@ void loop()
     rxCanFlagCounter++;
     if (rxCanFlagCounter >= RXCAN_BUF_COUNT) rxCanFlagCounter = 0;
   } else  if(!ptxCAN) { // character processing slow, only do if don't have anything to send
-   
+
     // transmit buffer free, so we can load it if characters are available from USB
     // handle characters from USB to CAN
     int rxChar = FT245.read();
+    
     if(rxChar >= 0)
     {
+#ifdef BLUE
+        //Turn Tx Indication LED ON    
+      txCANLEDTicks = CAN_LED_FLASH_TICKS;
+      digitalWrite(BLUE, LOW);
+#endif 
       switch(rxChar)
       {
       case ':':
@@ -176,9 +245,8 @@ void loop()
   if(ptxCAN && can_check_free_buffer())
   {
     if(can_send_message(ptxCAN))
-      ptxCAN = NULL; 
+      ptxCAN = NULL;
   }
-
 }
 
 /* -----------------------------------------------------------------------------
