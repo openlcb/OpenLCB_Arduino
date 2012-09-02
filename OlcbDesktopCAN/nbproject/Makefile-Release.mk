@@ -71,32 +71,32 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbdesktopcan.a: ${OBJECTFILES}
 ${OBJECTDIR}/EEPROM.o: EEPROM.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -I../OlcbCommonCAN -I. -I../../gtest/include -MMD -MP -MF $@.d -o ${OBJECTDIR}/EEPROM.o EEPROM.cpp
+	$(COMPILE.cc) -O2 -I../libraries/OlcbCommonCAN -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/EEPROM.o EEPROM.cpp
 
 ${OBJECTDIR}/BG.o: BG.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -I../OlcbCommonCAN -I. -I../../gtest/include -MMD -MP -MF $@.d -o ${OBJECTDIR}/BG.o BG.cpp
+	$(COMPILE.cc) -O2 -I../libraries/OlcbCommonCAN -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/BG.o BG.cpp
 
 ${OBJECTDIR}/OpenLcbCanInterface_local.o: OpenLcbCanInterface_local.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -I../OlcbCommonCAN -I. -I../../gtest/include -MMD -MP -MF $@.d -o ${OBJECTDIR}/OpenLcbCanInterface_local.o OpenLcbCanInterface_local.cpp
+	$(COMPILE.cc) -O2 -I../libraries/OlcbCommonCAN -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/OpenLcbCanInterface_local.o OpenLcbCanInterface_local.cpp
 
 ${OBJECTDIR}/OpenLcbCanInterface.o: OpenLcbCanInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -I../OlcbCommonCAN -I. -I../../gtest/include -MMD -MP -MF $@.d -o ${OBJECTDIR}/OpenLcbCanInterface.o OpenLcbCanInterface.cpp
+	$(COMPILE.cc) -O2 -I../libraries/OlcbCommonCAN -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/OpenLcbCanInterface.o OpenLcbCanInterface.cpp
 
 ${OBJECTDIR}/Arduino.o: Arduino.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -I../OlcbCommonCAN -I. -I../../gtest/include -MMD -MP -MF $@.d -o ${OBJECTDIR}/Arduino.o Arduino.cpp
+	$(COMPILE.cc) -O2 -I../libraries/OlcbCommonCAN -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/Arduino.o Arduino.cpp
 
 ${OBJECTDIR}/ButtonLed.o: ButtonLed.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -O2 -I../OlcbCommonCAN -I. -I../../gtest/include -MMD -MP -MF $@.d -o ${OBJECTDIR}/ButtonLed.o ButtonLed.cpp
+	$(COMPILE.cc) -O2 -I../libraries/OlcbCommonCAN -I. -MMD -MP -MF $@.d -o ${OBJECTDIR}/ButtonLed.o ButtonLed.cpp
 
 # Subprojects
 .build-subprojects:

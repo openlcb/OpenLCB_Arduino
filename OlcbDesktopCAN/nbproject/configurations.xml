@@ -49,15 +49,14 @@
       <compileType>
         <cTool>
           <incDir>
-            <pElem>../OlcbCommonCAN</pElem>
+            <pElem>../libraries/OlcbCommonCAN</pElem>
             <pElem>.</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
-            <pElem>../OlcbCommonCAN</pElem>
+            <pElem>../libraries/OlcbCommonCAN</pElem>
             <pElem>.</pElem>
-            <pElem>../../gtest/include</pElem>
           </incDir>
         </ccTool>
         <archiverTool>
@@ -73,15 +72,14 @@
         <cTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../OlcbDesktopCAN</pElem>
+            <pElem>../libraries/OlcbCommonCAN</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../OlcbCommonCAN</pElem>
+            <pElem>../libraries/OlcbCommonCAN</pElem>
             <pElem>.</pElem>
-            <pElem>../../gtest/include</pElem>
           </incDir>
         </ccTool>
         <fortranCompilerTool>
