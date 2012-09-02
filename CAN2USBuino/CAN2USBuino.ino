@@ -43,9 +43,9 @@
 
 // Define pin used to show flow control
 // BLUE definition is board-specific (18 LEDuino, 48 IO, 14 IOuino; automatic on some boards)
-// Leave it undefined to skip indicating flow control on an output pin
+// Force it undefined to skip indicating flow control on an output pin
 //#define BLUE 14
-
+//#undef BLUE
 
 #define         RXCAN_BUF_COUNT   32
 tCAN 		rxCAN[RXCAN_BUF_COUNT]; // CAN receive buffers
@@ -56,9 +56,11 @@ int             rxCanFlagCounter;
 tCAN 		txCAN;	// CAN send buffer
 tCAN		* ptxCAN;
 
+// low and high water marks in the serial IO library buffer, not our local one.  
+// Must be bigger than a frame.
 
-#define         RX_WAIT_LOW       2 
-#define         RX_WAIT_HIGH      8
+#define         RX_WAIT_LOW       24 
+#define         RX_WAIT_HIGH      48
 
 #define 	RX_BUF_SIZE	64
 char    	rxBuff[RX_BUF_SIZE];    // :lddddddddldddddddddddddddd:0 times 2 for doubled protocol
@@ -188,7 +190,7 @@ void loop()
     // increment to next
     rxCanFlagCounter++;
     if (rxCanFlagCounter >= RXCAN_BUF_COUNT) rxCanFlagCounter = 0;
-  } else  if(!ptxCAN) { // character processing slow, only do if don't have anything to send
+  } else  if(!ptxCAN) { // USB->CAN character processing slow, only do if don't have anything to send CAN->USB just above
    
     // transmit buffer free, so we can load it if characters are available from USB
     // handle characters from USB to CAN
