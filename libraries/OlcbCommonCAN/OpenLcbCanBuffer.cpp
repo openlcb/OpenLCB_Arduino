@@ -145,7 +145,7 @@
   uint16_t OpenLcbCanBuffer::getDestAlias() {
      uint8_t format = getOpenLcbFormat();
      if (format == FRAME_FORMAT_NORMAL_MTI)
-        return ((data[0]&0xF)<<8)|data[1]&0xFF;
+        return ((data[0]&0xF)<<8)|(data[1]&0xFF);
      else 
         return getVariableField() & 0xFFF;
   }
