@@ -11,7 +11,8 @@ include standard.mk
 
 # default target: clean & rebuild
 all: clean compile lib bin
-
+	make -C gtest
+ 
 # ToDo:  Automatically create "run" and "reset" command lists
 # ToDo:  Move trailing / into OBJDIR, so null name works
 # ToDo:  Handle dependency on header files, so "clean" not needed every time
@@ -24,6 +25,8 @@ run: all
 	$(OBJDIR)/test/NodeMemoryTest | diff -w - test/results/NodeMemoryTest.out.txt || echo NodeMemoryTest failed 1>&2
 	$(OBJDIR)/test/ConfigurationTest | diff -w - test/results/ConfigurationTest.out.txt || echo ConfigurationTest failed 1>&2
 	$(OBJDIR)/test/PrngTest | diff -w - test/results/PrngTest.out.txt || echo PrngTest failed 1>&2
+	gtest/OpenLcbCanBuffer_unittest
+	gtest/ButtonProtocol_unittest
 
 # reset the comparison files. Use only if sure new results correct! Commented out to avoid mistakes
 reset: 
