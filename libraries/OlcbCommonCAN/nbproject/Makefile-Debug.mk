@@ -42,6 +42,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/LinkControl.o \
 	${OBJECTDIR}/OpenLcbCanBuffer.o \
 	${OBJECTDIR}/NodeMemory.o \
+	${OBJECTDIR}/ButtonProtocol.o \
 	${OBJECTDIR}/PIP.o \
 	${OBJECTDIR}/SNII.o
 
@@ -111,6 +112,11 @@ ${OBJECTDIR}/NodeMemory.o: NodeMemory.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/NodeMemory.o NodeMemory.cpp
+
+${OBJECTDIR}/ButtonProtocol.o: ButtonProtocol.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} $@.d
+	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/ButtonProtocol.o ButtonProtocol.cpp
 
 ${OBJECTDIR}/PIP.o: PIP.cpp 
 	${MKDIR} -p ${OBJECTDIR}

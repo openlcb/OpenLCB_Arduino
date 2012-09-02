@@ -4,6 +4,7 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>ButtonProtocol.h</itemPath>
       <itemPath>Configuration.h</itemPath>
       <itemPath>Datagram.h</itemPath>
       <itemPath>Event.h</itemPath>
@@ -24,6 +25,7 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>ButtonProtocol.cpp</itemPath>
       <itemPath>Configuration.cpp</itemPath>
       <itemPath>Datagram.cpp</itemPath>
       <itemPath>Event.cpp</itemPath>

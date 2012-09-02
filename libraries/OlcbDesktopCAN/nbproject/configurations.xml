@@ -7,7 +7,6 @@
       <itemPath>Arduino.h</itemPath>
       <itemPath>BG.h</itemPath>
       <itemPath>ButtonLed.h</itemPath>
-      <itemPath>ButtonProtocol.h</itemPath>
       <itemPath>EEPROM.h</itemPath>
       <itemPath>OpenLcbCanInterface.h</itemPath>
       <itemPath>WConstants.h</itemPath>
@@ -24,7 +23,6 @@
       <itemPath>Arduino.cpp</itemPath>
       <itemPath>BG.cpp</itemPath>
       <itemPath>ButtonLed.cpp</itemPath>
-      <itemPath>ButtonProtocol.cpp</itemPath>
       <itemPath>EEPROM.cpp</itemPath>
       <itemPath>OpenLcbCanInterface.cpp</itemPath>
       <itemPath>OpenLcbCanInterface_local.cpp</itemPath>

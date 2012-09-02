@@ -39,8 +39,7 @@ OBJECTFILES= \
 	${OBJECTDIR}/OpenLcbCanInterface_local.o \
 	${OBJECTDIR}/OpenLcbCanInterface.o \
 	${OBJECTDIR}/Arduino.o \
-	${OBJECTDIR}/ButtonLed.o \
-	${OBJECTDIR}/ButtonProtocol.o
+	${OBJECTDIR}/ButtonLed.o
 
 
 # C Compiler Flags
@@ -98,11 +97,6 @@ ${OBJECTDIR}/ButtonLed.o: ButtonLed.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
 	$(COMPILE.cc) -O2 -I../OlcbCommonCAN -I. -I../../gtest/include -MMD -MP -MF $@.d -o ${OBJECTDIR}/ButtonLed.o ButtonLed.cpp
-
-${OBJECTDIR}/ButtonProtocol.o: ButtonProtocol.cpp 
-	${MKDIR} -p ${OBJECTDIR}
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -I../OlcbCommonCAN -I. -I../../gtest/include -MMD -MP -MF $@.d -o ${OBJECTDIR}/ButtonProtocol.o ButtonProtocol.cpp
 
 # Subprojects
 .build-subprojects:
