@@ -3,11 +3,12 @@
 <HEAD>
 	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
 	<TITLE>OpenLCB C/C++ Prototype</TITLE>
-	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.3  (Unix)">
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.4  (Unix)">
 	<META NAME="AUTHOR" CONTENT="Bob Jacobsen">
 	<META NAME="CREATED" CONTENT="20090816;10132800">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGED" CONTENT="20120214;7080700">
+	<META NAME="CHANGED" CONTENT="20120902;12091700">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="David Harris">
@@ -21,17 +22,28 @@
 </HEAD>
 <BODY LANG="en-US" BGCOLOR="#e6e6ff" DIR="LTR">
 <H1><FONT COLOR="#000000"><IMG SRC="../../web/logo-ajs-dph.png" NAME="OpenLCB" ALIGN=RIGHT WIDTH=337 HEIGHT=135 BORDER=2></FONT>OpenLCB
-C/C++ Prototype</H1>
+C/C++ Prototypes</H1>
 <P>This is the index page of the OpenLCB™ C/C++ prototypes
 directory. This directory contains an OpenLCB prototype
 implementation. It's hardware-independent as much as possible, so
 that it can form the basis for the Arduino and PIC implementations.
 It's also configured to run <A HREF="libraries/OlcbTestCAN/index.html">standalone
 tests and simulations</A> without specific hardware, e.g on a PC.</P>
+<P>Because of the requirements of the Arduino IDE, which doesn't have
+a “project” concept, this directory contains multiple prototypes.
+ They are generically referred to as the “Olcb* libraries” and
+the “OpenLCB library” due to their names.  There are also
+multiple Ardunio sketches and code directories that use these:</P>
+<P>Sketches OlcbBasicNode, OlcbMiniNode and project directory
+OlcbDesktopTest use implementations from libraries/OlcbCommonCAN,
+libraries/OlcbDesktopCAN, libraries/OlcbArduinoCAN,
+libraries/OlcbTestCAN (deprecated)</P>
+<P>Sketch Io_16P_16C_default uses implementations from
+libraries/OpenLCB</P>
 <P>To build and run the tests, do 
 </P>
 <P STYLE="margin-left: 2cm"><CODE><B>make run</B></CODE></P>
-<P>This builds all the example Arduino sketches in the current
+<P>This builds (some of) the example Arduino sketches in the current
 directory, thereby ensuring they compile. It then tests execution of
 the library by building several executables in the OpenLcbTest
 directory, then running them and comparing their output to reference
