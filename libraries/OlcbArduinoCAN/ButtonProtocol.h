@@ -1,13 +1,7 @@
-#ifndef BP_h
-#define BP_h
+#ifndef BUTTONPROTOCOL_H
+#define BUTTONPROTOCOL_H
 
-#include "ButtonLed.h"
-#include "OpenLcbCanBuffer.h"
-#include "logging.h"
-
-#include "LinkControl.h"
-#include "OpenLcbCanBuffer.h"
-#include "OpenLcbCan.h"
+#include <ButtonLed.h>
 
 /**
  * Class for Remote Button Protocol.
@@ -25,18 +19,17 @@ class ButtonProtocol {
   public:
 
   ButtonProtocol(ButtonLed** buttons, uint8_t nButtons, ButtonLed* blue, ButtonLed* gold);
-  bool receivedFrame(OpenLcbCanBuffer* rcv);
+  
   void check();
-  void sendUI(char* s); 
-
+  
+  bool receivedFrame(OpenLcbCanBuffer* rcv);
+  
   private:
 
   ButtonLed** buttons;
   uint8_t nButtons;
   ButtonLed* blue;
   ButtonLed* gold;
-  uint8_t byt, bit;
-  uint8_t indicators[8];
   
 };
 
