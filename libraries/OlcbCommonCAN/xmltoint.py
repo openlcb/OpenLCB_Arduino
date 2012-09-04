@@ -26,6 +26,10 @@ def main():
             sys.stdout.write("|\n   ")
             cnt = 0
             comment = ""
+    if cnt != 0 :
+        sys.stdout.write("   // | ")
+        sys.stdout.write(comment)
+        sys.stdout.write("|\n   ")    
     sys.stdout.write("0\n")
    
 if __name__ == '__main__':
