@@ -91,11 +91,11 @@ OpenLcbCanBuffer_unittest : OpenLcbCanBuffer.o OpenLcbCanBuffer_unittest.o gtest
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@
 
 
-ButtonProtocol.o : $(ARDUINO_DIR)/ButtonProtocol.cpp $(ARDUINO_DIR)/ButtonProtocol.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(ARDUINO_DIR)/ButtonProtocol.cpp
+ButtonProtocol.o : $(COMMON_DIR)/ButtonProtocol.cpp $(COMMON_DIR)/ButtonProtocol.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $(COMMON_DIR)/ButtonProtocol.cpp
 
 ButtonProtocol_unittest.o : ButtonProtocol_unittest.cpp \
-                     $(ARDUINO_DIR)/ButtonProtocol.h $(GTEST_HEADERS)
+                     $(COMMON_DIR)/ButtonProtocol.h $(GTEST_HEADERS)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c ButtonProtocol_unittest.cpp
 
 ButtonProtocol_unittest : ButtonProtocol.o OpenLcbCanBuffer.o  ButtonLed.o Arduino.o ButtonProtocol_unittest.o gtest_main.a
