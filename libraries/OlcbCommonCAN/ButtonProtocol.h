@@ -1,5 +1,5 @@
-#ifndef BG_h
-#define BG_h
+#ifndef BUTTONPROTOCOL_h
+#define BUTTONPROTOCOL_h
 
 #include <ButtonLed.h>
 
