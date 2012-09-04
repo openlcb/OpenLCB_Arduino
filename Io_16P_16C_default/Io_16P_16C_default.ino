@@ -1,3 +1,5 @@
+#include <reset.h>
+
 #include <ButtonLED.h>
 
 #include <EEPROM.h>
@@ -20,7 +22,7 @@ uint32_t old_time;
 // As well as a blue-gold interface for programming both
 //
 // © 2012 D.E. Goodman
-// License TBA
+// License: GPL
 //==============================================================
 
 OLCB_NodeID nodeid;
@@ -70,7 +72,7 @@ void loadNodeID(OLCB_NodeID *nid)
 
 void setup()
 {
-  //Serial.begin(115200); Serial.println("Io 16C 16P default");
+  Serial.begin(115200); Serial.println("Io 16C 16P retail");
   //first, set up inputs and outputs, setting pull-up resistors on inputs
   for(int i = 0; i < 8; ++i) //outputs
   {
@@ -112,11 +114,4 @@ void loop()
 }
 
 // ---------------------------------------------------
-
-
-// TODO
-// testConfigurationProtocol
-// simpleNodeIdentificationInformation
-// ProtocolIdentificationProtocol
-// unknownMtiAddressed
 

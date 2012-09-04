@@ -10,7 +10,7 @@
 #define MTI_PIP_REQUEST   0x2E
 #define MTI_PIP_RESPONSE  0x2F
 
-static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo Developer\'s Board\n1.0\n1.4";
+static PROGMEM char snipstring[] = "\x01Railstars Limited\nIo\n1.0\n1.5";
 
 bool isSNIPRequest(OLCB_Buffer *buffer)
 {
@@ -28,9 +28,21 @@ void MyInfoHandler::update(void)
   {
       return;
   }
+  
+  
+  
+  if(_messageReady)
+  {
+    //Serial.println("Found a message to be delivered!");
+    _messageReady = false;
+    //Serial.println(_reply.data[0], HEX);
+    //Serial.println(_reply.flags.extended, HEX);
+    //Serial.println(_reply.id, HEX);
+    while(! _link->sendMessage(&_reply));
+  }
   //_reply.length = 1; //always at least one, for MTI byte
   //handle pending snip request responses
-  if(_string_index > -1)
+  else if(_string_index > -1)
   {
     //Serial.println("Working on SNIP response!");
     //we have work to do.
@@ -115,15 +127,6 @@ void MyInfoHandler::update(void)
   	}
   	while(! _link->sendMessage(&_reply) );
 
-  }
-  else if(_messageReady)
-  {
-    //Serial.println("Found a message to be delivered!");
-    _messageReady = false;
-    //Serial.println(_reply.data[0], HEX);
-    //Serial.println(_reply.flags.extended, HEX);
-    //Serial.println(_reply.id, HEX);
-    while(! _link->sendMessage(&_reply));
   }
   OLCB_Virtual_Node::update();
 }
