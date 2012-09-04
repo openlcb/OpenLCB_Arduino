@@ -57,8 +57,8 @@
         <description>Controls reloading and clearing node memory. Board must be restarted for this to take effect.</description>
         <map>
             <relation><property>3998572261</property><value>(No reset)</value></relation>
-            <relation><property>0</property><value>Reset all to defaults</value></relation>
-            <relation><property>3998561228</property><value>Reset EventIDs to new defaults</value></relation>
+            <relation><property>3998561228</property><value>User clear: New default EventIDs, blank strings</value></relation>
+            <relation><property>0</property><value>Mfg clear: Reset all, including Node ID</value></relation>
         </map>
     </int>
 </segment>
