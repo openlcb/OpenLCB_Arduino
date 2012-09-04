@@ -76,57 +76,57 @@ ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbcommoncan.a: ${OBJECTFILES}
 ${OBJECTDIR}/OlcbStream.o: OlcbStream.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/OlcbStream.o OlcbStream.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/OlcbStream.o OlcbStream.cpp
 
 ${OBJECTDIR}/Configuration.o: Configuration.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/Configuration.o Configuration.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/Configuration.o Configuration.cpp
 
 ${OBJECTDIR}/Datagram.o: Datagram.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/Datagram.o Datagram.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/Datagram.o Datagram.cpp
 
 ${OBJECTDIR}/PCE.o: PCE.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/PCE.o PCE.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/PCE.o PCE.cpp
 
 ${OBJECTDIR}/Event.o: Event.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/Event.o Event.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/Event.o Event.cpp
 
 ${OBJECTDIR}/LinkControl.o: LinkControl.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/LinkControl.o LinkControl.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/LinkControl.o LinkControl.cpp
 
 ${OBJECTDIR}/OpenLcbCanBuffer.o: OpenLcbCanBuffer.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/OpenLcbCanBuffer.o OpenLcbCanBuffer.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/OpenLcbCanBuffer.o OpenLcbCanBuffer.cpp
 
 ${OBJECTDIR}/NodeMemory.o: NodeMemory.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/NodeMemory.o NodeMemory.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/NodeMemory.o NodeMemory.cpp
 
 ${OBJECTDIR}/ButtonProtocol.o: ButtonProtocol.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/ButtonProtocol.o ButtonProtocol.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/ButtonProtocol.o ButtonProtocol.cpp
 
 ${OBJECTDIR}/PIP.o: PIP.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/PIP.o PIP.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/PIP.o PIP.cpp
 
 ${OBJECTDIR}/SNII.o: SNII.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} $@.d
-	$(COMPILE.cc) -g -I../OlcbDesktopCAN -MMD -MP -MF $@.d -o ${OBJECTDIR}/SNII.o SNII.cpp
+	$(COMPILE.cc) -g -I../../FakeUino -MMD -MP -MF $@.d -o ${OBJECTDIR}/SNII.o SNII.cpp
 
 # Subprojects
 .build-subprojects:

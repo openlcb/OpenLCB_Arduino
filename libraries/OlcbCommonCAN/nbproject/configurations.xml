@@ -47,7 +47,7 @@
                    projectFiles="false"
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>Makefile.nb</itemPath>
-      <itemPath>../../../../../Documents/Trains/MRRLCB/OpenLCB/svn/openlcb/trunk/prototypes/C/libraries/OlcbCommonCAN/index.html</itemPath>
+      <itemPath>index.html</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -63,12 +63,12 @@
       <compileType>
         <cTool>
           <incDir>
-            <pElem>../OlcbDesktopCAN</pElem>
+            <pElem>../../FakeUino</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
-            <pElem>../OlcbDesktopCAN</pElem>
+            <pElem>../../FakeUino</pElem>
           </incDir>
         </ccTool>
         <archiverTool>
@@ -84,13 +84,13 @@
         <cTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../OlcbDesktopCAN</pElem>
+            <pElem>../../FakeUino</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../OlcbDesktopCAN</pElem>
+            <pElem>../../FakeUino</pElem>
           </incDir>
         </ccTool>
         <fortranCompilerTool>
