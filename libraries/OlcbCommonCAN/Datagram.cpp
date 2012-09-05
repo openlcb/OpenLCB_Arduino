@@ -126,11 +126,12 @@ bool Datagram::receivedFrame(OpenLcbCanBuffer* rcv) {
         }
     }
     // check for datagram fragment received
-    else if (       (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL) 
+    else if ( rcv->isFrameTypeOpenLcb() &&
+              ((rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL) 
             || (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_FIRST)
             || (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_MID)
             || (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_LAST)
-          ) {
+          )) {
          // can this start reception, e.g. we're not already receiving?
          if (
                (rcv->getOpenLcbFormat() == FRAME_FORMAT_ADDRESSED_DATAGRAM_ALL)
