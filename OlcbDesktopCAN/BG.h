@@ -48,7 +48,7 @@ class BG {
   ButtonLed* blue;
   ButtonLed* gold;
 
-  uint8_t index;
+  int16_t index;
   bool lastBlue;
   bool lastGold;
   bool started;

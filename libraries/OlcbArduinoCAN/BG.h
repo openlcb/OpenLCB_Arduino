@@ -49,7 +49,7 @@ class BG {
   ButtonLed* gold;
   OpenLcbCanBuffer* buffer;
 
-  uint8_t index;
+  int8_t index;
   bool lastBlue;
   bool lastGold;
   bool started;
