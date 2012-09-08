@@ -152,26 +152,26 @@ Event events[] = {
 int eventNum = 32;
 
 // output drivers
-// 14, 15, 16, 17 for LEDuino with standard shield
+// 14, 15, 16, 17 for LEDuino with standard shield (set active LOW)
 // 16, 17, 18, 19 for IOduino to clear built-in blue and gold
-// Io 0-7 are outputs & LEDs, 8-15 are inputs
-ButtonLed pOut1(0, LOW); 
-ButtonLed pOut2(1, LOW);
-ButtonLed pOut3(2, LOW);
-ButtonLed pOut4(3, LOW);
-ButtonLed pOut5(4, LOW);
-ButtonLed pOut6(5, LOW);
-ButtonLed pOut7(6, LOW);
-ButtonLed pOut8(7, LOW);
+// Io 0-7 are outputs & LEDs, 8-15 are inputs (set active HIGH)
+ButtonLed pOut1(0, HIGH); 
+ButtonLed pOut2(1, HIGH);
+ButtonLed pOut3(2, HIGH);
+ButtonLed pOut4(3, HIGH);
+ButtonLed pOut5(4, HIGH);
+ButtonLed pOut6(5, HIGH);
+ButtonLed pOut7(6, HIGH);
+ButtonLed pOut8(7, HIGH);
 
-ButtonLed pIn1(8, LOW);
-ButtonLed pIn2(9, LOW);
-ButtonLed pIn3(10, LOW);
-ButtonLed pIn4(11, LOW);
-ButtonLed pIn5(12, LOW);
-ButtonLed pIn6(13, LOW);
-ButtonLed pIn7(14, LOW);
-ButtonLed pIn8(15, LOW);
+ButtonLed pIn1(8, HIGH);
+ButtonLed pIn2(9, HIGH);
+ButtonLed pIn3(10, HIGH);
+ButtonLed pIn4(11, HIGH);
+ButtonLed pIn5(12, HIGH);
+ButtonLed pIn6(13, HIGH);
+ButtonLed pIn7(14, HIGH);
+ButtonLed pIn8(15, HIGH);
 
 
 #define ShortInpBlinkOn   0x00110011L
