@@ -2,7 +2,7 @@
 // OlcbBasicNode
 //   A prototype of a basic 4-channel OpenLCB board
 // 
-//   setup() at line 189 determines which are consumers and
+//   setup() determines which are consumers and
 //   which are producers
 //
 //   Bob Jacobsen 2010, 2012
@@ -147,21 +147,24 @@ int eventNum = 8;
 // output drivers
 // 14, 15, 16, 17 for LEDuino with standard shield
 // 16, 17, 18, 19 for IOduino to clear built-in blue and gold
-ButtonLed pA(16, LOW); 
-ButtonLed pB(17, LOW);
-ButtonLed pC(18, LOW);
-ButtonLed pD(19, LOW);
+// Io 0-7 are outputs & LEDs, 8-15 are inputs
+ButtonLed pA(0, LOW); 
+ButtonLed pB(1, LOW);
+ButtonLed pC(8, LOW);
+ButtonLed pD(9, LOW);
 
 #define ShortBlinkOn   0x00010001L
 #define ShortBlinkOff  0xFFFEFFFEL
 
-long patterns[] = {
+long patterns[] = { // two per input or output
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn
 };
-ButtonLed* buttons[] = {&pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD};
+ButtonLed* buttons[] = {  // One for each event
+                        &pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD
+                       };
 
 ButtonLed blue(BLUE, LOW);
 ButtonLed gold(GOLD, LOW);
@@ -217,11 +220,12 @@ void setup()
   nm.setup(&nodeid, events, eventNum, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM);  
   
   // set event types, now that IDs have been loaded from configuration
+  // newEvent arguments are (event index, produce, consume)
   for (int i=0; i<eventNum/2; i++) {
-      pce.newEvent(i,true,false); // produce, consume
+      pce.newEvent(i,true,false); // producer
   }
   for (int i=eventNum/2; i<eventNum; i++) {
-      pce.newEvent(i,false,true); // produce, consume
+      pce.newEvent(i,false,true); // consumer
   }
   
   Olcb_setup();
