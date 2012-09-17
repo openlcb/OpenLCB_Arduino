@@ -96,7 +96,7 @@ void setup()
   // direct setting on boards that
   // don't have input pins. Uncomment
   // the relevant one before compilation.
-  //baud = 230400;
+  baud = 230400;
   //baud = 333333;
   //baud = 500000;
   
