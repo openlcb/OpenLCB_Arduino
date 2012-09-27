@@ -43,20 +43,19 @@ bool once;
 
 
 void setup() {
-  //<<<<<<<<<<< CHANGE THIS <<<<<<<<<<<<<<<<<<<<<  
+   
   // Change NodeAddrLastByte to your Node Address
-  uint8_t NodeAddrLastByte = 0x28 ;
-
+  uint8_t NodeAddrLastByte = 0x01 ;       // <<<<   CHANGE THIS AND ...
   // First erase the EEPROM
   for(uint16_t i = 0; i < 0x0FFF; i++)
     if( EEPROM.read(i) != 0xFF)
       EEPROM.write(i, 0xFF);
 
 //  Uncomment for the Io Code  
-//  writeNodeID_Io(NodeAddrLastByte);   
+  writeNodeID_Io(NodeAddrLastByte);       // <<<<<<<< CHANGE THIS AND ...  
 
 //  Uncomment for the OlcbBasicNode Code  
-  writeNodeID_Olcb(NodeAddrLastByte);                    
+//  writeNodeID_Olcb(NodeAddrLastByte);   // <<<<<< CHANGE THIS                 
   
   // set up all pins for action
   for(uint8_t i=0;i<NPINS;i++) {
