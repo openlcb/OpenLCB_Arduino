@@ -134,17 +134,6 @@ void setup()
 
 }
 
-bool isTxBufferFree(void)
-{
-  uint8_t status = can_buffers_status();
-
-    // Check to see if Tx Buffer 0 or 1 is free	
-  if ((status & (ST_TX0REQ|ST_TX1REQ)) == (ST_TX0REQ|ST_TX1REQ))
-    return false;  //  Both at full
-  else
-    return true;   // At least 1 buffer was free
-}
-
 uint8_t outBuff[30];
 int outBuffIndex;
 
@@ -192,7 +181,7 @@ void loop()
     }
   }
   
-  if(ptxCAN && isTxBufferFree())
+  if(ptxCAN && can_check_free_buffer())
   {
     if(can_send_message(ptxCAN)) {
       ptxCAN = NULL; 
