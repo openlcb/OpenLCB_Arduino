@@ -4,67 +4,167 @@
 #include "DCC_Proxy.h"
 #include "float16.h"
 #include <reset.h>
+#include <avr/eeprom.h>
 
-//TODO need to include a generic handleMessage method for catching search messages!
+#define PROXY_SLOT_OCCUPIED 01,01,00,00,00,00,03,05
+#define PROXY_SLOT_FREE 01,01,00,00,00,00,03,04
 
-    void DCC_Proxy::create(OLCB_Link *link, OLCB_NodeID *nid)
-    {
-      OLCB_Datagram_Handler::create(link, nid);
-      _dcc_address = 0xFFFF;
-      
-      _timer = millis();
-      _speed = 0;
-	//DCC_Proxy_FX = 0;
-//	uint8_t i;
-//	for(i = 0; i < NUM_SIMULTANEOUS_CONTROLLERS; ++i)
-//	{
-//		DCC_Proxy_controllers[i] = NULL;
-//	}
-//	for(uint8_t i = 0; i < 127; ++i)
-//	{
-//		DCC_Proxy_speed_curve[i] = map(i, 1, 127, 0, 255);
-	//	Serial.print(i);
-	//	Serial.print(": ");
-	//	Serial.println(DCC_Proxy_speed_curve[i]);
-//	}
-    }
-    
-    void DCC_Proxy::setDCCAddress(uint16_t new_address)
-    {
-      _dcc_address = new_address;
-    }
+void DCC_Proxy::initialize(void)
+{
+  _dcc_address = 0;
+  _dcc_address_kind = 0;
+  _timer = millis();
+  _speed = 0;
+  _dirty_speed = _dirty_FX = 0;
+  _FX = 0;
+  _active = 0;
+  _producer_identified_flag = true;
+  _speed_steps = 0;
+  _initial_blast = 1;
+}
+
+void DCC_Proxy::create(OLCB_Link *link, OLCB_NodeID *nid, uint8_t *address)
+{
+  //we begin by reading some state information from EEPROM.
+  _eeprom_address = address;
+  _dcc_address = (eeprom_read_byte(_eeprom_address+96) << 8) | eeprom_read_byte(_eeprom_address+97);
+  Serial.println(_dcc_address);
+  _dcc_address_kind = eeprom_read_byte(_eeprom_address+98);
+  Serial.println(_dcc_address_kind);
+  //detemine what kind of address this is
+  if(_dcc_address_kind) //if long address
+  {
+    _dcc_address |= 0xC000; //make sure top two bits are 1, in conformance with RP 9.2.1
+  }
+  _speed_steps = eeprom_read_byte(_eeprom_address+99);
+  Serial.println(_speed_steps);
+
+  //create a NID TODO THIS SHOULD BE MANUFACTURER ASSIGNED! READ FROM EEPROM!
+  nid->val[0] = 6;
+  nid->val[1] = 1;
+  nid->val[2] = 0;
+  nid->val[3] = 0;
+  nid->val[4] = _dcc_address >> 8;
+  nid->val[5] = _dcc_address & 0xFF;
+  
+  //and copy this to the cs address
+  DCC_NodeID.val[0] = 6;
+  DCC_NodeID.val[1] = 1;
+  DCC_NodeID.val[2] = 0;
+  DCC_NodeID.val[3] = 1;
+  DCC_NodeID.val[4] = nid->val[4];
+  DCC_NodeID.val[5] = nid->val[5];
+  
+  OLCB_Datagram_Handler::create(link, nid);
+}
 
 void DCC_Proxy::update(void)
 {
-    if(!isPermitted())
-      return;
-      
-	//see if we need to send out any periodic updates
-//	uint32_t time = millis();
-//	if( (time - _timer) >= 60000 ) //one minute
-//	{
-//          _timer = time;
-//	  Serial.print("Loco at address ");
-//          Serial.print(_dcc_address, DEC);
-//          Serial.print(" periodic speed update to ");
-//          Serial.println(_speed);
-          //DCC_Controller->setSpeed(_dcc_address, _dcc_address_kind, _speed, _speed_steps);
-//	}
-      OLCB_Datagram_Handler::update();
+  if(!isPermitted())
+    return;
+
+    //check to see if we need to emit a producer identified event
+    if (_producer_identified_flag)
+      {
+        OLCB_Event e(PROXY_SLOT_OCCUPIED);
+        while (!_link->sendProducerIdentified(NID, &e));
+        _producer_identified_flag = false;
+      }
+
+  uint32_t new_time = millis();
+  if(_active)
+  {
+      //see if we need to send out any periodic updates
+   if(_initial_blast)
+   {
+     Serial.println("Initial blast!! TRYING AGAIN!");
+     //this is a hack to make sure the first commands get through while DCS Vnode is being allocated
+     _dirty_speed = _dirty_FX = true; //send again!
+   }
+
+    if((new_time - _timer) >= 60000)
+    {
+      _timer = new_time;
+      _dirty_speed = true;
+      _dirty_FX = true;
+    }
+    if( _dirty_speed ) //if we are connected to CS, and either need to send an update or one minute has passed since last update:
+    {
+      sendSpeed();
+    }
+    if( _dirty_FX ) //if we are connected to CS, and either need to send an update or one minute has passed since last update:
+    {
+      sendFX();
+    }
+  }
+  OLCB_Datagram_Handler::update();
 }
 
-  void DCC_Proxy::datagramResult(bool accepted, uint16_t errorcode)
+void DCC_Proxy::sendSpeed()
+{
+  if(!_active)
   {
-     //Serial.print("The datagram was ");
-     //if(!accepted)
-       //Serial.print("not ");
-     //Serial.println("accepted.");
-     //if(!accepted)
-     //{
-       //Serial.print("   The reason: ");
-       //Serial.println(errorcode,HEX);
-     //}
+    _dirty_speed = false;
+    return;
   }
+      Serial.print("Loco at address ");
+      Serial.print(_dcc_address, DEC);
+      Serial.print(" speed update to ");
+      Serial.println(_speed);
+  OLCB_Datagram d;
+  memcpy(&(d.destination), &DCC_NodeID, sizeof(OLCB_NodeID));
+  d.data[0] = DATAGRAM_MEMCONFIG;
+  d.data[1] = MAC_CMD_WRITE | 0x02; //flags for All Memory space
+  d.data[2] = 0x00; //address byte 0
+  d.data[3] = 0x00; //address byte 1
+  d.data[4] = 0x00; //address byte 2
+  d.data[5] = 0x00; //address byte 3
+  d.data[6] = _speed;
+  d.data[7] = _speed_steps; //we use 128 speed steps exclusively here. This should be a configuration option
+  d.length = 8;
+  _dirty_speed = !sendDatagram(&d); //try again if transmission fails...probably not a good idea!!!
+}
+
+void DCC_Proxy::sendFX()
+{
+  if(!_active)
+  {
+    _dirty_FX = false;
+    return;
+  }
+      Serial.print("Loco at address ");
+      Serial.print(_dcc_address, DEC);
+      Serial.print(" FX update to ");
+      Serial.println(_FX, HEX);
+  OLCB_Datagram d;
+  memcpy(&(d.destination), &DCC_NodeID, sizeof(OLCB_NodeID));
+  d.data[0] = DATAGRAM_MEMCONFIG;
+  d.data[1] = MAC_CMD_WRITE | 0x02; //flags for All Memory space
+  d.data[2] = 0x00; //address byte 0
+  d.data[3] = 0x00; //address byte 1
+  d.data[4] = 0x00; //address byte 2
+  d.data[5] = 0x01; //address byte 3
+  d.data[6] = _FX >> 8;
+  d.data[7] = _FX & 0xFF;
+  d.length = 8;
+  _dirty_FX = !sendDatagram(&d); //try again if transmission fails...probably not a good idea!!!
+}
+
+void DCC_Proxy::datagramResult(bool accepted, uint16_t errorcode)
+{
+   Serial.print("The datagram was ");
+   if(!accepted)
+     Serial.print("not ");
+   Serial.println("accepted.");
+   if(!accepted)
+   {
+     Serial.print("   The reason: ");
+     Serial.println(errorcode,HEX);
+   }
+   
+   if(accepted)
+            _initial_blast = 0; //it went through, that is enough.
+}
   
 
 /*
@@ -79,109 +179,154 @@ bool DCC_Proxy::DCC_Proxy_isAttached(OLCB_NodeID *node)
 }
 */
 
-uint16_t DCC_Proxy::processDatagram(OLCB_Datagram *datagram)
-{		
-	Serial.println("Got a datagram");
-    if(!isPermitted()) // && (_rxDatagramBuffer->destination == *OLCB_Virtual_Node::NID))
-      return DATAGRAM_REJECTED_PERMANENT_ERROR; // TODO NEED A WYA TO HANDLE THE UNPERMITTED CASE
-      
-      
-    Serial.println("Got a datagram");
-  
-	//from this point on, it is for us!
-	//make sure that it is a train control datagram, and handle that accordingly
-if(!datagram->length) //check for zeo length
-return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;
-
-	switch(datagram->data[0])
-        {
-          case DATAGRAM_MOTIVE:
-            return _handleTractionDatagram(datagram);
-          case DATAGRAM_MEMCONFIG:
-            return _handleMemConfigDatagram(datagram);
-        }		
-	Serial.println("not a motive datagram"); //TODO HANDLE CONFIGURATION DATAGRAMS!!
-	return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;
-}
-
-uint16_t DCC_Proxy::_handleTractionDatagram(OLCB_Datagram *datagram)
+uint16_t DCC_Proxy::processDatagram(void)
 {
-  switch(datagram->data[1])
-		{
-		//case DATAGRAM_MOTIVE_ATTACH:
-			//Serial.println("attach");
-			//return handleAttachDatagram(datagram);
-		//case DATAGRAM_MOTIVE_RELEASE:
-			//Serial.println("release");
-			//return handleReleaseDatagram(datagram);
-		case DATAGRAM_MOTIVE_SETSPEED:
-			Serial.println("setspeed");
-			return _handleSetSpeedDatagram(datagram);
-		case DATAGRAM_MOTIVE_GETSPEED:
-			Serial.println("getspeed");
-			return _handleGetSpeedDatagram(datagram);
-		//case DATAGRAM_MOTIVE_SETFX:
-			//return handleSetFXDatagram(datagram);
-		//case DATAGRAM_MOTIVE_GETFX:
-			//return handleGetFXDatagram(datagram);
+  Serial.println("Got a datagram");
+  
+  if(!isPermitted()) // && (_rxDatagramBuffer->destination == *OLCB_Virtual_Node::NID))
+    return DATAGRAM_REJECTED; // TODO NEED A WYA TO HANDLE THE UNPERMITTED CASE
+      
+      
+  //make sure that it is a train control datagram, and handle that accordingly
+  if(!_rxDatagramBuffer->length) //check for zeo length
+    return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;
 
-	}
+  switch(_rxDatagramBuffer->data[0])
+  {
+    case DATAGRAM_MOTIVE:
+      return handleTractionDatagram(_rxDatagramBuffer);
+    case DATAGRAM_MEMCONFIG:
+      return handleMemConfigDatagram(_rxDatagramBuffer);
+  }		
+  Serial.println("not a datagram we know"); //TODO HANDLE CONFIGURATION DATAGRAMS!!
   return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;
 }
 
-uint16_t DCC_Proxy::_handleSetSpeedDatagram(OLCB_Datagram *datagram)
+uint16_t DCC_Proxy::handleTractionDatagram(OLCB_Datagram *datagram)
 {
-//	if(DCC_Proxy_isAttached(&(datagram->source)))
-//	{
-		//incoming speed is a signed float16
-		//we store it as a signed 8-bit int, with -1/1 = stop (and 0 = estop), and -127/127 = max speed
-		//notice that it is not enough to get the raw integral value of the float16, but we must scale it, because the DCC speed steps != absolute speed, but throttle notches. So we have to account for what motor speed each notch represents, and choose the appropriate notch..yuck!
-		//finally, unhandled here, users can set a custom scale value. TODO
-		_float16_shape_type f_val;
-		Serial.println("Speed change");
-		Serial.println("raw data");
-		f_val.words.msw = datagram->data[2];
-		f_val.words.lsw = datagram->data[3];
-		Serial.print(datagram->data[2], HEX);
-		Serial.print(" ");
-		Serial.println(datagram->data[3], HEX);
-		float new_speed = float16_to_float32(f_val);
-		Serial.println(new_speed);
-		Serial.println("----");
-		_speed = map(new_speed, -100, 100, -125, 125);
-		//TODO OTHER STUFF TOO! Send it on to CS!
-	return DATAGRAM_ERROR_OK;
+  switch(datagram->data[1])
+  {
+    //case DATAGRAM_MOTIVE_ATTACH:
+      //Serial.println("attach");
+      //return handleAttachDatagram(datagram);
+    //case DATAGRAM_MOTIVE_RELEASE:
+      //Serial.println("release");
+    //return handleReleaseDatagram(datagram);
+    case DATAGRAM_MOTIVE_SETSPEED:
+        Serial.println("setspeed");
+        return handleSetSpeedDatagram(datagram);
+    case DATAGRAM_MOTIVE_GETSPEED:
+        Serial.println("getspeed");
+        return handleGetSpeedDatagram(datagram);
+    case DATAGRAM_MOTIVE_ESTOP:
+        Serial.println("estop");
+        return handleEStopDatagram();
+    //case DATAGRAM_MOTIVE_SETFX:
+      //return handleSetFXDatagram(datagram);
+    //case DATAGRAM_MOTIVE_GETFX:
+      //return handleGetFXDatagram(datagram);
+  }
+  return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;
 }
 
-uint16_t DCC_Proxy::_handleGetSpeedDatagram(OLCB_Datagram *datagram)
+uint16_t DCC_Proxy::handleEStopDatagram(void)
 {
-	OLCB_Datagram reply;
-	memcpy(&(reply.destination), &(_rxDatagramBuffer->source), sizeof(OLCB_NodeID));
-	reply.data[0] = DATAGRAM_MOTIVE;
-	reply.data[1] = DATAGRAM_MOTIVE_GETSPEED;
-	float f_speed = map(_speed, -125, 125, -100, 100);
-	_float16_shape_type f_val;
-	f_val = float32_to_float16(f_speed);
-	reply.data[2] = f_val.words.msw;
-	reply.data[3] = f_val.words.lsw;
-	reply.length = 4;
-	reply.destination = datagram->source;
-	if(sendDatagram(&reply))
-		return DATAGRAM_ERROR_OK;
-	//else
-	//have them resend
-	return DATAGRAM_REJECTED_BUFFER_FULL;
+    //if(DCC_Proxy_isAttached(&(datagram->source)))
+    //{
+  //incoming speed is a signed float16
+  //we store it as a signed 8-bit int, with -1/1 = stop (and 0 = estop), and -127/127 = max speed
+  //notice that it is not enough to get the raw integral value of the float16, but we must scale it, because the DCC speed steps != absolute speed, but throttle notches. So we have to account for what motor speed each notch represents, and choose the appropriate notch..yuck!
+  //notice also the significance of -0 in the input to indicate stopped, reverse facing.
+  Serial.println("Speed change");
+  _speed = 0; //estop
+  _active = true; //assume it has been placed on layout.
+  _dirty_speed = true; //force transmission to CS at next update.
+  return DATAGRAM_ERROR_OK;
+}
+
+uint16_t DCC_Proxy::handleSetSpeedDatagram(OLCB_Datagram *datagram)
+{
+    //if(DCC_Proxy_isAttached(&(datagram->source)))
+    //{
+  //incoming speed is a signed float16
+  //we store it as a signed 8-bit int, with -1/1 = stop (and 0 = estop), and -127/127 = max speed
+  //notice that it is not enough to get the raw integral value of the float16, but we must scale it, because the DCC speed steps != absolute speed, but throttle notches. So we have to account for what motor speed each notch represents, and choose the appropriate notch..yuck!
+  //notice also the significance of -0 in the input to indicate stopped, reverse facing.
+  _float16_shape_type f_val;
+  Serial.println("Speed change");
+  Serial.println("raw data");
+  f_val.words.msw = datagram->data[2];
+  f_val.words.lsw = datagram->data[3];
+  Serial.print(datagram->data[2], HEX);
+  Serial.print(" ");
+  Serial.println(datagram->data[3], HEX);
+  float new_speed = float16_to_float32(f_val);
+  Serial.println(new_speed);
+  Serial.println("----");
+  if(new_speed == 0)
+  {
+    if(f_val.bits & 0x8000) //-0
+      _speed = -1;
+    else
+      _speed = 1;
+  }
+  else
+  {
+    _speed = map(new_speed, -100, 100, -126, 126);
+    if(_speed < 0) --_speed; //to get it in range -2..-126
+    else ++_speed; //to get it in range 2..126
+  }
+  _active = true; //assume it has been placed on layout.
+  _dirty_speed = true; //force transmission to CS at next update.
+  return DATAGRAM_ERROR_OK;
+}
+
+uint16_t DCC_Proxy::handleGetSpeedDatagram(OLCB_Datagram *datagram)
+{
+  OLCB_Datagram reply;
+  memcpy(&(reply.destination), &(_rxDatagramBuffer->source), sizeof(OLCB_NodeID));
+  reply.data[0] = DATAGRAM_MOTIVE;
+  reply.data[1] = DATAGRAM_MOTIVE_GETSPEED;
+  float f_speed;
+ 
+  if(_active) //if active, send ucrrent speed, else send 0;
+  {
+    if(_speed == -1)
+      f_speed = -0;
+    else if(_speed == 1)
+      f_speed = 0;
+    else if(_speed < 0)
+      f_speed = _speed + 1; //get it from -2..-127 to -1..-126
+    else
+      f_speed = _speed -1; //from 2..127 to 1..126
+  }
+  else
+  {
+    f_speed = 0;
+  }
+  _float16_shape_type f_val;
+  f_val = float32_to_float16(f_speed);
+  reply.data[2] = f_val.words.msw;
+  reply.data[3] = f_val.words.lsw;
+  reply.length = 4;
+  reply.destination = datagram->source;
+ 
+  if(sendDatagram(&reply))
+    return DATAGRAM_ERROR_OK;
+  //else
+  //have them resend
+  return DATAGRAM_REJECTED_BUFFER_FULL;
 }
 
 
 uint32_t DCC_Proxy::getAddress(uint8_t* data)
 {
-	uint32_t val = 0;
-	val |= ((uint32_t)data[2]<<24);
-	val |= ((uint32_t)data[3]<<16);
-	val |= ((uint32_t)data[4]<<8);
-	val |= ((uint32_t)data[5]);
-	return val;
+  uint32_t val = 0;
+  val |= ((uint32_t)data[2]<<24);
+  val |= ((uint32_t)data[3]<<16);
+  val |= ((uint32_t)data[4]<<8);
+  val |= ((uint32_t)data[5]);
+  return val;
 }
 
 uint8_t DCC_Proxy::decodeSpace(uint8_t* data) {
@@ -210,7 +355,7 @@ uint8_t DCC_Proxy::decodeLength(uint8_t* data)
 	return data[6];
 }
 
-uint16_t DCC_Proxy::_handleMemConfigDatagram(OLCB_Datagram* datagram)
+uint16_t DCC_Proxy::handleMemConfigDatagram(OLCB_Datagram* datagram)
 {
 		switch (datagram->data[1]&0xC0)
 		{
@@ -264,7 +409,7 @@ uint16_t DCC_Proxy::MACProcessRead(void)
 			reply.length = length+datagram_offset;
 			for(uint8_t i = 0; i < length; ++i)
 			{
-				reply.data[datagram_offset+i] = eeprom_read_byte((uint8_t*)(address+i)); //TODO check that address is < 255!
+				reply.data[datagram_offset+i] = eeprom_read_byte((uint8_t*)(address+i+_eeprom_address)); //TODO check that address is < 255!
 			}
 			if(sendDatagram(&reply))
 			return DATAGRAM_ERROR_OK;
@@ -297,13 +442,13 @@ uint16_t DCC_Proxy::MACProcessWrite(void)
 	uint8_t datagram_offset = (_rxDatagramBuffer->data[1]&0x03)?6:7; //if the space is encoded in the flags in data[1], then the payload begins at byte 6; else, the payload begins after the space byte, at byte 7.
 	uint8_t length = (_rxDatagramBuffer->length)-datagram_offset;
 	
-	//Serial.println("Write Command");
-	//Serial.print("length =");
-	//Serial.println(length, HEX);
-	//Serial.print("address =");
-	//Serial.println(address, HEX);
-	//Serial.print("space =");
-	//Serial.println(space, HEX);
+	Serial.println("Write Command");
+	Serial.print("length =");
+	Serial.println(length, HEX);
+	Serial.print("address =");
+	Serial.println(address, HEX);
+	Serial.print("space =");
+	Serial.println(space, HEX);
 	
 	//And, now do something useful.
 	//first check the space?
@@ -313,7 +458,7 @@ uint16_t DCC_Proxy::MACProcessWrite(void)
 			for(uint8_t i = 0; i < length; ++i)
 			{
 				if( (address+i) < 0x0FF8)
-				eeprom_write_byte((uint8_t *)(address+i), _rxDatagramBuffer->data[datagram_offset+i]);
+				eeprom_write_byte((uint8_t *)(address+i+_eeprom_address), _rxDatagramBuffer->data[datagram_offset+i]);
 			}
 			return DATAGRAM_ERROR_OK;
 		case 0xFF: //CDI request. We don't permit writes here
@@ -322,6 +467,22 @@ uint16_t DCC_Proxy::MACProcessWrite(void)
 		case 0xFE: //"All memory" access. Just give them what they want?
 			//TODO
 			break;	
+                case 0xF9: //DCC function space
+                  Serial.print("DCC Function ");
+                  Serial.print(address, DEC);
+                  if(_rxDatagramBuffer->data[datagram_offset])
+                  {
+                    Serial.println(" on");
+                    _FX |= (1<<address);
+                  }
+                  else
+                  {
+                    _FX &= ~(1<<address);
+                    Serial.println(" off");
+                  }
+                  _active = true;
+                  _dirty_FX = true;
+                  return DATAGRAM_ERROR_OK;
 	}
 	return DATAGRAM_REJECTED; //send a NAK. Is this what we really want?
 }
@@ -391,7 +552,9 @@ uint16_t DCC_Proxy::MACProcessCommand(void)
 				//TODO tell other handlers that we need to write out anything that needs to be saved!!!
 				//        cli();
 				//        ((void (*)(void))0xF000)();
-				soft_reset();
+				//soft_reset(); don't actually do a reset, just reload the stuff from eeprom
+                                //reason is that we don't want to disturb other vnodes on this piece of hardware.
+                                create(_link, NID, _eeprom_address);
 			}
 			else if((_rxDatagramBuffer->data[1]&0x03) == 0x02) //factory reset!
 			{
@@ -404,7 +567,8 @@ uint16_t DCC_Proxy::MACProcessCommand(void)
 					//_eventHandler->factoryReset();
 					//cli();
 					//((void (*)(void))0xF000)();
-					soft_reset();
+//TODO reset address, etc.
+					create(_link, NID, _eeprom_address);
 				}
 			}
 			// TODO: Handle other cases
@@ -467,4 +631,25 @@ uint8_t DCC_Proxy::readCDI(uint16_t address, uint8_t length, uint8_t *data)
 	return length;
 }
 
+bool DCC_Proxy::handleMessage(OLCB_Buffer *buffer)
+{
+  if (buffer->isIdentifyProducers())
+  {
+    //get the EventID, see if it matches the preset one.
+    OLCB_Event evt, my_evt(PROXY_SLOT_OCCUPIED); //TODO only occupied if it really is!
+    buffer->getEventID(&evt);
+    bool match = true;
+    for (uint8_t i = 0; i < 8; ++i)
+    {
+      if (evt.val[i] != my_evt.val[i])
+      match = false;
+    }
+    if (match) //send an event produced
+    {
+      _producer_identified_flag = true;
+      return true;
+    }
+  }
+  else return OLCB_Datagram_Handler::handleMessage(buffer);
+}
 

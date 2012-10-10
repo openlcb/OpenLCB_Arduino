@@ -10,6 +10,7 @@
 #define SHORT_ADDRESS 0
 
 #define DATAGRAM_MOTIVE             	    0x30
+#define DATAGRAM_MOTIVE_ESTOP                        0x00
 #define DATAGRAM_MOTIVE_SETSPEED			0x01
 #define DATAGRAM_MOTIVE_GETSPEED			0x03
 #define DATAGRAM_MOTIVE_REPORTSPEED			0x02
@@ -21,7 +22,7 @@
 // #define NUM_SIMULTANEOUS_CONTROLLERS 2
 
 //XML CDI data, taken from Io_8P_8C_default.xml
-const static PROGMEM char cdixml[] = "<?xml version='1.0' encoding='UTF-8'?><?xml-stylesheet type='text/xsl' href='xslt/cdi.xsl'?><cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'><identification><manufacturer>Railstars Limited</manufacturer><model>Roster Demo</model><hardwareVersion>$.%</hardwareVersion><softwareVersion>1.0</softwareVersion></identification><acdi /><segment><group><name>User Identification</name><description>Add your own descriptive name and description for this node.</description><string size='32'><name>Node Name</name></string><string size='64'><name>Node Description</name></string></group></segment><segment><group><name>Fun Stuff</name><int size='2'><name>DCC Address</name></int><int size='1'><name>DCC Address Kind</name><map><relation><property>0</property><value>Short Address</value></relation><relation><property>1</property><value>Long Address</value></relation></map></int><int size='1'><name>Speed Step Selection</name><map><relation><property>1</property><value>14 Steps</value></relation><relation><property>2</property><value>28 Steps</value></relation><relation><property>3</property><value>128 Steps</value></relation></map></int></group></segment></cdi>";
+const static PROGMEM char cdixml[] = "<?xml version='1.0' encoding='UTF-8'?><?xml-stylesheet type='text/xsl' href='xslt/cdi.xsl'?><cdi xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:noNamespaceSchemaLocation='http://openlcb.org/trunk/prototypes/xml/schema/cdi.xsd'><identification><manufacturer>Railstars Limited</manufacturer><model>Roster Demo</model><hardwareVersion>1.1</hardwareVersion><softwareVersion>1.0</softwareVersion></identification><acdi /><segment space='253'><group><name>User Identification</name><description>Add your own descriptive name and description for this node.</description><string size='32'><name>Node Name</name></string><string size='64'><name>Node Description</name></string></group><group><name>DCC Information</name><int size='2'><name>DCC Address</name></int><int size='1'><name>DCC Address Kind</name><map><relation><property>0</property><value>Short Address</value></relation><relation><property>1</property><value>Long Address</value></relation></map></int><int size='1'><name>Speed Step Selection</name><map><relation><property>14</property><value>14 Steps</value></relation><relation><property>28</property><value>28 Steps</value></relation><relation><property>128</property><value>128 Steps</value></relation></map></int></group></segment></cdi>";
 
 
 //defines from other library
@@ -64,55 +65,57 @@ const static PROGMEM char cdixml[] = "<?xml version='1.0' encoding='UTF-8'?><?xm
 class DCC_Proxy :
 public OLCB_Datagram_Handler
 {
-	public:
-	void create(OLCB_Link *link, OLCB_NodeID *nid);
-	void update(void);
-	uint16_t processDatagram(OLCB_Datagram *datagram);
-	void datagramResult(bool accepted, uint16_t errorcode);
+  public:
+    void initialize(void);
+    void create(OLCB_Link *link, OLCB_NodeID *nid, uint8_t *address);
+    void update(void);
+    uint16_t processDatagram(void);
+    void datagramResult(bool accepted, uint16_t errorcode);
+    bool handleMessage(OLCB_Buffer *buffer);
+  private:
+    uint16_t MACProcessRead(void);
+    uint16_t MACProcessWrite(void);
+    uint16_t MACProcessCommand(void);
 
-//bool DCC_Proxy_isAttached(OLCB_NodeID *node) {return true;} //no security;
-void setDCCAddress(uint16_t new_address);
+    uint32_t getAddress(uint8_t* data);
+    uint8_t decodeLength(uint8_t* data);
+    uint8_t decodeSpace(uint8_t* data);
+    uint8_t readCDI(uint16_t address, uint8_t length, uint8_t *data);
 
-uint16_t MACProcessRead(void);
-uint16_t MACProcessWrite(void);
-uint16_t MACProcessCommand(void);
+    uint16_t handleTractionDatagram(OLCB_Datagram *datagram);
+    uint16_t handleMemConfigDatagram(OLCB_Datagram *datagram);
 
-uint32_t getAddress(uint8_t* data);
-uint8_t decodeLength(uint8_t* data);
-uint8_t decodeSpace(uint8_t* data);
-uint8_t readCDI(uint16_t address, uint8_t length, uint8_t *data);
-
-private:
-uint8_t _metersPerSecondToDCCSpeed(float mps);
-
-uint16_t _handleTractionDatagram(OLCB_Datagram *datagram);
-uint16_t _handleMemConfigDatagram(OLCB_Datagram *datagram);
-
-//TODO need to do these!
-	 // uint16_t handleAttachDatagram(OLCB_Datagram *datagram) {return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;}
-	 // uint16_t handleReleaseDatagram(OLCB_Datagram *datagram) {return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;}
-	  uint16_t _handleSetSpeedDatagram(OLCB_Datagram *datagram);
-	  uint16_t _handleGetSpeedDatagram(OLCB_Datagram *datagram);
-
-	 // uint16_t handleSetFXDatagram(OLCB_Datagram *datagram) {return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;}
-	 // uint16_t handleGetFXDatagram(OLCB_Datagram *datagram) {return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;}
+    //TODO need to do these!
+    // uint16_t handleAttachDatagram(OLCB_Datagram *datagram) {return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;}
+    // uint16_t handleReleaseDatagram(OLCB_Datagram *datagram) {return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;}
+    uint16_t handleEStopDatagram(void);
+    uint16_t handleSetSpeedDatagram(OLCB_Datagram *datagram);
+    uint16_t handleGetSpeedDatagram(OLCB_Datagram *datagram);
+    // uint16_t handleSetFXDatagram(OLCB_Datagram *datagram) {return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;}
+    // uint16_t handleGetFXDatagram(OLCB_Datagram *datagram) {return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;}
   
-  
-  //helpers
+    //helpers
+    void sendSpeed(void);
+    void sendFX(void);
+    int8_t MetersPerSecondToDCCSpeedStep(float f);
     uint32_t _timer;
-//    OLCB_Datagram *DCC_Proxy_txDatagramBuffer;
-//    OLCB_Datagram *DCC_Proxy_rxDatagramBuffer;
-//    OLCB_Link *DCC_Proxy_link;
-
-  //configuration
+    
+    //configuration
     uint16_t _dcc_address;
-    //uint8_t _dcc_address_kind;
-    uint8_t _speed_curve[128];
-
-  //state infor
-  	int8_t _speed; //in speedsteps; signed for direction
- //   uint32_t DCC_Proxy_FX; //bitfield of 32 FX
- //   OLCB_NodeID *DCC_Proxy_controllers[NUM_SIMULTANEOUS_CONTROLLERS];
+    uint8_t _dcc_address_kind;
+    //uint8_t _speed_curve[128];
+    int8_t _speed;
+    uint8_t _speed_steps;
+    uint32_t _FX; //bitfield of 32 FX
+    //   OLCB_NodeID *_controllers[NUM_SIMULTANEOUS_CONTROLLERS];
+    
+    OLCB_NodeID DCC_NodeID; //address to send DCC commands to.
+    uint8_t _dirty_speed, _dirty_FX; //used to indicate that we need to send a message to the command station.
+    uint8_t _active; //used to indicate that we are actively controlling the train; otherwise, no commands are sent to CS.
+    bool _producer_identified_flag;
+    uint8_t *_eeprom_address;
+    
+    uint8_t _initial_blast;
 };
 
 
