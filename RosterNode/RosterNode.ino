@@ -31,7 +31,7 @@ RosterNode provides a middle layer between a proper OpenLCB throttle, and an Ope
 //TODO right now, as things are configured, each node uses 100 bytes of EEPROM, but this could change!
 #define EEPROM_SIZE 100
 #define EEPROM_OFFSET 10
-#define NUM_SLOTS 3
+#define NUM_SLOTS 1
 
 DCC_Proxy train[NUM_SLOTS];
 OLCB_NodeID train_nid[NUM_SLOTS];
