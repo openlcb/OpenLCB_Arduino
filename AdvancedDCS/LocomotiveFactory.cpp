@@ -140,8 +140,8 @@ LocomotiveFactory::handleMessage(OLCB_Buffer *buffer)
         // send out a verified ID message.
           {
             //  Serial.println("Sending VerifedNID");
-            ((OLCB_CAN_Link*) _link)->sendVerifiedNID(_trains[i].NID);
-            _trains[i].verified = true;
+            //((OLCB_CAN_Link*) _link)->sendVerifiedNID(_trains[i].NID);
+            //_trains[i].verified = true;
           }
       }
   }
