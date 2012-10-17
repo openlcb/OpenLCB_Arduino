@@ -116,6 +116,8 @@ public OLCB_Datagram_Handler
     uint8_t *_eeprom_address;
     
     uint8_t _initial_blast;
+    
+    uint8_t _update_alias;
 };
 
 
