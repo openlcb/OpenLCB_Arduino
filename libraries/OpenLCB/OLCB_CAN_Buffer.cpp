@@ -614,14 +614,14 @@ bool OLCB_CAN_Buffer::isProtocolSupportReply(void)
 	return isFrameTypeOpenLcb() && (getMTI() == MTI_PROTOCOL_SUPPORT_REPLY);
 }
 
-bool OLCB_CAN_Buffer::setProtocolSupportInquiry(OLCB_NodeID* source, OLCB_NodeID* dest)
+void OLCB_CAN_Buffer::setProtocolSupportInquiry(OLCB_NodeID* source, OLCB_NodeID* dest)
 {
 	init(source->alias);
 	setMTI(MTI_PROTOCOL_SUPPORT_INQUIRY);
 	setDestAlias(dest->alias);
 }
 
-bool OLCB_CAN_Buffer::setProtocolSupportReply(OLCB_NodeID* source, OLCB_NodeID* dest)
+void OLCB_CAN_Buffer::setProtocolSupportReply(OLCB_NodeID* source, OLCB_NodeID* dest)
 {
 	//Serial.println("in setProtocolSupportReply");
 	init(source->alias);
@@ -647,5 +647,17 @@ void OLCB_CAN_Buffer::setSNIIReply(OLCB_NodeID* source, OLCB_NodeID* dest)
 {
 	init(source->alias);
 	setMTI(MTI_SNII_REPLY);
+	setDestAlias(dest->alias);
+}
+
+bool OLCB_CAN_Buffer::isTractionControl(void)
+{
+	return isFrameTypeOpenLcb() && (getMTI() == MTI_TRACTION_CONTROL);
+}
+
+void OLCB_CAN_Buffer::setTractionControl(OLCB_NodeID* source, OLCB_NodeID* dest)
+{
+	init(source->alias);
+	setMTI(MTI_TRACTION_CONTROL);
 	setDestAlias(dest->alias);
 }
