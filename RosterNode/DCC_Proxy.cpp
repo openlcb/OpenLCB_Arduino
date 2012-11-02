@@ -10,6 +10,16 @@
 #define PROXY_SLOT_FREE 01,01,00,00,00,00,03,04
 #define COMMAND_STATION_EVENT 01,01,00,00,00,00,04,01
 
+/***
+Messages under a single MTI: Priority 1, index 15, addressed => MTI 0x05E8, CAN frame [195E8sss] fd dd
+Content (after address bytes):
+1st byte selects sub-instruction. High nibble selects protocol (Train Protocol; DCC; and future ones). Low nibble is a specific operation.
+Train Protocol:
+0x00 Speed instruction, followed by 2 bytes float16 speed (sign is direction)
+0x01 Function instruction: 3 byte address, 2 bytes content
+To allow read back, the results of these operations are stored in the 0xFE memory space of the node. The train can also be controlled by direct write of these via the memory protocol.
+***/
+
 void DCC_Proxy::initialize(void)
 {
   _dcc_address = 0;
@@ -646,7 +656,59 @@ uint8_t DCC_Proxy::readCDI(uint16_t address, uint8_t length, uint8_t *data)
 
 bool DCC_Proxy::handleMessage(OLCB_Buffer *buffer)
 {
-  if (buffer->isIdentifyProducers())
+  if(buffer->isTractionControl())
+  {
+    Serial.println("Traction!");
+    //do stuff here.
+    switch(buffer->data[2])
+    {
+      case 0x00: //speed
+      {
+        _float16_shape_type f_val;
+        Serial.println("New MTI Speed change");
+        Serial.println("raw data");
+        f_val.words.msw = buffer->data[3];
+        f_val.words.lsw = buffer->data[4];
+        Serial.print(buffer->data[3], HEX);
+        Serial.print(" ");
+        Serial.println(buffer->data[4], HEX);
+        float new_speed = float16_to_float32(f_val);
+        Serial.println(new_speed);
+        Serial.println("----");
+        if(new_speed == 0)
+        {
+          if(f_val.bits & 0x8000) //-0
+            _speed = -1;
+          else
+            _speed = 1;
+        }
+        else
+        {
+          _speed = map(new_speed, -100, 100, -126, 126);
+          if(_speed < 0) --_speed; //to get it in range -2..-126
+          else ++_speed; //to get it in range 2..126
+        }
+      _active = true; //assume it has been placed on layout.
+      _dirty_speed = true; //force transmission to CS at next update.
+      }
+        break;
+      case 0x01: //function
+      {
+        uint32_t address;
+        address = (buffer->data[3] << 12) | (buffer->data[4] << 8) | (buffer->data[5]);
+        if(address >= 32)
+          break; //can't handle it, just ditch it.
+        if(buffer->data[6] | buffer->data[7]) //treat non-zero as "on", zero as "off"
+          _FX |= (1<<address);
+        else
+          _FX &= ~(1<<address);
+        _active = true;
+        _dirty_FX = true;
+      }
+        break;
+    }
+  }
+  else if (buffer->isIdentifyProducers())
   {
     //get the EventID, see if it matches the preset one.
     OLCB_Event evt;
