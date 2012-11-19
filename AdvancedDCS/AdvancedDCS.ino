@@ -27,7 +27,7 @@ used to drive a DCC booster, such as Railstars RAILbooster.
 Software Requirements:
   "OpenLCB" library
   "CAN" library (from OpenLCB repository)
-  "CmdrArduino" library (from github)
+  "CmdrArduino" library (from github https://github.com/Railstars/CmdrArduino)
 ************/
 
 #include <DCCHardware.h>
