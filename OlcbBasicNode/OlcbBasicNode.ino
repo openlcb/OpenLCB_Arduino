@@ -162,7 +162,7 @@ long patterns[] = { // two per input or output
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn
 };
-ButtonLed* buttons[] = {  // One for each event
+ButtonLed* buttons[] = {  // One for each event, but really only used as pairs
                         &pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD
                        };
 
@@ -185,23 +185,38 @@ void store() { nm.store(&nodeid, events, eventNum); }
 PCE pce(events, eventNum, &txBuffer, &nodeid, pceCallback, store, &link);
 
 // Set up Blue/Gold configuration
-
 BG bg(&pce, buttons, patterns, eventNum, &blue, &gold, &txBuffer);
 
-bool states[] = {false, false, false, false};
+bool states[] = {false, false, false, false}; // current input states; report when changed
+
+int scanIndex = 0;
+// On the assumption that the producers (inputs) and consumers (outputs) are consecutive...
+// These are the 0..nActualPins indicies, not the 0...2*nActualPins array indicies
+#define FIRST_PRODUCER_INDEX    0
+#define LAST_PRODUCER_INDEX     eventNum/4
+#define FIRST_CONSUMER_INDEX    eventNum/4+1
+#define LAST_CONSUMER_INDEX     eventNum/2
+
 void produceFromInputs() {
   // called from loop(), this looks at changes in input pins and 
   // and decides which events to fire
   // with pce.produce(i);
   // The first event of each pair is sent on button down,
   // and second on button up.
-  for (int i = 0; i<eventNum/2; i++) {
-    if (states[i] != buttons[i*2]->state) {
-      states[i] = buttons[i*2]->state;
-      if (states[i]) {
-        pce.produce(i*2);
+  // 
+  // To reduce latency, only MAX_INPUT_SCAN inputs are scanned on each loop
+  //    (Should not exceed the total number of inputs, nor about 4)
+#define MAX_INPUT_SCAN 4
+  //
+  
+  for (int i = 0; i<(MAX_INPUT_SCAN); i++) { // simply a counter of how many to scan
+    if (scanIndex < (LAST_PRODUCER_INDEX)) scanIndex = (FIRST_PRODUCER_INDEX);
+    if (states[scanIndex] != buttons[scanIndex*2]->state) {
+      states[scanIndex] = buttons[scanIndex*2]->state;
+      if (states[scanIndex]) {
+        pce.produce(scanIndex*2);
       } else {
-        pce.produce(i*2+1);
+        pce.produce(scanIndex*2+1);
       }
     }
   }
@@ -220,11 +235,11 @@ void setup()
   nm.setup(&nodeid, events, eventNum, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM);  
   
   // set event types, now that IDs have been loaded from configuration
-  // newEvent arguments are (event index, produce, consume)
-  for (int i=0; i<eventNum/2; i++) {
+  // newEvent arguments are (event index, producer?, consumer?)
+  for (int i=2*(FIRST_PRODUCER_INDEX); i<2*(LAST_PRODUCER_INDEX); i++) {
       pce.newEvent(i,true,false); // producer
   }
-  for (int i=eventNum/2; i<eventNum; i++) {
+  for (int i=2*(FIRST_CONSUMER_INDEX); i<2*(LAST_CONSUMER_INDEX); i++) {
       pce.newEvent(i,false,true); // consumer
   }
   
@@ -237,7 +252,7 @@ void loop() {
         // blink blue to show that the frame was received
         blue.blink(0x1);
     }
-    if (OpenLcb_can_active) {
+    if (OpenLcb_can_active) { // set when a frame sent
         gold.blink(0x1);
         OpenLcb_can_active = false;
     }
