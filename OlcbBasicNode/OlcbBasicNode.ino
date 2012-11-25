@@ -103,7 +103,7 @@ extern "C" {
     uint32_t spaceUpperAddr(uint8_t space) {  // return last valid address
       switch (space) {
           case 255: return sizeof(configDefInfo) - 1; // CDI (data starts at zero)
-          case 254: return 1024-1; // RAM
+          case 254: return RAMEND; // RAM from Arduino definition
           case 253: return LAST_EEPROM; // Configuration
       }
       return (uint32_t)3;
