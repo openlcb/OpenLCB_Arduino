@@ -71,7 +71,7 @@ const prog_char configDefInfo[] PROGMEM = {
 
 const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0\000" OlcbCommonVersion ; // last zero in double-quote
 
-} // end extern "C"
+}; // end extern "C"
 
 #define SNII_var_data 94
 #define SNII_var_offset 20
@@ -98,6 +98,17 @@ const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0
  *************************************************** */
 
 #define LAST_EEPROM 12+150+8*sizeof(Event)
+
+extern "C" {
+    uint32_t spaceUpperAddr(uint8_t space) {  // return last valid address
+      switch (space) {
+          case 255: return sizeof(configDefInfo) - 1; // CDI (data starts at zero)
+          case 254: return 1024-1; // RAM
+          case 253: return LAST_EEPROM; // Configuration
+      }
+      return (uint32_t)3;
+    }
+};
 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {

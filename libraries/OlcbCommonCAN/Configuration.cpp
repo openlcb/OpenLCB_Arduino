@@ -172,8 +172,18 @@ void Configuration::processCmd(uint8_t* data, int length) {
             request = false;
             // will reply, mark as done.
             d[0]=CONFIGURATION_DATAGRAM_CODE; d[1]=CFG_CMD_GET_ADD_SPACE_INFO_REPLY;
-            d[2]=data[2];d[3]=0x00;d[4]=0xFF;d[5]=0xFF;d[6]=0xFF;d[7]=0x00;
-            if (data[2] >= 0xFB) d[1]|= 0x1;
+            d[2]=data[2]; // return space number requested
+            if (spaceUpperAddr) {
+                uint32_t a = spaceUpperAddr(data[2]);
+                d[6] = (uint8_t)(a&0xFF);  a = a>>8;
+                d[5] = (uint8_t)(a&0xFF);  a = a>>8;
+                d[4] = (uint8_t)(a&0xFF);  a = a>>8;
+                d[3] = (uint8_t)(a&0xFF);
+            } else {
+                d[3]=0x00;d[4]=0xFF;d[5]=0xFF;d[6]=0xFF;
+            }
+            d[7]=0x00;
+            if (data[2] >= 0xFB) d[1]|= 0x1; // indicates is present
             dg->sendTransmitBuffer(8, from);
             break;
           }

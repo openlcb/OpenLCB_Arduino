@@ -54,4 +54,9 @@ class Configuration {
  
 };
 
+// optional members
+extern "C" {
+uint32_t spaceUpperAddr(uint8_t space) __attribute__((weak));
+};
+
 #endif
