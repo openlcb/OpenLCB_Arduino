@@ -249,6 +249,7 @@ uint16_t MyConfigHandler::MACProcessCommand(void)
   OLCB_Datagram reply;
   reply.data[0] = MAC_PROTOCOL_ID;
   memcpy(&(reply.destination), &(_rxDatagramBuffer->source), sizeof(OLCB_NodeID));
+  reply.length = 0; //a flag to know if we are handling this message
   switch (_rxDatagramBuffer->data[1]&0xFC)
   {
   case MAC_CMD_GET_CONFIG_OPTIONS:
@@ -260,7 +261,6 @@ uint16_t MyConfigHandler::MACProcessCommand(void)
     reply.data[4] = MAC_CONFIG_OPTIONS_1_BYTE_WRITE | MAC_CONFIG_OPTIONS_2_BYTE_WRITE | MAC_CONFIG_OPTIONS_4_BYTE_WRITE | MAC_CONFIG_OPTIONS_64_BYTE_WRITE | MAC_CONFIG_OPTIONS_ARBITRARY_WRITE;
     reply.data[5] = 0xFF; //highest address space
     reply.data[6] = 0xFD; //lowest address space
-    sendDatagram(&reply);
     break;
   case MAC_CMD_GET_ADD_SPACE_INFO:
     Serial.println("MAC_CMD_GET_ADD_SPACE_INFO");
@@ -293,10 +293,6 @@ uint16_t MyConfigHandler::MACProcessCommand(void)
       reply.data[7] = 0x00; //can write
       break;
     }
-    if(sendDatagram(&reply))
-      return DATAGRAM_ERROR_OK;
-    else
-      return DATAGRAM_REJECTED_BUFFER_FULL;
   case MAC_CMD_RESETS:
     Serial.println("MAC_CMD_RESETS");
     // force restart (may not reply?)
@@ -351,10 +347,6 @@ uint16_t MyConfigHandler::MACProcessCommand(void)
       }
       EEPROM.write(2,eid6);
       EEPROM.write(3,eid7);
-      if(sendDatagram(&reply))
-        return DATAGRAM_ERROR_OK;
-      else
-        return DATAGRAM_REJECTED_BUFFER_FULL;
     }
     break;
   case MAC_CMD_FREEZE:
@@ -367,6 +359,16 @@ uint16_t MyConfigHandler::MACProcessCommand(void)
     Serial.println("Not recognized");
     break;
   }
+
+  if(reply.length)
+  {
+    if(sendDatagram(&reply))
+      return DATAGRAM_ERROR_OK;
+    else
+      return DATAGRAM_REJECTED_BUFFER_FULL;
+  }
+  else //we didn't handle the datagram
+    return DATAGRAM_REJECTED_DATAGRAM_TYPE_NOT_ACCEPTED;
 
   return DATAGRAM_REJECTED;
 }
