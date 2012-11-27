@@ -102,8 +102,7 @@ uint16_t MyConfigHandler::MACProcessRead(void)
   uint8_t space = decodeSpace(_rxDatagramBuffer->data);
   uint8_t datagram_offset = (_rxDatagramBuffer->data[1]&0x03)?6:7; //if the space is encoded in the flags in data[1], then the payload begins at byte 6; else, the payload begins after the space byte, at byte 7.
   uint8_t length = _rxDatagramBuffer->data[datagram_offset];
-  
-  
+ 
   
   OLCB_Datagram reply;
   memcpy(&(reply.destination), &(_rxDatagramBuffer->source), sizeof(OLCB_NodeID));
@@ -141,7 +140,7 @@ uint16_t MyConfigHandler::MACProcessRead(void)
     
   case 0xFF: //CDI request.
     Serial.println("CDI request.");
-    reply.length = readCDI(address, length, &(reply.data[datagram_offset])) + 6;
+    reply.length = readCDI(address, length, &(reply.data[datagram_offset])) + datagram_offset;
     Serial.print("total length of CDI reply = ");
     Serial.println(reply.length, DEC);
     if(sendDatagram(&reply))
@@ -156,7 +155,7 @@ uint16_t MyConfigHandler::MACProcessRead(void)
     //Serial.println("configuration space.");
   	if(address < 260)
   	{
-  		reply.length = _eventHandler->readConfig(address, length, &(reply.data[datagram_offset])) + 6;
+  		reply.length = _eventHandler->readConfig(address, length, &(reply.data[datagram_offset])) + datagram_offset;
 	}
 	else
 	{
@@ -173,6 +172,8 @@ uint16_t MyConfigHandler::MACProcessRead(void)
 			reply.data[datagram_offset+i] = x;
 		}
 	}
+    Serial.print("Outbound Datagram len: ");
+    Serial.println(reply.length, DEC);
     if(sendDatagram(&reply))
     {
       //Serial.println("away OK");
