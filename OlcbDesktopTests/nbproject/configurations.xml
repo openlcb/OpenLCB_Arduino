@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="80">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>ButtonProtocol_unittest.cpp</itemPath>
+      <itemPath>CanMrrlcbTest.cpp</itemPath>
+      <itemPath>OpenLcbCanBuffer_unittest.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="Test Files"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile.nb</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile.nb</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>GNU|GNU</compilerSet>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>../gtest/include</pElem>
+            <pElem>../libraries/OlcbCommonCAN</pElem>
+            <pElem>../libraries/ButtonLED</pElem>
+            <pElem>../OlcbDesktopCAN</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/olcbdesktoptests</output>
+          <linkerAddLib>
+            <pElem>../gtest</pElem>
+          </linkerAddLib>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../libraries/OlcbCommonCAN"
+                            CT="3"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../libraries/OlcbCommonCAN"
+                            BC="${MAKE}  -f Makefile.nb CONF=Release"
+                            CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbcommoncan.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../libraries/ButtonLED"
+                            CT="3"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../libraries/ButtonLED"
+                            BC="${MAKE}  -f Makefile.nb CONF=Release"
+                            CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libbuttonled.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../FakeUino"
+                            CT="3"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../FakeUino"
+                            BC="${MAKE}  -f Makefile.nb CONF=Debug"
+                            CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../OlcbDesktopCAN"
+                            CT="3"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../OlcbDesktopCAN"
+                            BC="${MAKE}  -f Makefile.nb CONF=Release"
+                            CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbdesktopcan.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibFileItem>../gtest/gtest_main.a</linkerLibFileItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../libraries/OlcbCommonCAN"
+                        CT="3"
+                        CN="Debug"
+                        AC="true"
+                        BL="true"
+                        WD="../libraries/OlcbCommonCAN"
+                        BC="${MAKE}  -f Makefile.nb CONF=Debug"
+                        CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbcommoncan.a">
+          </makeArtifact>
+          <makeArtifact PL="../libraries/ButtonLED"
+                        CT="3"
+                        CN="Debug"
+                        AC="true"
+                        BL="true"
+                        WD="../libraries/ButtonLED"
+                        BC="${MAKE}  -f Makefile.nb CONF=Debug"
+                        CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libbuttonled.a">
+          </makeArtifact>
+          <makeArtifact PL="../OlcbDesktopCAN"
+                        CT="3"
+                        CN="Debug"
+                        AC="true"
+                        BL="true"
+                        WD="../OlcbDesktopCAN"
+                        BC="${MAKE}  -f Makefile.nb CONF=Debug"
+                        CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbdesktopcan.a">
+          </makeArtifact>
+          <makeArtifact PL="../FakeUino"
+                        CT="3"
+                        CN="Debug"
+                        AC="true"
+                        BL="true"
+                        WD="../FakeUino"
+                        BC="${MAKE}  -f Makefile.nb CONF=Debug"
+                        CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>default</compilerSet>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>../gtest/include</pElem>
+            <pElem>../libraries/OlcbCommonCAN</pElem>
+            <pElem>../libraries/ButtonLED</pElem>
+            <pElem>../OlcbDesktopCAN</pElem>
+          </incDir>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+        <linkerTool>
+          <linkerAddLib>
+            <pElem>../gtest</pElem>
+          </linkerAddLib>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../libraries/OlcbCommonCAN"
+                            CT="3"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../libraries/OlcbCommonCAN"
+                            BC="${MAKE}  -f Makefile.nb CONF=Release"
+                            CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbcommoncan.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../libraries/ButtonLED"
+                            CT="3"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../libraries/ButtonLED"
+                            BC="${MAKE}  -f Makefile.nb CONF=Release"
+                            CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libbuttonled.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../FakeUino"
+                            CT="3"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../FakeUino"
+                            BC="${MAKE}  -f Makefile.nb CONF=Release"
+                            CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../OlcbDesktopCAN"
+                            CT="3"
+                            CN="Release"
+                            AC="false"
+                            BL="true"
+                            WD="../OlcbDesktopCAN"
+                            BC="${MAKE}  -f Makefile.nb CONF=Release"
+                            CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbdesktopcan.a">
+              </makeArtifact>
+            </linkerLibProjectItem>
+            <linkerLibFileItem>../gtest/gtest_main.a</linkerLibFileItem>
+          </linkerLibItems>
+        </linkerTool>
+        <requiredProjects>
+          <makeArtifact PL="../libraries/OlcbCommonCAN"
+                        CT="3"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
+                        WD="../libraries/OlcbCommonCAN"
+                        BC="${MAKE}  -f Makefile.nb CONF=Release"
+                        CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbcommoncan.a">
+          </makeArtifact>
+          <makeArtifact PL="../libraries/ButtonLED"
+                        CT="3"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
+                        WD="../libraries/ButtonLED"
+                        BC="${MAKE}  -f Makefile.nb CONF=Release"
+                        CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libbuttonled.a">
+          </makeArtifact>
+          <makeArtifact PL="../OlcbDesktopCAN"
+                        CT="3"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
+                        WD="../OlcbDesktopCAN"
+                        BC="${MAKE}  -f Makefile.nb CONF=Release"
+                        CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbdesktopcan.a">
+          </makeArtifact>
+          <makeArtifact PL="../FakeUino"
+                        CT="3"
+                        CN="Release"
+                        AC="false"
+                        BL="true"
+                        WD="../FakeUino"
+                        BC="${MAKE}  -f Makefile.nb CONF=Release"
+                        CC="${MAKE}  -f Makefile.nb CONF=Release clean"
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
+          </makeArtifact>
+        </requiredProjects>
+      </compileType>
+    </conf>
+  </confs>
+</configurationDescriptor>
