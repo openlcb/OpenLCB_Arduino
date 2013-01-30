@@ -2,12 +2,13 @@
 <HTML>
 <HEAD>
 	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
-	<TITLE>OpenLCB C/C++ Prototype</TITLE>
-	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.4  (Unix)">
+	<TITLE>OpenLCB C/C++ Prototypes</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.4.1  (Unix)">
 	<META NAME="AUTHOR" CONTENT="Bob Jacobsen">
 	<META NAME="CREATED" CONTENT="20090816;10132800">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGED" CONTENT="20120902;12091700">
+	<META NAME="CHANGED" CONTENT="20121224;19482900">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
@@ -17,6 +18,8 @@
 	<!--
 		H2.cjk { font-family: "SimSun" }
 		H2.ctl { font-family: "Arial Unicode MS" }
+		H3.cjk { font-family: "SimSun" }
+		H3.ctl { font-family: "Lucida Sans" }
 	-->
 	</STYLE>
 </HEAD>
@@ -24,16 +27,16 @@
 <H1><FONT COLOR="#000000"><IMG SRC="../../web/logo-ajs-dph.png" NAME="OpenLCB" ALIGN=RIGHT WIDTH=337 HEIGHT=135 BORDER=2></FONT>OpenLCB
 C/C++ Prototypes</H1>
 <P>This is the index page of the OpenLCB™ C/C++ prototypes
-directory. This directory contains an OpenLCB prototype
-implementation. It's hardware-independent as much as possible, so
-that it can form the basis for the Arduino and PIC implementations.
-It's also configured to run <A HREF="libraries/OlcbTestCAN/index.html">standalone
-tests and simulations</A> without specific hardware, e.g on a PC.</P>
+directory. This directory contains two OpenLCB prototype library
+implementations, and a number of projects that use one or the other
+of them. These are intended to run on a range of systems, from small
+stand-alone devices through PC-class machines.</P>
 <P>Because of the requirements of the Arduino IDE, which doesn't have
-a “project” concept, this directory contains multiple prototypes.
- They are generically referred to as the “Olcb* libraries” and
-the “OpenLCB library” due to their names.  There are also
-multiple Ardunio sketches and code directories that use these:</P>
+a “project” concept, we're forced to put our multiple prototypes
+in a single directory. They are generically referred to as the “Olcb*
+libraries” and the “OpenLCB library” due to their names. There
+are also multiple Ardunio sketches and code directories that use
+these:</P>
 <P>Sketches OlcbBasicNode, OlcbMiniNode and project directory
 OlcbDesktopTest use implementations from libraries/OlcbCommonCAN,
 libraries/OlcbDesktopCAN, libraries/OlcbArduinoCAN,
@@ -66,7 +69,7 @@ directory contains Makefiles and test scaffolding to compile the
 OpenLCB prototype code, run it, and compare it to expected results.
 Over time, this set of tests is growing into an important regression
 test of both the protocols can implementations.</P>
-<H2 CLASS="western">Getting the Code</H2>
+<H3 CLASS="western">Getting the Code</H3>
 <P>The content of this development area, including code, documents
 and web pages, is kept in the <A HREF="https://sourceforge.net/projects/openlcb/develop">OpenLCB</A>
 <A HREF="https://sourceforge.net/">SourceForge.net</A> <A HREF="http://openlcb.svn.sourceforge.net/viewvc/openlcb/trunk">SVN
@@ -79,7 +82,7 @@ the <A HREF="http://svnbook.red-bean.com/">online SVN book</A>.</P>
 <P STYLE="margin-bottom: 0cm"><BR>
 </P>
 <HR>
-<P STYLE="margin-bottom: 0cm">This web sites contains trademarks and
+<P STYLE="margin-bottom: 0cm">This web site contains trademarks and
 copyrighted information. Please see the <A HREF="/Licensing.html">Licensing</A>
 page.</P>
 <P STYLE="margin-bottom: 0cm">This is SVN $Revision$ of <SDFIELD TYPE=DATETIME SDVAL="40041.4309143519" SDNUM="1033;1033;MM/DD/YY">08/16/09</SDFIELD>.</P>

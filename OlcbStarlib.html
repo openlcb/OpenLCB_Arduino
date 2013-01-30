@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+	<TITLE>Olcb* C/C++ Libraries</TITLE>
+	<META NAME="GENERATOR" CONTENT="OpenOffice.org 3.4.1  (Unix)">
+	<META NAME="AUTHOR" CONTENT="Bob Jacobsen">
+	<META NAME="CREATED" CONTENT="20090816;10132800">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGED" CONTENT="20121225;19153600">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<META NAME="CHANGEDBY" CONTENT="David Harris">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
+	<STYLE TYPE="text/css">
+	<!--
+		H3.cjk { font-family: "SimSun" }
+		H3.ctl { font-family: "Lucida Sans" }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="en-US" BGCOLOR="#e6e6ff" DIR="LTR">
+<H1><FONT COLOR="#000000"><IMG SRC="../../web/logo-ajs-dph.png" NAME="OpenLCB" ALIGN=RIGHT WIDTH=337 HEIGHT=135 BORDER=2></FONT>Olcb*
+C/C++ Libraries</H1>
+<P>The OlcbCommonCAN library combined with other platform-specific
+libraries to form a low-end OpenLCB implementation aimed at small
+processors. Together, the parts are called the Olcb* (pronounced
+“olcb star”) libraries.</P>
+<UL>
+	<LI><P>OlcbCommonCAN – common implementations for CAN wire
+	protocol</P>
+	<LI><P>OlcbArduino – implementations specific to Arduino,
+	including the CAN driver interface for the Arduino CAN library</P>
+	<LI><P>OlcbTest – (being deprecated) bits to run on a desktop
+	machine</P>
+</UL>
+<P>It's hardware-independent as much as possible, so that it can form
+the basis for the Arduino and PIC implementations. It's also
+configured to run <A HREF="libraries/OlcbTestCAN/index.html">standalone
+tests and simulations</A> without specific hardware, e.g on a PC.
+These are now written using the <A HREF="http://code.google.com/p/googletest/">gtest
+toolkit</A>, a pre-configured copy of which is included in OpenLCB
+SVN.</P>
+<P>The sections below discuss the details of using the code.</P>
+<H3 CLASS="western">Arduino IDE</H3>
+<P>Sketches OlcbBasicNode, OlcbMiniNode and project directory
+OlcbDesktopTest use implementations from libraries/OlcbCommonCAN,
+libraries/OlcbDesktopCAN, libraries/OlcbArduinoCAN,
+libraries/OlcbTestCAN (deprecated)</P>
+<P>The basic starting point is the OlcbBasicNode sketch, which
+implements 4 producers and 4 consumers on an Arduino shield.</P>
+<H3 CLASS="western">Standalone Gmake</H3>
+<P>To build and run the tests, do 
+</P>
+<P STYLE="margin-left: 2cm"><CODE><B>make run</B></CODE></P>
+<P>The gcc/g++ compiler is expected. The “run” argument runs some
+standalone tests that work by comparing stdout to pre-made files from
+SVN; it might not work on a non-*nix machine.</P>
+<P>This is primarily used to do a quick build check on all the Olcb*
+sketches after a change to the code.</P>
+<H3 CLASS="western">NetBeans</H3>
+<P>You can build and test the libraries for your desktop machine via
+NetBeans. Cross-compilation is not yet available, though it would be
+a great thing for somebody to work on.</P>
+<P>Start by opening the C/OlcbDesktopTests project. It should also
+open four other projects:</P>
+<UL>
+	<LI><P>ButtonLED</P>
+	<LI><P>FakeUino – This provides desktop C substitutes for Arduino
+	functions</P>
+	<LI><P>OlcbCommonCAN – This project builds the common library</P>
+	<LI><P>OlcbDesktopCAN – This project provides the base desktop
+	implementations for linking with the library</P>
+</UL>
+<P>Select the OlcbDesktopTests project in the window, do a clean
+build, and then run. This runs the default set of tests.</P>
+<P>Note to MacOS X users: To get command line C/C++ tools needed by
+NetBeans, you may need to download and launch Xcode, go to
+Preferences → Downloads, and install the command line tools.</P>
+<H3 CLASS="western">Getting the Code</H3>
+<P>The content of this development area, including code, documents
+and web pages, is kept in the <A HREF="https://sourceforge.net/projects/openlcb/develop">OpenLCB</A>
+<A HREF="https://sourceforge.net/">SourceForge.net</A> <A HREF="http://openlcb.svn.sourceforge.net/viewvc/openlcb/trunk">SVN
+repository</A> in the “trunk/prototypes/C” directory. To check it
+out, please do:</P>
+<PRE STYLE="margin-left: 2cm; margin-bottom: 0.5cm"><B>svn co https://openlcb.svn.sourceforge.net/svnroot/openlcb/trunk/prototypes/C C</B></PRE><P STYLE="margin-bottom: 0cm">
+For more information on the SVN source code management tool, please
+see the <A HREF="http://subversion.tigris.org/">SVN website</A> and
+the <A HREF="http://svnbook.red-bean.com/">online SVN book</A>.</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<HR>
+<P STYLE="margin-bottom: 0cm">This web site contains trademarks and
+copyrighted information. Please see the <A HREF="/Licensing.html">Licensing</A>
+page.</P>
+<P STYLE="margin-bottom: 0cm">This is SVN $Revision$ of <SDFIELD TYPE=DATETIME SDVAL="40041.4309143519" SDNUM="1033;1033;MM/DD/YY">08/16/09</SDFIELD>.</P>
+</BODY>
+</HTML>
