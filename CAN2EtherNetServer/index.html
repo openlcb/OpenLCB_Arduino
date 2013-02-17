@@ -38,11 +38,9 @@ with characters outside that ignored. Frame validity is not checked.</P>
 WIZnet chip. The code includes an optional reference to a modified
 library to avoid a pin conflict with some CAN interfaces.</P>
 <P>Up to four Telnet connections are supported automatically by the
-Ethernet librarybuilds all the example Arduino sketches in the
-current directory, thereby ensuring they compile. It then tests
-execution of the library by building several executables in the
-OpenLcbTest directory, then running them and comparing their output
-to reference files.</P>
+Ethernet library. Note that frames from one TCP/IP connection
+will <b>not</b> be echoed to the other connections;
+this is a problem when using multiple connections for e.g. a backbone.</P>
 <H2 CLASS="western">Versions</H2>
 <UL>
 	<LI><P STYLE="margin-bottom: 0cm">Version: 1.0.0.2</P>
