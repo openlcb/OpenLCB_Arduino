@@ -10,7 +10,6 @@
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects>
                 <make-dep-project>../OlcbDesktopCAN</make-dep-project>
-                <make-dep-project>../FakeUino</make-dep-project>
                 <make-dep-project>../libraries/ButtonLED</make-dep-project>
                 <make-dep-project>../libraries/OlcbCommonCAN</make-dep-project>
             </make-dep-projects>

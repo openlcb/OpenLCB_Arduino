@@ -75,18 +75,6 @@
               </makeArtifact>
             </linkerLibProjectItem>
             <linkerLibProjectItem>
-              <makeArtifact PL="../FakeUino"
-                            CT="3"
-                            CN="Debug"
-                            AC="true"
-                            BL="true"
-                            WD="../FakeUino"
-                            BC="${MAKE}  -f Makefile.nb CONF=Debug"
-                            CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
-            <linkerLibProjectItem>
               <makeArtifact PL="../OlcbDesktopCAN"
                             CT="3"
                             CN="Release"
@@ -131,16 +119,6 @@
                         BC="${MAKE}  -f Makefile.nb CONF=Debug"
                         CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbdesktopcan.a">
-          </makeArtifact>
-          <makeArtifact PL="../FakeUino"
-                        CT="3"
-                        CN="Debug"
-                        AC="true"
-                        BL="true"
-                        WD="../FakeUino"
-                        BC="${MAKE}  -f Makefile.nb CONF=Debug"
-                        CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -199,18 +177,6 @@
               </makeArtifact>
             </linkerLibProjectItem>
             <linkerLibProjectItem>
-              <makeArtifact PL="../FakeUino"
-                            CT="3"
-                            CN="Release"
-                            AC="false"
-                            BL="true"
-                            WD="../FakeUino"
-                            BC="${MAKE}  -f Makefile.nb CONF=Release"
-                            CC="${MAKE}  -f Makefile.nb CONF=Release clean"
-                            OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
-              </makeArtifact>
-            </linkerLibProjectItem>
-            <linkerLibProjectItem>
               <makeArtifact PL="../OlcbDesktopCAN"
                             CT="3"
                             CN="Release"
@@ -255,16 +221,6 @@
                         BC="${MAKE}  -f Makefile.nb CONF=Release"
                         CC="${MAKE}  -f Makefile.nb CONF=Release clean"
                         OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbdesktopcan.a">
-          </makeArtifact>
-          <makeArtifact PL="../FakeUino"
-                        CT="3"
-                        CN="Release"
-                        AC="false"
-                        BL="true"
-                        WD="../FakeUino"
-                        BC="${MAKE}  -f Makefile.nb CONF=Release"
-                        CC="${MAKE}  -f Makefile.nb CONF=Release clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
           </makeArtifact>
         </requiredProjects>
       </compileType>

@@ -63,12 +63,12 @@
       <compileType>
         <cTool>
           <incDir>
-            <pElem>../../FakeUino</pElem>
+            <pElem>../../OlcbDesktopCAN</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
-            <pElem>../../FakeUino</pElem>
+            <pElem>../../OlcbDesktopCAN</pElem>
           </incDir>
         </ccTool>
         <archiverTool>
@@ -84,13 +84,13 @@
         <cTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../../FakeUino</pElem>
+            <pElem>../../OlcbDesktopCAN</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../../FakeUino</pElem>
+            <pElem>../../OlcbDesktopCAN</pElem>
           </incDir>
         </ccTool>
         <fortranCompilerTool>

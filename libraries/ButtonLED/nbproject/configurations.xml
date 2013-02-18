@@ -37,26 +37,26 @@
       <compileType>
         <cTool>
           <incDir>
-            <pElem>../../FakeUino</pElem>
+            <pElem>../../OlcbDesktopCAN</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <incDir>
-            <pElem>../../FakeUino</pElem>
+            <pElem>../../OlcbDesktopCAN</pElem>
           </incDir>
         </ccTool>
         <archiverTool>
         </archiverTool>
         <requiredProjects>
-          <makeArtifact PL="../../FakeUino"
+          <makeArtifact PL="../../OlcbDesktopCAN"
                         CT="3"
                         CN="Debug"
                         AC="true"
                         BL="false"
-                        WD="../../FakeUino"
+                        WD="../../OlcbDesktopCAN"
                         BC="${MAKE}  -f Makefile.nb CONF=Debug"
                         CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbdesktopcan.a">
           </makeArtifact>
         </requiredProjects>
       </compileType>
@@ -70,13 +70,13 @@
         <cTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../../FakeUino</pElem>
+            <pElem>../../OlcbDesktopCAN</pElem>
           </incDir>
         </cTool>
         <ccTool>
           <developmentMode>5</developmentMode>
           <incDir>
-            <pElem>../../FakeUino</pElem>
+            <pElem>../../OlcbDesktopCAN</pElem>
           </incDir>
         </ccTool>
         <fortranCompilerTool>
@@ -88,15 +88,15 @@
         <archiverTool>
         </archiverTool>
         <requiredProjects>
-          <makeArtifact PL="../../FakeUino"
+          <makeArtifact PL="../../OlcbDesktopCAN"
                         CT="3"
                         CN="Debug"
                         AC="true"
                         BL="false"
-                        WD="../../FakeUino"
+                        WD="../../OlcbDesktopCAN"
                         BC="${MAKE}  -f Makefile.nb CONF=Debug"
                         CC="${MAKE}  -f Makefile.nb CONF=Debug clean"
-                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libfakeuino.a">
+                        OP="${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/libolcbdesktopcan.a">
           </makeArtifact>
         </requiredProjects>
       </compileType>
