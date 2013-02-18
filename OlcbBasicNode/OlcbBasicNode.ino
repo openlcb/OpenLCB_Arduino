@@ -39,10 +39,12 @@ NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid
 // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
 #define GOLD 49
 
-/**
- * Get and put routines that 
- * use a test memory space.
- */
+// Number of channels implemented. Each corresonds 
+// to an input or output pin.
+#define NUM_CHANNEL 4
+
+// total number of events, two per channel
+#define NUM_EVENT 2*NUM_CHANNEL
 
 // next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
 extern "C" {
@@ -97,7 +99,7 @@ const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbBasicNode\0001.0
  *
  *************************************************** */
 
-#define LAST_EEPROM 12+150+8*sizeof(Event)
+#define LAST_EEPROM 12+150+NUM_EVENT*sizeof(Event)
 
 extern "C" {
     uint32_t spaceUpperAddr(uint8_t space) {  // return last valid address
@@ -149,13 +151,12 @@ uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
 }
 
 // Events this node can produce or consume, used by PCE and loaded from EEPROM by NM
-Event events[] = {
+Event events[] = { // should be NUM_EVENT of these
     Event(), Event(), Event(), Event(), 
     Event(), Event(), Event(), Event() 
 };
-int eventNum = 8;
 
-// output drivers
+// input/output pin drivers
 // 14, 15, 16, 17 for LEDuino with standard shield
 // 16, 17, 18, 19 for IOduino to clear built-in blue and gold
 // Io 0-7 are outputs & LEDs, 8-15 are inputs
@@ -167,13 +168,13 @@ ButtonLed pD(9, LOW);
 #define ShortBlinkOn   0x00010001L
 #define ShortBlinkOff  0xFFFEFFFEL
 
-long patterns[] = { // two per input or output
+long patterns[] = { // two per cchannel, one per event
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn,
   ShortBlinkOff,ShortBlinkOn
 };
-ButtonLed* buttons[] = {  // One for each event, but really only used as pairs
+ButtonLed* buttons[] = {  // One for each event; each channel is a pair
                         &pA,&pA,&pB,&pB,&pC,&pC,&pD,&pD
                        };
 
@@ -191,22 +192,22 @@ void pceCallback(int index){
 }
 
 NodeMemory nm(0);  // allocate from start of EEPROM
-void store() { nm.store(&nodeid, events, eventNum); }
+void store() { nm.store(&nodeid, events, NUM_EVENT); }
 
-PCE pce(events, eventNum, &txBuffer, &nodeid, pceCallback, store, &link);
+PCE pce(events, NUM_EVENT, &txBuffer, &nodeid, pceCallback, store, &link);
 
 // Set up Blue/Gold configuration
-BG bg(&pce, buttons, patterns, eventNum, &blue, &gold, &txBuffer);
+BG bg(&pce, buttons, patterns, NUM_EVENT, &blue, &gold, &txBuffer);
 
 bool states[] = {false, false, false, false}; // current input states; report when changed
 
 int scanIndex = 0;
-// On the assumption that the producers (inputs) and consumers (outputs) are consecutive...
-// These are the 0..nActualPins indicies, not the 0...2*nActualPins array indicies
-#define FIRST_PRODUCER_INDEX    0
-#define LAST_PRODUCER_INDEX     eventNum/4
-#define FIRST_CONSUMER_INDEX    eventNum/4+1
-#define LAST_CONSUMER_INDEX     eventNum/2
+// On the assumption that the producers (inputs) and consumers (outputs) are consecutive, 
+// these are used later to label the individual channels as producer or consumer
+#define FIRST_PRODUCER_CHANNEL_INDEX    0
+#define LAST_PRODUCER_CHANNEL_INDEX     NUM_CHANNEL/2-1
+#define FIRST_CONSUMER_CHANNEL_INDEX    NUM_CHANNEL/2
+#define LAST_CONSUMER_CHANNEL_INDEX     NUM_CHANNEL
 
 void produceFromInputs() {
   // called from loop(), this looks at changes in input pins and 
@@ -221,7 +222,7 @@ void produceFromInputs() {
   //
   
   for (int i = 0; i<(MAX_INPUT_SCAN); i++) { // simply a counter of how many to scan
-    if (scanIndex < (LAST_PRODUCER_INDEX)) scanIndex = (FIRST_PRODUCER_INDEX);
+    if (scanIndex < (LAST_PRODUCER_CHANNEL_INDEX)) scanIndex = (FIRST_PRODUCER_CHANNEL_INDEX);
     if (states[scanIndex] != buttons[scanIndex*2]->state) {
       states[scanIndex] = buttons[scanIndex*2]->state;
       if (states[scanIndex]) {
@@ -243,14 +244,14 @@ void setup()
   
   // read OpenLCB from EEPROM
   //nm.forceInitAll(); // uncomment if need to go back to initial EEPROM state
-  nm.setup(&nodeid, events, eventNum, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM);  
+  nm.setup(&nodeid, events, NUM_EVENT, (uint8_t*) 0, (uint16_t)0, (uint16_t)LAST_EEPROM);  
   
   // set event types, now that IDs have been loaded from configuration
   // newEvent arguments are (event index, producer?, consumer?)
-  for (int i=2*(FIRST_PRODUCER_INDEX); i<2*(LAST_PRODUCER_INDEX); i++) {
+  for (int i=2*(FIRST_PRODUCER_CHANNEL_INDEX); i<2*(LAST_PRODUCER_CHANNEL_INDEX+1); i++) {
       pce.newEvent(i,true,false); // producer
   }
-  for (int i=2*(FIRST_CONSUMER_INDEX); i<2*(LAST_CONSUMER_INDEX); i++) {
+  for (int i=2*(FIRST_CONSUMER_CHANNEL_INDEX); i<2*(LAST_CONSUMER_CHANNEL_INDEX+1); i++) {
       pce.newEvent(i,false,true); // consumer
   }
   
