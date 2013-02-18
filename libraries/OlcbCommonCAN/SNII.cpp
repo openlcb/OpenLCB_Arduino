@@ -65,6 +65,8 @@ const uint8_t SNII_nextByte() {
         c = getRead(ptr++, 0xFB);
         if (c==0) state = STATE_DONE;
         return c;
+    default:
+        return 0;
     }
 }
 
