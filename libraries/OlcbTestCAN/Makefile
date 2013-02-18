@@ -1,7 +1,7 @@
 
 TOPDIR := $(PWD)
 OBJDIR := $(TOPDIR)/obj
-CPPFLAGS := -I$(PWD)/../OlcbCommonCAN -I$(PWD)/scaffold $(CPPFLAGS) -I$(PWD)/../OlcbArduinoCAN
+CPPFLAGS := -I$(PWD)/../OlcbCommonCAN -I$(PWD)/scaffold $(CPPFLAGS) -I$(PWD)/../OlcbArduinoCAN -DRAMEND=0x0200
 
 SUBDIRS = scaffold ../OlcbCommonCAN test
 

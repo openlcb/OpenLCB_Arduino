@@ -43,6 +43,17 @@ LinkControl link(&txBuffer, &nodeid);
 unsigned int datagramCallback(uint8_t rbuf[DATAGRAM_LENGTH], unsigned int length, unsigned int from);
 unsigned int rcvCallback(uint8_t *rbuf, unsigned int length);
 
+extern "C" {
+    uint32_t spaceUpperAddr(uint8_t space) {  // return last valid address
+      switch (space) {
+          case 255: return 0x100; // CDI (data starts at zero)
+          case 254: return RAMEND; // RAM from Arduino definition
+          case 253: return 0x300; // Configuration
+      }
+      return (uint32_t)3;
+    }
+};
+
 /**
  * Get and put routines that 
  * use a test memory space.

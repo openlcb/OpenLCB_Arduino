@@ -209,7 +209,7 @@ ssize_t getline(char **lineptr, size_t *n, FILE *stream) {
     return p - bufptr - 1;
 }
 
-main()
+int main()
 {
         
     // get start buffer

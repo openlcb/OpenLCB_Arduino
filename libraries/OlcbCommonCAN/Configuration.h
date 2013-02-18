@@ -54,7 +54,7 @@ class Configuration {
  
 };
 
-// optional members
+// optional members, 0 if not appearing; does this work with clang compiler?
 extern "C" {
 uint32_t spaceUpperAddr(uint8_t space) __attribute__((weak));
 };
