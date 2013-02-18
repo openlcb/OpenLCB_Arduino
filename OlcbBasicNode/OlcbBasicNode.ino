@@ -23,6 +23,7 @@
 // from the top level file (this file)
 #include <EEPROM.h>
 #include <can.h>
+#include <ButtonLed.h>
 
 #include "OlcbCommonVersion.h"
 #include "NodeID.h"

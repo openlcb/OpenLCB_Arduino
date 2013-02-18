@@ -1,4 +1,4 @@
-#include <ButtonLED.h>
+#include "ButtonLed.h"
 
 //#include <Arduino.h>
 
@@ -50,7 +50,7 @@ bool ButtonLed::unique() {
 }
 //     state: F T T F
 // lastState: F T T F
-//   returns: F T F Fbool
+//   returns: F T F F 
 
 void ButtonLed::process() {
   long now = millis();

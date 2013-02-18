@@ -1,5 +1,5 @@
-#ifndef ButtonLed_h
-#define ButtonLed_h
+#ifndef ButtonLED_h
+#define ButtonLED_h
 
 // ButtonLED class
 // By David Harris   Copyright 2010
@@ -37,7 +37,6 @@ class ButtonLed {
     int lastButtonPeriod;     // last period processed for button
     bool lastState;           // state of button in last scan
     bool newState;            // state of button this scan
-    //bool next, bnext;         // wait-next-timeslot flag in output loop
     void init(uint8_t s);     // init
 	bool lastUState;
   public:

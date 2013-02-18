@@ -1,4 +1,4 @@
-#include <ButtonLED.h>
+#include <ButtonLed.h>
 #define NPINS 50
 ButtonLed b[NPINS];
 
