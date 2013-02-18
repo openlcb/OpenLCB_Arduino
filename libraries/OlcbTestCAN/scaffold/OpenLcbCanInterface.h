@@ -22,8 +22,6 @@ class OpenLcbCanBuffer;
  * 
  * This version is for local test and simulation
  *
-
-/**
  * General interface
  *
  * This section defines the general interface used by
