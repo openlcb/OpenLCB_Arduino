@@ -5,7 +5,6 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>Arduino.h</itemPath>
-      <itemPath>BG.h</itemPath>
       <itemPath>ButtonLed.h</itemPath>
       <itemPath>EEPROM.h</itemPath>
       <itemPath>OpenLcbCanInterface.h</itemPath>
@@ -21,7 +20,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>Arduino.cpp</itemPath>
-      <itemPath>BG.cpp</itemPath>
       <itemPath>ButtonLed.cpp</itemPath>
       <itemPath>EEPROM.cpp</itemPath>
       <itemPath>OpenLcbCanInterface.cpp</itemPath>
