@@ -7,7 +7,8 @@
 	<META NAME="AUTHOR" CONTENT="Bob Jacobsen">
 	<META NAME="CREATED" CONTENT="20090816;10132800">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGED" CONTENT="20121225;19153600">
+	<META NAME="CHANGED" CONTENT="20130219;8541100">
+	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
@@ -34,12 +35,17 @@ libraries to form a low-end OpenLCB implementation aimed at small
 processors. Together, the parts are called the Olcb* (pronounced
 “olcb star”) libraries.</P>
 <UL>
-	<LI><P>OlcbCommonCAN – common implementations for CAN wire
-	protocol</P>
-	<LI><P>OlcbArduino – implementations specific to Arduino,
-	including the CAN driver interface for the Arduino CAN library</P>
-	<LI><P>OlcbTest – (being deprecated) bits to run on a desktop
-	machine</P>
+	<LI><P>libraries/OlcbCommonCAN – common implementations for CAN
+	wire protocol</P>
+	<LI><P>libraries/OlcbArduinoCAN – implementations specific to
+	Arduino, including the CAN driver interface for the Arduino CAN
+	library</P>
+	<LI><P>OlcbDesktopCAN – implementations to run on a desktop
+	machine, primarily for testing; no real CAN connection</P>
+	<LI><P>OlcbDesktopTest – unit and function tests to run on a
+	desktop machine</P>
+	<LI><P>libraries/OlcbTestCAN – (deprecated) bits to run on a
+	desktop machine &amp; some testing</P>
 </UL>
 <P>It's hardware-independent as much as possible, so that it can form
 the basis for the Arduino and PIC implementations. It's also
@@ -50,10 +56,10 @@ toolkit</A>, a pre-configured copy of which is included in OpenLCB
 SVN.</P>
 <P>The sections below discuss the details of using the code.</P>
 <H3 CLASS="western">Arduino IDE</H3>
-<P>Sketches OlcbBasicNode, OlcbMiniNode and project directory
-OlcbDesktopTest use implementations from libraries/OlcbCommonCAN,
-libraries/OlcbDesktopCAN, libraries/OlcbArduinoCAN,
-libraries/OlcbTestCAN (deprecated)</P>
+<P>Sketches OlcbBasicNode, OlcbMiniNode (and perhaps others) use
+implementations from libraries/OlcbCommonCAN,
+libraries/OlcbArduinoCAN and libraries/ButtonLED when opened in
+Arduino IDE.</P>
 <P>The basic starting point is the OlcbBasicNode sketch, which
 implements 4 producers and 4 consumers on an Arduino shield.</P>
 <H3 CLASS="western">Standalone Gmake</H3>
@@ -69,12 +75,10 @@ sketches after a change to the code.</P>
 <P>You can build and test the libraries for your desktop machine via
 NetBeans. Cross-compilation is not yet available, though it would be
 a great thing for somebody to work on.</P>
-<P>Start by opening the C/OlcbDesktopTests project. It should also
-open four other projects:</P>
+<P>Start by opening the OlcbDesktopTests project. It should also open
+three other projects:</P>
 <UL>
 	<LI><P>ButtonLED</P>
-	<LI><P>FakeUino – This provides desktop C substitutes for Arduino
-	functions</P>
 	<LI><P>OlcbCommonCAN – This project builds the common library</P>
 	<LI><P>OlcbDesktopCAN – This project provides the base desktop
 	implementations for linking with the library</P>
