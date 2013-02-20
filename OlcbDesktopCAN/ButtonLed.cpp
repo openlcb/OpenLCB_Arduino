@@ -1,7 +1,5 @@
 #include <ButtonLed.h>
 
-//#include <Arduino.h>
-
 void ButtonLed::init(uint8_t s) {
   sense = s;
   pinMode(pin,OUTPUT);                    // default to driving LED..

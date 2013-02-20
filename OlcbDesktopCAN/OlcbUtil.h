@@ -1,4 +1,4 @@
-// Arduino stand-in
+// Basic system facilities
 #include <stdint.h>
 
 #ifdef __cplusplus

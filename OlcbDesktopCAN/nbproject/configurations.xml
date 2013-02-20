@@ -4,11 +4,10 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>Arduino.h</itemPath>
       <itemPath>ButtonLed.h</itemPath>
       <itemPath>EEPROM.h</itemPath>
+      <itemPath>OlcbUtil.h</itemPath>
       <itemPath>OpenLcbCanInterface.h</itemPath>
-      <itemPath>WConstants.h</itemPath>
       <itemPath>can.h</itemPath>
       <itemPath>logging.h</itemPath>
     </logicalFolder>
@@ -19,9 +18,9 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>Arduino.cpp</itemPath>
       <itemPath>ButtonLed.cpp</itemPath>
       <itemPath>EEPROM.cpp</itemPath>
+      <itemPath>OlcbUtil.cpp</itemPath>
       <itemPath>OpenLcbCanInterface.cpp</itemPath>
       <itemPath>OpenLcbCanInterface_local.cpp</itemPath>
     </logicalFolder>

@@ -1,5 +1,4 @@
-// Arduino stand-in
-#include <Arduino.h>
+#include <OlcbUtil.h>
 #include <stdint.h>
 
 #include <unistd.h>
