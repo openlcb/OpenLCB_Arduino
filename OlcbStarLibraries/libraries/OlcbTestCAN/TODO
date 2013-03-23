@@ -1,0 +1,18 @@
+
+<> vs "" in #include
+
+Makefile (esp tests/Makefile) doesn't have a general link rule;
+needs to know how to pass library search path
+
+Streams is just a scaffold at present; buffer management needs thought
+
+Datagram interface needs to transfer source ID of received datagrams,
+so reply datagrams can be properly routed back.
+
+Need to devise a way to have multiple datagram processors called
+in sequence, with the first one to consume the datagram
+causing the proper ack/nak to be sent & ending the sequence.
+Default should actually be "don't know what to do with this"
+if all fall through.
+
+Configuration needs code for testing actual read/write response.
