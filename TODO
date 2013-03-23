@@ -1,8 +1,0 @@
-
-Build methods, all of which need to be checked!
-
-    Arduino
-    NetBeans - OlcbDesktopTests
-    make
-    make -C OlcbDeskTopTests -f Makefile.nb 
-    
