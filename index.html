@@ -7,12 +7,7 @@
 	<META NAME="AUTHOR" CONTENT="Bob Jacobsen">
 	<META NAME="CREATED" CONTENT="20090816;10132800">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGED" CONTENT="20121224;19482900">
-	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
-	<META NAME="CHANGEDBY" CONTENT="David Harris">
+	<META NAME="CHANGED" CONTENT="20130323;210000">
 	<META NAME="CHANGEDBY" CONTENT="Bob Jacobsen">
 	<STYLE TYPE="text/css">
 	<!--
@@ -32,43 +27,62 @@ implementations, and a number of projects that use one or the other
 of them. These are intended to run on a range of systems, from small
 stand-alone devices through PC-class machines.</P>
 <P>Because of the requirements of the Arduino IDE, which doesn't have
-a “project” concept, we're forced to put our multiple prototypes
-in a single directory. They are generically referred to as the “Olcb*
-libraries” and the “OpenLCB library” due to their names. There
-are also multiple Ardunio sketches and code directories that use
-these:</P>
-<P>Sketches OlcbBasicNode, OlcbMiniNode and project directory
-OlcbDesktopTest use implementations from libraries/OlcbCommonCAN,
-libraries/OlcbDesktopCAN, libraries/OlcbArduinoCAN,
-libraries/OlcbTestCAN (deprecated)</P>
-<P>Sketch Io_16P_16C_default uses implementations from
-libraries/OpenLCB</P>
-<P>To build and run the tests, do 
-</P>
-<P STYLE="margin-left: 2cm"><CODE><B>make run</B></CODE></P>
-<P>This builds (some of) the example Arduino sketches in the current
-directory, thereby ensuring they compile. It then tests execution of
-the library by building several executables in the OpenLcbTest
-directory, then running them and comparing their output to reference
-files.</P>
-<H2 CLASS="western">Library</H2>
-<P>The platform-independent library code lives in the
-<A HREF="libraries/OlcbCommonCAN/index.html">libraries/OlcbCommonCAN
-directory</A>.</P>
-<H2 CLASS="western">Arduino Support</H2>
-<P>The Arduino is a convenient hardware platform for OpenLCB
-<A HREF="../Hobbyists.html">hobbyists</A>. We provide a number of
-Arduino “sketches”, complete software loads for the Arduino
-hardware for various kinds of OpenLCB nodes. These require release
-1.0 or later of the Arduino IDE.</P>
-<P>For more use information on OpenLCB for Arduino, please see the
-OpenLCB <A HREF="Arduino.html">Arduino</A> page.</P>
+a “project” concept, we're forced into a somewhat odd directory
+structure. This directory contains three separate things:</P>
+<UL>
+	<LI><P>In the <A HREF="OlcbStarLibraries/index.html">OlcbStarLibraries
+	subdirectory</A> is a low-level OpenLCB implementation meant for
+	small, Arduino-class processors. This includes both libraries and
+	sample programs that can be used with the Arduino IDE or
+	independently. For more information, see that <A HREF="OlcbStarLibraries/index.html">overview
+	page</A>.</P>
+	<LI><P>This directory also contains C++ OpenLCB implementation in
+	the libraries/OpenLCB directory, along with several sample programs.
+	For more information, see that <A HREF="OpenLCBlib.html">overview
+	page</A>.</P>
+	<LI><P>This directory also contains several useful Arduino sketches
+	that OpenLCB experimenters may find useful. These are described
+	below.</P>
+</UL>
+<H2 CLASS="western">Useful Sketches</H2>
+<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>The Arduino is a
+convenient hardware platform for OpenLCB <A HREF="../Hobbyists.html">hobbyists</A>.
+We provide a number of Arduino “sketches”, complete software
+loads for the Arduino hardware for various kinds of OpenLCB nodes.
+These require release 1.0 or later of the Arduino IDE.</FONT></FONT></P>
+<UL>
+	<LI><P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>CAN2USBuino
+	– lets you use an Arduino with CAN and USB hardware as a CAN-USB
+	adapter with the GridConnect protocol.</FONT></FONT></P>
+	<LI><P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>CAN2EtherNetServer
+	 – lets you use an Arduino with CAN and Ethernet hardware as a
+	CAN-Ethernet adapter with the GridConnect protocol.</FONT></FONT></P>
+	<LI><P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>IoBlink –
+	tests a RailStars Io board, as in the OpenLCB Developer Kit, by
+	flashing its LEDs</FONT></FONT></P>
+	<LI><P><FONT FACE="Times New Roman, serif"><FONT SIZE=3>IoIoTesting1
+	– test and initialize a RailStars Io board, as in the OpenLCB
+	Developer Kit</FONT></FONT></P>
+</UL>
+<P><FONT FACE="Times New Roman, serif"><FONT SIZE=3><FONT COLOR="#000000">To
+use these, start the Arduino IDE and open 'Arduino--&gt;Preferences'.
+Change the sketch directory to be </FONT><FONT COLOR="#000000">'OpenLCB/trunk/prototypes/C'
+or wherever you have placed this directory. Close the IDE and reopen
+it. You should now be able to see the sketches in
+'Files--&gt;Sketchbook'.</FONT></FONT></FONT></P>
 <H2 CLASS="western">Standalone Compilation</H2>
-<P>The <A HREF="libraries/OlcbTestCAN/index.html">libraries/OlcbTestCAN</A>
-directory contains Makefiles and test scaffolding to compile the
-OpenLCB prototype code, run it, and compare it to expected results.
-Over time, this set of tests is growing into an important regression
-test of both the protocols can implementations.</P>
+<P>This directory contains Makefiles and test scaffolding to directly
+compile (some of) the prototype code, run it, and compare it to
+expected results. Over time, this set of tests is growing into an
+important regression test of all the implementations. To compile and
+run, do:</P>
+<P STYLE="margin-left: 2cm"><CODE><B>make</B></CODE></P>
+<P>on the command line. This builds (some of) the example Arduino
+sketches in the current directory, thereby ensuring they compile. It
+then compiles the OpenLCB library. Finally, it tests the Olcb*
+library by invoking make in the OlcbStarLibraries directory, which in
+turn builds all the sample sketches and runs test routines on the
+code.</P>
 <H3 CLASS="western">Getting the Code</H3>
 <P>The content of this development area, including code, documents
 and web pages, is kept in the <A HREF="https://sourceforge.net/projects/openlcb/develop">OpenLCB</A>
