@@ -91,7 +91,7 @@ void  debugf(const char *__fmt,...)
 #endif
 
 // Ethernet2.h for pin 9 CS, Ethernet.h for default pin 10
-#include <Ethernet2.h>
+#include <Ethernet.h>
 
 // network configuration.  gateway and subnet are optional.
 byte mac[] = { 0xDE, 0xAD, ADDR_BYTE_1, ADDR_BYTE_2, ADDR_BYTE_3, ADDR_BYTE_4 };
