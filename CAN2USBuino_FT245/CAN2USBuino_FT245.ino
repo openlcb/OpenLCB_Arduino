@@ -5,20 +5,7 @@
  * be used as an adapter between them.  The frames are sent in
  * what's commonly called the "GridConnect" protocol.
  *
- * Note that a serial speed of 333333 or above is needed to 
- * be certain of keeping up with a full CAN bus.  Not all
- * computers will connect at that speed.  In particular, 
- * Mac computers with standard FTDI drivers might only have
- * 230,400 or even 115,200 available as a standard rate.
- * By setting 8E2 or even better 8N2, 230400 here can be used with
- * a Mac at 230400 despite some internal baud issue in the
- * Arduino baud generation.
- *
- * For data directed from USB -> CAN, the sketch provides flow
- * control using the Xon/Xoff codes.
- * 
- * One of three baud rates can be selected by grounding (causing LOW input)
- * on one of two pins.
+ * This is for use with boards containing a FT245 USB adapter.
  */
 
 #include <arduino.h>
