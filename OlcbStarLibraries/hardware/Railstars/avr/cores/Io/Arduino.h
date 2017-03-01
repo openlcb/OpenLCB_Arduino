@@ -21,8 +21,9 @@ extern "C"{
 #define INPUT 0x0
 #define OUTPUT 0x1
 
-#define true 0x1
-#define false 0x0
+// Commented 2017-03-01 AJS
+//#define true 0x1
+//#define false 0x0
 
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398

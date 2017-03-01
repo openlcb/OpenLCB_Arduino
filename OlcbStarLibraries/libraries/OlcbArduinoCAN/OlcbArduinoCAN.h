@@ -49,9 +49,13 @@ OpenLcbCanBuffer*    ptxCAN;
 
 LinkControl link(&txBuffer, &nodeid);
 
+extern "C" {
+
 extern const uint8_t getRead(uint32_t address, int space);
 extern void getWrite(uint32_t address, int space, uint8_t val);
 extern void restart();
+
+};
 
 #ifndef OLCB_NO_STREAM
 unsigned int streamRcvCallback(uint8_t *rbuf, unsigned int length);
@@ -98,8 +102,9 @@ void Olcb_setup() {
 
 
 
-
+extern "C" {
 void produceFromInputs();
+};
 
 // invoke from loop()
 // returns true is a frame was processed, to allow indicating activity

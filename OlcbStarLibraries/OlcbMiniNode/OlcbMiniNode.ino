@@ -37,10 +37,10 @@ NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid
 
 // Define pins
 // BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
-#define BLUE 48
+//#define BLUE 48
 
 // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
-#define GOLD 49
+//#define GOLD 49
 
 /**
  * Get and put routines that 
@@ -49,10 +49,10 @@ NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid
 
 // next lines get "warning: only initialized variables can be placed into program memory area" due to GCC bug
 extern "C" {
-const prog_char configDefInfo[] PROGMEM = {
+const char configDefInfo[] PROGMEM = {
 };
 
-const prog_char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbMiniNode\0001.0\000" OlcbCommonVersion ; // last zero in double-quote
+const char SNII_const_data[] PROGMEM = "\001OpenLCB\000OlcbMiniNode\0001.0\000" OlcbCommonVersion ; // last zero in double-quote
 
 } // end extern "C"
 

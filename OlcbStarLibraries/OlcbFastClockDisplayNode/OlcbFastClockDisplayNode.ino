@@ -71,7 +71,7 @@ OlcbStream str(&txBuffer, streamRcvCallback, &link);
  * Get and put routines that 
  * use a test memory space.
  */
-prog_char configDefInfo[] PROGMEM = "OlcbBasicNode"; // null terminated string
+const char configDefInfo[] PROGMEM = "OlcbBasicNode"; // null terminated string
 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {

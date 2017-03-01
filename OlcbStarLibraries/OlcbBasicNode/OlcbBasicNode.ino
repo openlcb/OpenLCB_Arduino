@@ -35,10 +35,10 @@ NodeID nodeid(5,1,1,1,3,255);    // This node's default ID; must be valid
 
 // Define pins
 // BLUE is 18 LEDuino; others defined by board (48 IO, 14 IOuino)
-#define BLUE 48
+//#define BLUE 48
 
 // GOLD is 19 LEDuino; others defined by board (49 IO, 15 IOuino)
-#define GOLD 49
+//#define GOLD 49
 
 // Number of channels implemented. Each corresonds 
 // to an input or output pin.
@@ -111,7 +111,6 @@ extern "C" {
       }
       return (uint32_t)3;
     }
-};
 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {
@@ -134,6 +133,7 @@ const uint8_t getRead(uint32_t address, int space) {
     return 0; 
   }
 }
+  
 void getWrite(uint32_t address, int space, uint8_t val) {
   if (space == 0xFE) {
     // All memory
@@ -145,7 +145,6 @@ void getWrite(uint32_t address, int space, uint8_t val) {
   // all other spaces not written
 }
 
-extern "C" {
 uint8_t protocolIdentValue[6] = {0xD7,0x58,0x00,0,0,0};
     // PIP, Datagram, MemConfig, P/C, ident, teach/learn, 
     // ACDI, SNIP, CDI

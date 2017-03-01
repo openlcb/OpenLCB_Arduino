@@ -70,7 +70,7 @@ LinkControl link(&txBuffer, &nodeid);
  * Get and put routines that 
  * use a test memory space.
  */
-prog_char configDefInfo[] PROGMEM = "OlcbNmraDcc CDI"; // null terminated string
+const char configDefInfo[] PROGMEM = "OlcbNmraDcc CDI"; // null terminated string
 
 const uint8_t getRead(uint32_t address, int space) {
   if (space == 0xFF) {

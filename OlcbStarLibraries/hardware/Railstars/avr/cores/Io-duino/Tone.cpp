@@ -48,6 +48,11 @@ Version Modified By Date     Comments
 #define TIMSK1 TIMSK
 #endif
 
+#if defined(__AVR_AT90CAN128__)
+#define TCCR2B TCCR2A
+#define TIMER2_COMPA_vect TIMER2_COMP_vect
+#endif
+
 // timerx_toggle_count:
 //  > 0 - duration specified
 //  = 0 - stopped
