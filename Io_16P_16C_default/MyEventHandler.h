@@ -26,6 +26,12 @@ public:
   {
     for(uint8_t i = 0; i < 8; ++i)
       _input_buttons[i] = i+8;
+    for(uint8_t i = 0; i < 8; ++i)
+      _output_pins[i] = i;
+    for(uint8_t i = 8; i < 16; ++i)
+      _output_pins[i] = i + 8;  // 16..24
+    for(uint8_t i = 16; i < 32; ++i)
+      _output_pins[i] = i + 16;  // 32..48
   }
 
   void initialize(OLCB_Event *events, uint8_t num); //assume offset is 0, uint8_t offset);
@@ -40,6 +46,9 @@ public:
   uint8_t readConfig(uint16_t address, uint8_t length, uint8_t *data);
   void writeConfig(uint16_t address, uint8_t length, uint8_t *data);
   uint8_t *getInputs(void) {
+    return _input_buttons;
+  }
+  uint8_t *getOutputs(void) {
     return _input_buttons;
   }
   void inhibit(void) {
@@ -60,6 +69,7 @@ private:
   uint8_t _inputs;
   uint8_t _dirty;
   uint8_t _input_buttons[8]; //TODO 
+  uint8_t _output_pins[32]; //TODO 
   void firstInitialization(void);
 };
 

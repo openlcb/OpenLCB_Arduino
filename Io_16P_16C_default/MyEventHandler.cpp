@@ -1,7 +1,13 @@
 #include "MyEventHandler.h"
+#include "EepromLayout.h"
 #include <EEPROM.h> 
 //really, should probably be using avr/eeprom.h, but this is going to be more portable in the end, I think?
 
+
+static void maybe_write(int ofs, uint8_t value) {
+  if (EEPROM.read(ofs) == value) return;
+  EEPROM.write(ofs, value);
+}
 
 bool MyEventHandler::store(void)
 {
@@ -11,7 +17,7 @@ bool MyEventHandler::store(void)
   {
     for(uint8_t j = 0; j < 8; ++j)
     {
-      EEPROM.write((i*8)+j+4, _events[i].val[j]);
+      maybe_write((i*8)+j+EE_EVENT_START_OFS, _events[i].val[j]);
     }
   }
   return true;
@@ -24,7 +30,7 @@ bool MyEventHandler::load(void)
   {
     for(uint8_t j = 0; j < 8; ++j)
     {
-      _events[i].val[j] = EEPROM.read((i*8)+j+4);
+      _events[i].val[j] = EEPROM.read((i*8)+j+EE_EVENT_START_OFS);
     }
   }
   return true;
@@ -59,122 +65,58 @@ void MyEventHandler::initialize(OLCB_Event *events, uint8_t num)
   //and a little more setup.first the 16 producers
   for(uint8_t i = 0; i < 16; ++i)
     newEvent(i, true, false);
-  //and the 16 consumers
-  for(uint8_t i = 16; i < 32; ++i)
+  //and the 48 consumers
+  for(uint8_t i = 16; i < 80; ++i)
     newEvent(i, false, true);
-
-}
-
-void MyEventHandler::firstInitialization(void)
-{
-  //This method should only ever be called once. It formats the EEPROM to contain a set of universal EventIDs from the Railstars pool 05.02.01.02.02.00.00.XX
-
-    //First for the producers
-  for(uint16_t i = 0; i < 16; ++i)
-  {
-    EEPROM.write(0x04+(i*8)+0, 0x05);
-    EEPROM.write(0x04+(i*8)+1, 0x02);
-    EEPROM.write(0x04+(i*8)+2, 0x01);
-    EEPROM.write(0x04+(i*8)+3, 0x02);
-    EEPROM.write(0x04+(i*8)+4, 0x02);
-    EEPROM.write(0x04+(i*8)+5, 0x00);
-    EEPROM.write(0x04+(i*8)+6, 0x00);
-    EEPROM.write(0x04+(i*8)+7, i);
-  }
-  //Second for the consumers
-  for(uint16_t i = 0; i < 16; ++i)
-  {
-    EEPROM.write(0x04+((i+16)*8)+0, 0x05);
-    EEPROM.write(0x04+((i+16)*8)+1, 0x02);
-    EEPROM.write(0x04+((i+16)*8)+2, 0x01);
-    EEPROM.write(0x04+((i+16)*8)+3, 0x02);
-    EEPROM.write(0x04+((i+16)*8)+4, 0x02);
-    EEPROM.write(0x04+((i+16)*8)+5, 0x00);
-    EEPROM.write(0x04+((i+16)*8)+6, 0x00);
-    EEPROM.write(0x04+((i+16)*8)+7, i);
-  }
-  //Third, the user strings for each event need to be initialized to all null chars
-  for(uint16_t i = 260; i < (260+256); ++i)
-  {
-  	if(EEPROM.read(i) != 0x00)
-  		EEPROM.write(i, 0x00);
-  }
-  //Fourth, the user strings for the node as a whole need to be initialized to all null chars
-  for(uint16_t i = 1028; i < (1028+32+128); ++i)
-  {
-  	if(EEPROM.read(i) != 0x00)
-  		EEPROM.write(i, 0x00);
-  }
-  //Write next EventID for when factoryReset gets called
-  EEPROM.write(0x02, 0x00);
-  EEPROM.write(0x03, 0x10);
-  //And the formatted tag
-  EEPROM.write(0x00, 'I');
-  EEPROM.write(0x01, 'o');
 }
 
 void MyEventHandler::factoryReset(void)
 {
   // WARNING: THIS FUNCTION RESETS THE EVENT POOL TO FACTORY SETTINGS!
   //first, check to see if the EEPROM has been formatted yet.
-  uint8_t eid6=0, eid7=0, j;
   uint8_t i;
-  bool formatted = false;
-  if( (char(EEPROM.read(0)) == 'I') && (char(EEPROM.read(1)) == 'o') ) //it IS formatted!
+  if( (char(EEPROM.read(0)) != 'I') || (char(EEPROM.read(1)) != 'o') ) //not formatted
   {
-    formatted = true;
-    //grab the actual next available EventID
-    eid6 = EEPROM.read(2);
-    eid7 = EEPROM.read(3);
-    EEPROM.write(0, 'X');
-  }
-  else //not formatted
-  {
-    //do a different routine instead
-    firstInitialization();
-    return;
+    // Format eeprom first: add zero as next event.
+    EEPROM.write(0x02, 0x00);
+    EEPROM.write(0x03, 0x00);
+    //And the formatted tag
+    EEPROM.write(0x00, 'I');
+    EEPROM.write(0x01, 'o');
   }
 
-  //first, increment the next available ID by 32, and write it back
-  if(eid7 >= 224) //need to increment val[6] as well
-  {
-    EEPROM.write(2, eid6+1); //might wrap around to 0; it's gonna happen, I guess
-  }
-  else
-  {
-    EEPROM.write(2, eid6);
-  }
-  EEPROM.write(3, eid7+32);
+  //first, increment the next available ID by numEvents, and write it back
+  unsigned next_ev = EEPROM.read(0x02);
+  next_ev <<= 8;
+  next_ev |= EEPROM.read(0x03);
 
-  //now, increment through the producers, and write the new EventIDs
-  for(i = 0; i < _numEvents/2; ++i)
+  unsigned resulting_next_ev = next_ev + _numEvents;
+  maybe_write(0x02, resulting_next_ev >> 8);
+  maybe_write(0x03, resulting_next_ev & 0xff);
+
+  //now write the new EventIDs
+  for(int i = 0; i < _numEvents; ++i)
   {
-    for(j = 0; j < 6; ++j)
+    for(int j = 0; j < 6; ++j)
     {
-      EEPROM.write((i*8)+j+4, NID->val[j]);
+      maybe_write((i*8)+j+EE_EVENT_START_OFS, NID->val[j]);
     }
-    EEPROM.write((i*8)+6+4, eid6);
-    if(eid7+i == 255)
-      ++eid6;
-    EEPROM.write((i*8)+7+4, eid7+i);
+    maybe_write((i*8)+6+EE_EVENT_START_OFS, next_ev >> 8);
+    maybe_write((i*8)+7+EE_EVENT_START_OFS, next_ev & 0xff);
+    ++next_ev;
+  }
+
+  //Third, the user strings for each event need to be initialized to all null chars
+  for(uint16_t i = EE_EVENT_DESCRIPTION_START; i < (EE_EVENT_DESCRIPTION_START+16*(EE_EVENT_COUNT>>1)); ++i)
+  {
+    maybe_write(i, 0);
+  }
+  //Fourth, the user strings for the node as a whole need to be initialized to all null chars
+  for(uint16_t i = EE_NODE_DESCRIPTION_START; i < (EE_NODE_DESCRIPTION_START+128); ++i)
+  {
+    maybe_write(i, 0);
   }
   
-  //now do it again, so that the consumers have the different EventIDs than the producers
-  for(i = _numEvents/2; i < _numEvents; ++i)
-  {
-    for(j = 0; j < 6; ++j)
-    {
-      EEPROM.write((i*8)+j+4, NID->val[j]);
-    }
-    EEPROM.write((i*8)+6+4, eid6);
-    if(eid7+i == 255)
-      ++eid6;
-    EEPROM.write((i*8)+7+4, eid7+i);
-  }
-  //TODO CHECK TO SEE IF THESE NEED TO BE WRITTEn!!
-  EEPROM.write(0, 'I');
-  if(EEPROM.read(1) != 'o')
-    EEPROM.write(1, 'o');
 }
 
 void MyEventHandler::update(void)
@@ -184,7 +126,7 @@ void MyEventHandler::update(void)
     return;
   }
 
-  for(uint8_t i = 0; i < 8; ++i)
+  for(uint8_t i = 0; i < 8; ++i) {
     //first, are we going to set up any kind of learning? TODO
 
     if(!_inhibit && !_first_run)
@@ -214,9 +156,11 @@ void MyEventHandler::update(void)
       }
       _first_check = false;
     }
+  }
   OLCB_Event_Handler::update(); //called last to permit the new events to be sent out immediately.
-  if(_sendEvent == _numEvents)
+  if(_sendEvent == _numEvents) {
     _first_run = false;
+  }
   if(_dirty) //check to see if we need to dump memory to EEPROM
   {
     store();
@@ -233,14 +177,15 @@ bool MyEventHandler::consume(uint16_t index)
   //Serial.println(index,DEC);
   //Outputs are pins 0..7
   //odd events are off, even events are on
-  digitalWrite((index-16)>>1, !(index&0x1));
+  if (index < 16) return false; // 0..7 are producers
+  digitalWrite(_output_pins[(index-16)>>1], !(index&0x1));
   return true;
 }
 
 
 uint32_t MyEventHandler::getLargestAddress(void)
 {
-  return (_numEvents*8) - 1;
+  return EE_NODE_DESCRIPTION_START + 128 - 1;
 }
 
 uint8_t MyEventHandler::readConfig(uint16_t address, uint8_t length, uint8_t *data)
@@ -251,7 +196,7 @@ uint8_t MyEventHandler::readConfig(uint16_t address, uint8_t length, uint8_t *da
   //Serial.print("length: ");
   //Serial.println(length);
   uint8_t index = (address>>3);
-  uint16_t offset = address - (index<<3) - 4;
+  uint16_t offset = address - (index<<3) - 4;  // TODO: event offset here?
   if( (length+address-4) > (_numEvents*8) ) //too much! Would cause overflow
     //TODO caculate a shorter length to prevent overflow
     length = (_numEvents*8) - (address);

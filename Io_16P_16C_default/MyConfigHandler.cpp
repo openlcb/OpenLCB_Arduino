@@ -1,4 +1,5 @@
 #include "MyConfigHandler.h"
+#include "EepromLayout.h"
 #include <reset.h>
 #include <EEPROM.h>
 
@@ -153,7 +154,7 @@ uint16_t MyConfigHandler::MACProcessRead(void)
     break;
   case 0xFD: //configuration space
     //Serial.println("configuration space.");
-  	if(address < 260)
+  	if(address < EE_EVENT_DESCRIPTION_START)
   	{
   		reply.length = _eventHandler->readConfig(address, length, &(reply.data[datagram_offset])) + datagram_offset;
 	}
@@ -224,7 +225,7 @@ uint16_t MyConfigHandler::MACProcessWrite(void)
     break;
   case 0xFD: //configuration space
   	//send to eventHandler, if less than 260, as it will need to update the event table directly. Otherwise, it's ours to handle
-  	if(address < 260)
+  	if(address < EE_EVENT_DESCRIPTION_START)
   	{
             //Serial.println("sending to EventHandler");
 	    _eventHandler->writeConfig(address, length, &(_rxDatagramBuffer->data[datagram_offset]));

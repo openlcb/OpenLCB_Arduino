@@ -28,7 +28,7 @@ uint32_t old_time;
 OLCB_NodeID nodeid;
 
 //Allocate memory for the event pool
-OLCB_Event event_pool[32];
+OLCB_Event event_pool[80];
 
 /* define the CAN link to the outside world */
 OLCB_CAN_Link link;
@@ -84,6 +84,16 @@ void setup()
     pinMode(i, INPUT);
     digitalWrite(i, HIGH);
   }
+  for(int i = 16; i < 24; ++i) //outputs B
+  {
+    pinMode(i, OUTPUT);
+    digitalWrite(i, LOW);
+  }
+  for(int i = 32; i < 48; ++i) //outputs E, F
+  {
+    pinMode(i, OUTPUT);
+    digitalWrite(i, LOW);
+  }
 
   //now, load the NodeID from EEPROM
   loadNodeID(&nodeid);
@@ -91,7 +101,7 @@ void setup()
   //nodeid.print();
   link.initialize();
   pce.create(&link, &nodeid);
-  pce.initialize(event_pool, 32); //set up a space for 32 events: 16 producers and 16 consumers TODO REMOVE THIS!?
+  pce.initialize(event_pool, 80); //set up a space for 80 events: 16 producers and 64 consumers TODO REMOVE THIS!?
   cfg.create(&link, &nodeid, &pce);
   bg.create(&link, &nodeid, &pce);
   info.create(&link, &nodeid);

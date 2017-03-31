@@ -1,4 +1,5 @@
 #include "MyInfoHandler.h"
+#include "EepromLayout.h"
 #include <OLCB_CAN_Buffer.h>
 #include <avr/pgmspace.h>
 #include <EEPROM.h>
@@ -72,14 +73,14 @@ void MyInfoHandler::update(void)
     if(_string_index >= _string_length) //done! with this part; now moving to EEPROM
     {
       _string_index = -1;
-      _eeprom_index = 1027;
+      _eeprom_index = EE_NODE_DESCRIPTION_START - 1;
     }
   }
   //else, we're sending the second set of strings.
   else if(_eeprom_index > -1)
   {
       _reply.length = 2;
-  	if((_eeprom_index == 1027) && (_reply.length < 8)) //1027 is a stand in to indicate to send the "01" byte first
+  	if((_eeprom_index == EE_NODE_DESCRIPTION_START - 1) && (_reply.length < 8)) //1027 is a stand in to indicate to send the "01" byte first
   	{
         //Serial.println("start on user strings");
   		_reply.data[2] = 0x01;
@@ -91,7 +92,7 @@ void MyInfoHandler::update(void)
   	{
   		//read bytes until the reply is full, or we encounter a 0x00'
   		uint8_t c = 0xFF;
-  		while( (_reply.length < 8) && (c != 0x00) && (_eeprom_index < 1060) )
+  		while( (_reply.length < 8) && (c != 0x00) && (_eeprom_index < EE_NODE_DESCRIPTION_START + 32) )
   		{
   			c = EEPROM.read(_eeprom_index);
                         //Serial.print(c, HEX);
@@ -99,9 +100,9 @@ void MyInfoHandler::update(void)
   			++_reply.length;
   			++_eeprom_index;
   		}
-  		if( (c == 0x00) || (_eeprom_index >= 1060) ) //ready to move to next string
+  		if( (c == 0x00) || (_eeprom_index >= EE_NODE_DESCRIPTION_START + 32) ) //ready to move to next string
   		{
-  			_eeprom_index = 1060;
+  			_eeprom_index = EE_NODE_DESCRIPTION_START + 32;
   			_eeprom_string_index = 2;
                         //Serial.println();
   		}
@@ -110,7 +111,7 @@ void MyInfoHandler::update(void)
   	{
   	  	//read bytes until the reply is full, or we encounter a 0x00'
   		uint8_t c = 0xFF;
-  		while( (_reply.length < 8) && (c != 0x00) && (_eeprom_index < 1188) )
+  		while( (_reply.length < 8) && (c != 0x00) && (_eeprom_index < EE_NODE_DESCRIPTION_START + 32 + 64) )
   		{
   			c = EEPROM.read(_eeprom_index);
                         //Serial.print(c, HEX);
@@ -118,7 +119,7 @@ void MyInfoHandler::update(void)
   			++_reply.length;
   			++_eeprom_index;
   		}
-  		if( (c == 0x00) || (_eeprom_index >= 1188) ) //ready to be done
+  		if( (c == 0x00) || (_eeprom_index >= EE_NODE_DESCRIPTION_START + 32 + 64) ) //ready to be done
   		{
   			_eeprom_index = -1;
    			_eeprom_string_index = 0;
