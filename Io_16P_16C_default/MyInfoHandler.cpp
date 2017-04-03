@@ -34,42 +34,42 @@ void MyInfoHandler::update(void)
   
   if(_messageReady)
   {
-    //Serial.println("Found a message to be delivered!");
+    //DebugSerial.println("Found a message to be delivered!");
     _messageReady = false;
-    //Serial.println(_reply.data[0], HEX);
-    //Serial.println(_reply.flags.extended, HEX);
-    //Serial.println(_reply.id, HEX);
+    //DebugSerial.println(_reply.data[0], HEX);
+    //DebugSerial.println(_reply.flags.extended, HEX);
+    //DebugSerial.println(_reply.id, HEX);
     while(! _link->sendMessage(&_reply));
   }
   //_reply.length = 1; //always at least one, for MTI byte
   //handle pending snip request responses
   else if(_string_index > -1)
   {
-    //Serial.println("Working on SNIP response!");
+    //DebugSerial.println("Working on SNIP response!");
     //we have work to do.
     //figure out how many bytes to send. Either 7 bytes, or whatever remains
     _reply.length = _string_length-_string_index + 2;
     if(_reply.length > 8)
       _reply.length = 8;
-    //Serial.print("len = ");
-    //Serial.println(_reply.length, DEC);
-    //Serial.print("start index= ");
-    //Serial.println(_string_index, DEC);
+    //DebugSerial.print("len = ");
+    //DebugSerial.println(_reply.length, DEC);
+    //DebugSerial.print("start index= ");
+    //DebugSerial.println(_string_index, DEC);
     for(uint8_t i = 2; i < _reply.length; ++i) //skip the MTI
     {
       _reply.data[i] = pgm_read_byte(snipstring+i+_string_index-2);
       if(_reply.data[i] == '\n')
         _reply.data[i] = 0;
-      //Serial.print((char)(_reply.data[i]));
+      //DebugSerial.print((char)(_reply.data[i]));
     }
-    //Serial.println();
+    //DebugSerial.println();
     while(! _link->sendMessage(&_reply) );
     //now, set up for next run.
-    //Serial.println("setting up for next time");
+    //DebugSerial.println("setting up for next time");
     _string_index += (_reply.length-2);
-    //Serial.print("new string index = ");
-    //Serial.println(_string_index, DEC);
-    //Serial.print(_string_index > strlen(_buffer));
+    //DebugSerial.print("new string index = ");
+    //DebugSerial.println(_string_index, DEC);
+    //DebugSerial.print(_string_index > strlen(_buffer));
     if(_string_index >= _string_length) //done! with this part; now moving to EEPROM
     {
       _string_index = -1;
@@ -82,7 +82,7 @@ void MyInfoHandler::update(void)
       _reply.length = 2;
   	if((_eeprom_index == EE_NODE_DESCRIPTION_START - 1) && (_reply.length < 8)) //1027 is a stand in to indicate to send the "01" byte first
   	{
-        //Serial.println("start on user strings");
+        //DebugSerial.println("start on user strings");
   		_reply.data[2] = 0x01;
     	        ++_reply.length;
   		++_eeprom_index;
@@ -95,7 +95,7 @@ void MyInfoHandler::update(void)
   		while( (_reply.length < 8) && (c != 0x00) && (_eeprom_index < EE_NODE_DESCRIPTION_START + 32) )
   		{
   			c = EEPROM.read(_eeprom_index);
-                        //Serial.print(c, HEX);
+                        //DebugSerial.print(c, HEX);
   			_reply.data[_reply.length] = c;
   			++_reply.length;
   			++_eeprom_index;
@@ -104,7 +104,7 @@ void MyInfoHandler::update(void)
   		{
   			_eeprom_index = EE_NODE_DESCRIPTION_START + 32;
   			_eeprom_string_index = 2;
-                        //Serial.println();
+                        //DebugSerial.println();
   		}
   	}
   	if(_eeprom_string_index == 2) //user description
@@ -114,7 +114,7 @@ void MyInfoHandler::update(void)
   		while( (_reply.length < 8) && (c != 0x00) && (_eeprom_index < EE_NODE_DESCRIPTION_START + 32 + 64) )
   		{
   			c = EEPROM.read(_eeprom_index);
-                        //Serial.print(c, HEX);
+                        //DebugSerial.print(c, HEX);
   			_reply.data[_reply.length] = c;
   			++_reply.length;
   			++_eeprom_index;
@@ -123,7 +123,7 @@ void MyInfoHandler::update(void)
   		{
   			_eeprom_index = -1;
    			_eeprom_string_index = 0;
-                        //Serial.println();
+                        //DebugSerial.println();
   		}
   	}
   	while(! _link->sendMessage(&_reply) );
@@ -162,10 +162,10 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
     buffer->getDestNID(&dest);
     if(dest == *NID)
     {
-      //Serial.println("Got SNIP request");
+      //DebugSerial.println("Got SNIP request");
       if( (_string_index > -1) || (_eeprom_index > -1) ) //we're busy!
       {
-        //Serial.println("cant handle SNIP/PIP request, returning false");
+        //DebugSerial.println("cant handle SNIP/PIP request, returning false");
         retval = false;
       }
       else
@@ -182,21 +182,21 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
   else if(isPIPRequest(buffer))
   {
     //is it for us?
-    //Serial.println("got PIP aimed at.");
+    //DebugSerial.println("got PIP aimed at.");
     OLCB_NodeID dest;
     buffer->getDestNID(&dest);
-    //Serial.println(dest.alias, DEC);
-    //Serial.println(NID->alias, DEC);
+    //DebugSerial.println(dest.alias, DEC);
+    //DebugSerial.println(NID->alias, DEC);
     if(dest == *NID)
     {
       if( (_string_index > -1) || (_eeprom_index > -1) ) //we're busy!
       {
-        //Serial.println("cant handle SNIP/PIP request, returning false");
+        //DebugSerial.println("cant handle SNIP/PIP request, returning false");
         retval = false;
       }
       else
       {
-        //Serial.println("Got PIP request");
+        //DebugSerial.println("Got PIP request");
         OLCB_NodeID source_address;
         buffer->getSourceNID(&source_address);
         _reply.setProtocolSupportReply(NID, &source_address);
@@ -208,7 +208,7 @@ bool MyInfoHandler::handleMessage(OLCB_Buffer *buffer)
         _reply.data[6] = 0x00;
         _reply.data[7] = 0x00;
         //for(uint8_t i = 0; i < _reply.length; ++i)
-          //Serial.println(_reply.data[i], HEX);
+          //DebugSerial.println(_reply.data[i], HEX);
         _messageReady = true;
         retval = true;
       }

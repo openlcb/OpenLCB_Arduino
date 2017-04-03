@@ -12,6 +12,7 @@
 #include "MyConfigHandler.h"
 #include "MyBlueGoldHandler.h"
 #include "MyInfoHandler.h"
+#include "Logging.h"
 
 uint32_t old_time;
 
@@ -63,7 +64,7 @@ void loadNodeID(OLCB_NodeID *nid)
     nid->val[i] = EEPROM.read(0x0FFA+i);
   if((nid->val[0] == 0xFF) &&  (nid->val[1] == 0xFF) && (nid->val[2] == 0xFF) && (nid->val[3] == 0xFF) && (nid->val[4] == 0xFF) && (nid->val[5] == 0xFF) )
   {
-    //Serial.println("NO NODE ID!");
+    //DebugSerial.println("NO NODE ID!");
     while(1);
   }
 }
@@ -72,7 +73,7 @@ void loadNodeID(OLCB_NodeID *nid)
 
 void setup()
 {
-  Serial.begin(115200); Serial.println("Io 16C 16P dev kit");
+  DebugSerial.begin(115200); DebugSerial.println("Io 16C 16P dev kit");
   //first, set up inputs and outputs, setting pull-up resistors on inputs
   for(int i = 0; i < 8; ++i) //outputs
   {

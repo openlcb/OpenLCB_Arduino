@@ -52,12 +52,12 @@ void MyEventHandler::initialize(OLCB_Event *events, uint8_t num)
   //first, check first two bytes:
   if( (EEPROM.read(0) != 'I') || (EEPROM.read(1) != 'o') ) //not formatted!
   {
-    //Serial.println("EEPROM not formatted!");
+    //DebugSerial.println("EEPROM not formatted!");
     factoryReset();
   }
   else
   {
-    //Serial.println("EEPROM already formatted");
+    //DebugSerial.println("EEPROM already formatted");
   }
   //now, read it back out into SRAM
   load(); //TODO add check for valid EEPROM.
@@ -142,15 +142,15 @@ void MyEventHandler::update(void)
         prev_state = (_inputs & (1<<i))>>i;
         if((state != prev_state) || _first_check) //change in state!
         {	//input has changed, fire event and update flag
-          //Serial.print("input state change to ");
-          //Serial.print(state, DEC);
-          //Serial.print(" on ");
-          //Serial.println(i, DEC);
-          //Serial.println(_inputs, BIN);
+          //DebugSerial.print("input state change to ");
+          //DebugSerial.print(state, DEC);
+          //DebugSerial.print(" on ");
+          //DebugSerial.println(i, DEC);
+          //DebugSerial.println(_inputs, BIN);
           _inputs ^= (1<<i); //toggle flag
           //now determine which producer to fire.
-          //Serial.print("Producing ");
-          //Serial.println((i<<1) | !(state^0x01), HEX);
+          //DebugSerial.print("Producing ");
+          //DebugSerial.println((i<<1) | !(state^0x01), HEX);
           produce((i<<1) | !(state^0x01));
         }
       }
@@ -173,8 +173,8 @@ bool MyEventHandler::consume(uint16_t index)
   if(_inhibit)
     return true;
   /* We've received an event; let's see if we need to consume it */
-  //Serial.print("consume() ");
-  //Serial.println(index,DEC);
+  //DebugSerial.print("consume() ");
+  //DebugSerial.println(index,DEC);
   //Outputs are pins 0..7
   //odd events are off, even events are on
   if (index < 16) return false; // 0..7 are producers
@@ -192,20 +192,20 @@ uint8_t MyEventHandler::readConfig(uint16_t address, uint8_t length, uint8_t *da
 {
   //This method gets called by configuration handlers. Basically, we are being asked for an EventID. We'll simply read from memory.
   //decode the address into a producer/consumer by dividing by 8
-  //Serial.println("readConfig");
-  //Serial.print("length: ");
-  //Serial.println(length);
+  //DebugSerial.println("readConfig");
+  //DebugSerial.print("length: ");
+  //DebugSerial.println(length);
   uint8_t index = (address>>3);
   uint16_t offset = address - (index<<3) - 4;  // TODO: event offset here?
   if( (length+address-4) > (_numEvents*8) ) //too much! Would cause overflow
     //TODO caculate a shorter length to prevent overflow
     length = (_numEvents*8) - (address);
-  //Serial.print("modified length: ");
-  //Serial.println(length);
-  //Serial.print("offset: ");
-  //Serial.println(offset);
-  //Serial.print("reading eventID from event pool index ");
-  //Serial.println(index, DEC);
+  //DebugSerial.print("modified length: ");
+  //DebugSerial.println(length);
+  //DebugSerial.print("offset: ");
+  //DebugSerial.println(offset);
+  //DebugSerial.print("reading eventID from event pool index ");
+  //DebugSerial.println(index, DEC);
   //we can't do a straight memcpy, because EventIDs are actually NINE bytes long (the flags), and we want to skip every ninth byte.
   //so, we skip an address if it is even divisible by 8?
   uint8_t i, j, k;
@@ -219,11 +219,11 @@ uint8_t MyEventHandler::readConfig(uint16_t address, uint8_t length, uint8_t *da
       ++k;
     }
     *(data+i) = _events[k].val[j];
-    //Serial.println(_events[k].val[j], HEX);
+    //DebugSerial.println(_events[k].val[j], HEX);
   }
-  //Serial.println("===");
+  //DebugSerial.println("===");
   //for(i = 0; i < length; ++i)
-    //Serial.println(*(data+i), HEX);
+    //DebugSerial.println(*(data+i), HEX);
   return length;
 }
 
@@ -237,13 +237,13 @@ void MyEventHandler::writeConfig(uint16_t address, uint8_t length, uint8_t *data
   if( (length+address - 4) > (_numEvents*8) ) //too much! Would cause overflow
     //TODO caculate a shorter length to prevent overflow
     length = (_numEvents*8) - (address);
-  //Serial.println("writeConfig");
-  //Serial.print("length: ");
-  //Serial.println(length);
-  //Serial.print("offset: ");
-  //Serial.println(offset);
-  //Serial.print("writing eventID from event pool index ");
-  //Serial.println(index, DEC);
+  //DebugSerial.println("writeConfig");
+  //DebugSerial.print("length: ");
+  //DebugSerial.println(length);
+  //DebugSerial.print("offset: ");
+  //DebugSerial.println(offset);
+  //DebugSerial.print("writing eventID from event pool index ");
+  //DebugSerial.println(index, DEC);
   //we can't do a straight memcpy, because EventIDs are actually NINE bytes long (the flags), and we want to skip every ninth byte.
   //so, we skip an address if it is even divisible by 8?
   uint8_t i, j, k;
@@ -257,11 +257,11 @@ void MyEventHandler::writeConfig(uint16_t address, uint8_t length, uint8_t *data
       ++k;
     }
     _events[k].val[j] = *(data+i);
-    //Serial.println(_events[k].val[j], HEX);
+    //DebugSerial.println(_events[k].val[j], HEX);
   }
-  //Serial.println("===");
+  //DebugSerial.println("===");
   //for(i = 0; i < length; ++i)
-  //Serial.println(*(data+i), HEX);
+  //DebugSerial.println(*(data+i), HEX);
   _dirty = 1;
 }
 
